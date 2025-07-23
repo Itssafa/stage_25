@@ -41,6 +41,7 @@ public class UserController {
             return createErrorResponse("Utilisateur non trouvé.", HttpStatus.NOT_FOUND);
         }
 
+
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
         response.put("message", "Profil utilisateur récupéré avec succès.");

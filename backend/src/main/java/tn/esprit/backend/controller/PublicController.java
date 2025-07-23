@@ -27,6 +27,7 @@ import java.util.Map;
 @RequestMapping("/api/public")
 @RequiredArgsConstructor
 @Slf4j
+@CrossOrigin(origins = "*") // Ajout explicite du CORS
 public class PublicController {
 
     private final UserService userService;
@@ -34,12 +35,25 @@ public class PublicController {
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
 
+    @GetMapping("/test")
+    public ResponseEntity<?> test() {
+        log.info("Test endpoint appelé");
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "Backend fonctionne correctement !");
+        response.put("timestamp", System.currentTimeMillis());
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/register")
     @PublicEndpoint
     public ResponseEntity<?> register(@Valid @RequestBody UserRegistrationDTO registrationDTO) {
         try {
+            log.info("Tentative d'inscription pour l'utilisateur: {}", registrationDTO.getUsername());
+
             // Vérifier si le username existe déjà
             if (userService.findByUsername(registrationDTO.getUsername()) != null) {
+                log.warn("Username déjà utilisé: {}", registrationDTO.getUsername());
                 return createErrorResponse("Username is already in use", HttpStatus.BAD_REQUEST);
             }
 
@@ -49,13 +63,13 @@ public class PublicController {
             newUser.setPrenom(registrationDTO.getPrenom());
             newUser.setAdresseMail(registrationDTO.getAdresseMail());
             newUser.setMotDePasse(passwordEncoder.encode(registrationDTO.getMotDePasse()));
-            newUser.setRole(Role.DEFAULT); // Rôle par défaut, maintenant activé par défaut
+            newUser.setRole(Role.DEFAULT);
 
             User savedUser = userService.save(newUser);
+            log.info("Utilisateur créé avec succès: {}", savedUser.getUsername());
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
-            // Message modifié: plus besoin d'activation par l'admin
             response.put("message", "Compte créé avec succès. Vous pouvez maintenant vous connecter.");
             response.put("user", convertToResponseDTO(savedUser));
             response.put("timestamp", System.currentTimeMillis());
@@ -63,7 +77,7 @@ public class PublicController {
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            log.error("Erreur lors de la création du compte: {}", e.getMessage());
+            log.error("Erreur lors de la création du compte: {}", e.getMessage(), e);
             return createErrorResponse("Erreur interne du serveur", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -72,23 +86,22 @@ public class PublicController {
     @PublicEndpoint
     public ResponseEntity<?> login(@Valid @RequestBody LoginDTO loginDTO) {
         try {
-            // Note: Le contrôle de l'existence de l'utilisateur est implicitement géré par authenticationManager.authenticate()
-            // et loadUserByUsername dans UserService.
+            log.info("Tentative de connexion pour l'utilisateur: {}", loginDTO.getUsername());
 
             // Authentifier
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginDTO.getUsername(), loginDTO.getMotDePasse())
             );
 
-            // Si l'authentification est réussie, un token est généré
-            // La logique 'canLogin' est gérée par la suppression de la restriction dans Role.java et PermissionAspect.
             if (authentication.isAuthenticated()) {
+                log.info("Authentification réussie pour: {}", loginDTO.getUsername());
+
                 Map<String, Object> response = new HashMap<>();
                 response.put("success", true);
                 response.put("message", "Connexion réussie");
                 response.put("token", jwtUtils.generateToken(loginDTO.getUsername()));
                 response.put("type", "Bearer");
-                // Récupérer l'utilisateur pour le DTO de réponse après l'authentification réussie
+
                 User user = userService.findByUsername(loginDTO.getUsername());
                 response.put("user", convertToResponseDTO(user));
                 response.put("timestamp", System.currentTimeMillis());
@@ -96,13 +109,15 @@ public class PublicController {
                 return ResponseEntity.ok(response);
             }
 
-            // Cette partie ne devrait normalement pas être atteinte si authenticate() lance une exception en cas d'échec.
-            // Elle est là pour une robustesse si Spring Security évolue ou est configuré différemment.
+            log.warn("Échec de l'authentification pour: {}", loginDTO.getUsername());
             return createErrorResponse("Nom d'utilisateur ou mot de passe incorrect", HttpStatus.UNAUTHORIZED);
 
         } catch (AuthenticationException e) {
-            log.error("Échec de l'authentification: {}", e.getMessage());
+            log.error("Échec de l'authentification pour {}: {}", loginDTO.getUsername(), e.getMessage());
             return createErrorResponse("Nom d'utilisateur ou mot de passe incorrect", HttpStatus.UNAUTHORIZED);
+        } catch (Exception e) {
+            log.error("Erreur lors de la connexion: {}", e.getMessage(), e);
+            return createErrorResponse("Erreur interne du serveur", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

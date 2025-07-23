@@ -1,0 +1,41 @@
+<nav class="ios-nav">
+  <div class="nav-content">
+    <div class="logo" routerLink="/dashboard">
+      ProdLine
+    </div>
+    
+    <div class="nav-links" *ngIf="currentUser">
+      <a routerLink="/dashboard" routerLinkActive="active">Accueil</a>
+      
+      <a *ngIf="isParametreur()" routerLink="/parametreur" routerLinkActive="active">
+        Paramètreur
+      </a>
+      
+      <a *ngIf="isAdmin()" routerLink="/admin" routerLinkActive="active">
+        Administration
+      </a>
+      
+      <div class="user-menu">
+        <button class="user-button" (click)="toggleMenu()">
+          <span class="user-avatar">👤</span>
+          <span>{{currentUser.prenom}}</span>
+          <span>{{isMenuOpen ? '▲' : '▼'}}</span>
+        </button>
+        
+        <div class="dropdown-menu" [class.open]="isMenuOpen">
+          <a (click)="navigateToProfile()">
+            👤 Mon Profil
+          </a>
+          <a (click)="logout()">
+            🚪 Déconnexion
+          </a>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Mobile menu button -->
+    <button class="mobile-menu-btn" *ngIf="currentUser" (click)="toggleMenu()">
+      ☰
+    </button>
+  </div>
+</nav>

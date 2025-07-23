@@ -1,0 +1,77 @@
+<!-- app/components/auth/login/login.component.html -->
+
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h1>🔐 Connexion</h1>
+      <p>Connectez-vous à votre compte ProdLine</p>
+    </div>
+    
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="form-group">
+        <label for="username">Nom d'utilisateur</label>
+        <input
+          type="text"
+          id="username"
+          formControlName="username"
+          class="form-input"
+          placeholder="Entrez votre nom d'utilisateur"
+        >
+        <div class="error-message" *ngIf="loginForm.get('username')?.touched && loginForm.get('username')?.errors?.['required']">
+          Le nom d'utilisateur est requis
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Mot de passe</label>
+        <div class="password-field">
+          <input
+            [type]="hidePassword ? 'password' : 'text'"
+            id="password"
+            formControlName="motDePasse"
+            class="form-input"
+            placeholder="Entrez votre mot de passe"
+          >
+          <button
+            type="button"
+            class="password-toggle"
+            (click)="hidePassword = !hidePassword"
+          >
+            {{hidePassword ? '👁️' : '🙈'}}
+          </button>
+        </div>
+        <div class="error-message" *ngIf="loginForm.get('motDePasse')?.touched && loginForm.get('motDePasse')?.errors?.['required']">
+          Le mot de passe est requis
+        </div>
+      </div>
+      
+      <div class="alert error" *ngIf="errorMessage">
+        ❌ {{errorMessage}}
+      </div>
+      
+      <button
+        type="submit"
+        class="btn-primary"
+        [disabled]="loading || loginForm.invalid"
+      >
+        <span *ngIf="!loading">🚀 Se connecter</span>
+        <span *ngIf="loading">⏳ Connexion...</span>
+      </button>
+      
+      <!-- Bouton temporaire pour tester -->
+      <button 
+        type="button" 
+        (click)="testNavigation()" 
+        style="margin: 10px; padding: 10px; background: orange; color: white; border: none; border-radius: 5px;">
+        Test Navigation vers Profile
+      </button>
+    </form>
+    
+    <div class="auth-footer">
+      <p>Pas encore de compte ?</p>
+      <button type="button" class="btn-secondary" (click)="navigateToRegister()">
+        📝 Créer un compte
+      </button>
+    </div>
+  </div>
+</div>

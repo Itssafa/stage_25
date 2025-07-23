@@ -208,33 +208,33 @@ public class AdminController {
         }
     }
 
-    @DeleteMapping("/users/{userId}")
-    @RequireRole(Role.ADMIN)
-    @RequireLoginCapability
-    public ResponseEntity<?> deleteUser(@PathVariable Long userId) {
-        try {
-            User user = userService.findById(userId);
-            if (user == null) {
-                return createErrorResponse("Utilisateur non trouvé", HttpStatus.NOT_FOUND);
-            }
-
-            String username = user.getUsername();
-            userService.deleteById(userId);
-
-            log.info("ADMIN a supprimé l'utilisateur {}", username);
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", String.format("Utilisateur %s supprimé avec succès", username));
-            response.put("timestamp", System.currentTimeMillis());
-
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            log.error("Erreur lors de la suppression de l'utilisateur: {}", e.getMessage());
-            return createErrorResponse("Erreur interne du serveur", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+//    @DeleteMapping("/users/{userId}")
+//    @RequireRole(Role.ADMIN)
+//    @RequireLoginCapability
+//    public ResponseEntity<?> deleteUser(@PathVariable Long userId) {
+//        try {
+//            User user = userService.findById(userId);
+//            if (user == null) {
+//                return createErrorResponse("Utilisateur non trouvé", HttpStatus.NOT_FOUND);
+//            }
+//
+//            String username = user.getUsername();
+//            userService.deleteById(userId);
+//
+//            log.info("ADMIN a supprimé l'utilisateur {}", username);
+//
+//            Map<String, Object> response = new HashMap<>();
+//            response.put("success", true);
+//            response.put("message", String.format("Utilisateur %s supprimé avec succès", username));
+//            response.put("timestamp", System.currentTimeMillis());
+//
+//            return ResponseEntity.ok(response);
+//
+//        } catch (Exception e) {
+//            log.error("Erreur lors de la suppression de l'utilisateur: {}", e.getMessage());
+//            return createErrorResponse("Erreur interne du serveur", HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 
     @PostMapping("/users/{userId}/activate")
     @RequireRole(Role.ADMIN)

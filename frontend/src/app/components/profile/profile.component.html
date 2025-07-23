@@ -1,0 +1,97 @@
+<!-- app/components/profile/profile.component.html -->
+
+<div class="profile-container">
+  <div class="profile-card">
+    <div class="profile-header">
+      <h1>👤 Mon Profil</h1>
+      <p>Gérez les informations de votre compte</p>
+    </div>
+    
+    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-form">
+      <div class="form-group">
+        <label for="username">Nom d'utilisateur</label>
+        <input
+          type="text"
+          id="username"
+          formControlName="username"
+          class="form-input"
+          readonly
+        >
+        <small class="form-help">Le nom d'utilisateur ne peut pas être modifié.</small>
+      </div>
+      
+      <div class="form-group">
+        <label for="prenom">Prénom *</label>
+        <input
+          type="text"
+          id="prenom"
+          formControlName="prenom"
+          class="form-input"
+          placeholder="Votre prénom"
+        >
+        <div class="error-message" *ngIf="profileForm.get('prenom')?.touched && profileForm.get('prenom')?.errors?.['required']">
+          Le prénom est requis
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="email">Adresse email *</label>
+        <input
+          type="email"
+          id="email"
+          formControlName="adresseMail"
+          class="form-input"
+          placeholder="votre@email.com"
+        >
+        <div class="error-message" *ngIf="profileForm.get('adresseMail')?.touched && profileForm.get('adresseMail')?.errors">
+          <span *ngIf="profileForm.get('adresseMail')?.errors?.['required']">L'email est requis</span>
+          <span *ngIf="profileForm.get('adresseMail')?.errors?.['email']">Format email invalide</span>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Nouveau mot de passe (laisser vide pour ne pas changer)</label>
+        <div class="password-field">
+          <input
+            [type]="hidePassword ? 'password' : 'text'"
+            id="password"
+            formControlName="motDePasse"
+            class="form-input"
+            placeholder="Entrez un nouveau mot de passe si vous souhaitez le changer"
+          >
+          <button
+            type="button"
+            class="password-toggle"
+            (click)="hidePassword = !hidePassword"
+          >
+            {{hidePassword ? '👁️' : '🙈'}}
+          </button>
+        </div>
+        <div class="password-help">
+          💡 Minimum 8 caractères, au moins une minuscule, une majuscule et un caractère spécial.
+        </div>
+        <div class="error-message" *ngIf="profileForm.get('motDePasse')?.touched && profileForm.get('motDePasse')?.errors">
+          <span *ngIf="profileForm.get('motDePasse')?.errors?.['minlength']">Minimum 8 caractères</span>
+          <span *ngIf="profileForm.get('motDePasse')?.errors?.['pattern']">Doit contenir au moins une minuscule, une majuscule et un caractère spécial</span>
+        </div>
+      </div>
+      
+      <div class="alert error" *ngIf="errorMessage">
+        ❌ {{errorMessage}}
+      </div>
+      
+      <div class="alert success" *ngIf="successMessage">
+        ✅ {{successMessage}}
+      </div>
+      
+      <button
+        type="submit"
+        class="btn-primary"
+        [disabled]="loading || profileForm.invalid"
+      >
+        <span *ngIf="!loading">💾 Mettre à jour le profil</span>
+        <span *ngIf="loading">⏳ Mise à jour...</span>
+      </button>
+    </form>
+  </div>
+</div>
