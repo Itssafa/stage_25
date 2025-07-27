@@ -1,4 +1,4 @@
-<!-- app/components/auth/register/register.component.html -->
+
 
 <div class="auth-container">
   <div class="auth-card">
@@ -93,7 +93,7 @@
         class="btn-primary"
         [disabled]="loading || registerForm.invalid"
       >
-        <span *ngIf="!loading">🎉 Créer mon compte</span>
+        <span *ngIf="!loading"> Créer mon compte</span>
         <span *ngIf="loading">⏳ Création...</span>
       </button>
     </form>
@@ -101,7 +101,7 @@
     <div class="auth-footer">
       <p>Déjà un compte ?</p>
       <button type="button" class="btn-secondary" (click)="navigateToLogin()">
-        🔑 Se connecter
+         Se connecter
       </button>
     </div>
   </div>

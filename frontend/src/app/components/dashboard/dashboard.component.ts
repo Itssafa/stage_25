@@ -54,10 +54,8 @@ export class DashboardComponent implements OnInit {
     switch (role) {
       case Role.ADMIN:
         return [
-          'Gestion complète des utilisateurs',
-          'Administration système',
-          'Gestion des rôles et permissions',
-          'Accès aux statistiques avancées'
+          'user1',
+          'user2'
         ];
       case Role.PARAMETREUR:
         return [
@@ -68,9 +66,8 @@ export class DashboardComponent implements OnInit {
         ];
       case Role.DEFAULT:
         return [
-          'Consultation du profil personnel',
-          'Modification des informations de base',
-          'Accès aux fonctionnalités publiques'
+        
+          'Modifier votre compte',
         ];
       default:
         return ['Accès limité'];

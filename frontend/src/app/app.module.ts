@@ -3,7 +3,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { ReactiveFormsModule } from '@angular/forms'; // <--- IMPORTANT: Make sure this is imported
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http'; // <--- IMPORTANT: Make sure this is imported
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http'; 
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -12,13 +12,18 @@ import { AppComponent } from './app.component';
 import { LoginComponent } from './components/auth/login/login.component';
 import { RegisterComponent } from './components/auth/register/register.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
-import { ProfileComponent } from './components/profile/profile.component'; // <--- IMPORTANT: Make sure this is imported
+import { ProfileComponent } from './components/profile/profile.component'; 
 import { NavigationComponent } from './components/shared/navigation/navigation.component'; // Assuming you have this
 
 // Import your services, guards, interceptors
 import { AuthService } from './services/auth.service';
 import { AuthGuard } from './guards/auth.guard';
 import { JwtInterceptor } from './interceptors/jwt.interceptor';
+import { HomepageComponent } from './components/homepage/homepage.component';
+import { SidebarComponent } from './components/shared/navigation/sidebar/sidebar.component';
+
+
+
 
 @NgModule({
   declarations: [
@@ -26,15 +31,17 @@ import { JwtInterceptor } from './interceptors/jwt.interceptor';
     LoginComponent,
     RegisterComponent,
     DashboardComponent,
-    ProfileComponent, // <--- IMPORTANT: Make sure ProfileComponent is declared here
-    NavigationComponent // Declare NavigationComponent if used
-    // Add any other components you create here (e.g., AdminDashboardComponent, ParametreurDashboardComponent)
+    ProfileComponent, 
+    NavigationComponent, HomepageComponent,
+    SidebarComponent
+    
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     ReactiveFormsModule, // <--- IMPORTANT: Add ReactiveFormsModule here
-    HttpClientModule // <--- IMPORTANT: Add HttpClientModule here
+    HttpClientModule, // <--- IMPORTANT: Add HttpClientModule here
+    ReactiveFormsModule 
   ],
   providers: [
     AuthService,

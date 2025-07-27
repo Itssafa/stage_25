@@ -47,7 +47,7 @@
       
       <div class="ios-card features-card">
         <div class="card-header">
-          <h3>🚀 Fonctionnalités disponibles</h3>
+          <h3> gestion</h3>
         </div>
         <div class="card-content">
           <div class="features-list">
@@ -61,7 +61,7 @@
       
       <div class="ios-card actions-card">
         <div class="card-header">
-          <h3>⚡ Actions rapides</h3>
+          <h3> Actions rapides</h3>
         </div>
         <div class="card-content">
           <div class="actions-grid">
@@ -73,19 +73,18 @@
             <a *ngIf="currentUser.role === 'ADMIN'" 
                routerLink="/admin" 
                class="action-button secondary">
-              ⚙️
+              
               <span>Administration</span>
             </a>
             
             <a *ngIf="currentUser.role === 'PARAMETREUR' || currentUser.role === 'ADMIN'" 
                routerLink="/parametreur" 
                class="action-button secondary">
-              🔧
+              
               <span>Paramètres</span>
             </a>
             
             <button (click)="authService.logout()" class="action-button" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);">
-              🚪
               <span>Déconnexion</span>
             </button>
           </div>

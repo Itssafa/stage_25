@@ -1,9 +1,9 @@
-// app/components/profile/profile.component.ts
+
 
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
-import { User, UserSelfUpdateDTO, ApiResponse } from '../../models/user.model'; // Added ApiResponse import
+import { User, UserSelfUpdateDTO, ApiResponse } from '../../models/user.model'; 
 import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({

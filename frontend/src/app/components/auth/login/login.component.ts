@@ -44,8 +44,8 @@ export class LoginComponent {
             
             // Attendre un peu que le token soit stocké, puis naviguer
             setTimeout(() => {
-              console.log('Navigation vers /profile...');
-              this.router.navigate(['/profile']).then(success => {
+              console.log('Navigation vers /dashboard...');
+              this.router.navigate(['/dashboard']).then(success => {
                 console.log('Navigation réussie:', success);
               }).catch(error => {
                 console.error('Erreur de navigation:', error);
@@ -76,7 +76,7 @@ export class LoginComponent {
     console.log('Token:', this.authService.getToken());
     console.log('IsLoggedIn:', this.authService.isLoggedIn());
     
-    this.router.navigate(['/profile']).then(success => {
+    this.router.navigate(['/dashboard']).then(success => {
       console.log('Navigation test réussie:', success);
     }).catch(error => {
       console.error('Erreur navigation test:', error);
@@ -84,6 +84,6 @@ export class LoginComponent {
   }
 
   navigateToRegister(): void {
-    this.router.navigate(['/register']);
+    this.router.navigate(['/dashboard']);
   }
 }
