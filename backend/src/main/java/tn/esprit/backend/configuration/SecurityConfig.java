@@ -33,11 +33,20 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // ENDPOINTS PUBLICS - ORDRE IMPORTANT !
-                        .requestMatchers("/api/public/**").permitAll()
-                        .requestMatchers("/test-simple", "/hello").permitAll()
-                        .requestMatchers("/error").permitAll()
-                        // Tout le reste nécessite une authentification
+                        // Endpoints publics accessibles sans authentification
+                        .requestMatchers("/api/public/**", "/test-simple", "/hello", "/error").permitAll()
+
+                        // Endpoints autorisés aux rôles ADMIN et PARAMETREUR
+                        .requestMatchers("/api/ligneproductions/**").hasAnyAuthority("ADMIN", "PARAMETREUR")
+                        .requestMatchers("/api/postes/**").hasAnyAuthority("ADMIN", "PARAMETREUR")
+                        .requestMatchers("/api/produits/**").hasAnyAuthority("ADMIN", "PARAMETREUR")
+                        .requestMatchers("/api/operations/**").hasAnyAuthority("ADMIN", "PARAMETREUR")
+                        .requestMatchers("/api/parametres/**").hasAnyAuthority("ADMIN", "PARAMETREUR")
+                        .requestMatchers("/api/affectations/**").hasAnyAuthority("ADMIN", "PARAMETREUR")
+                        .requestMatchers("/api/ordrefabs/**").hasAnyAuthority("ADMIN", "PARAMETREUR")
+                        .requestMatchers("/api/applications/**").hasAnyAuthority("ADMIN", "PARAMETREUR")
+
+                        // Toute autre requête doit être authentifiée
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)

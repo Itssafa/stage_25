@@ -8,6 +8,8 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 import tn.esprit.backend.enums.Role;
 
+import java.util.List;
+
 @Data
 @Entity
 @Table(name = "users")
@@ -51,4 +53,9 @@ public class User {
     protected void onUpdate() {
         updatedAt = java.time.LocalDateTime.now();
     }
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Affectation> affectations;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Application> applications;
 }

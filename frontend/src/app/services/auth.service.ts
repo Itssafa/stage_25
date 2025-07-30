@@ -95,6 +95,26 @@ export class AuthService {
     return null;
   }
 
+  getAllUsers(): Observable<{ success: boolean; users: User[] }> {
+  return this.http.get<{ success: boolean; users: User[] }>(
+    `${this.apiUrl}/admin/users?page=0&size=100`
+  );
+}
+
+updateUserRole(userId: number, newRole: Role): Observable<{ success: boolean; user: User }> {
+  return this.http.put<{ success: boolean; user: User }>(
+    `${this.apiUrl}/admin/users/${userId}/role?newRole=${newRole}`, {}
+  );
+}
+
+activateUser(userId: number, role: Role): Observable<{ success: boolean; user: User }> {
+  return this.http.post<{ success: boolean; user: User }>(
+    `${this.apiUrl}/admin/users/${userId}/activate?activationRole=${role}`, {}
+  );
+}
+
+
+
   /**
    * Checks if the user is currently logged in and their token is valid.
    * @returns True if logged in, false otherwise.

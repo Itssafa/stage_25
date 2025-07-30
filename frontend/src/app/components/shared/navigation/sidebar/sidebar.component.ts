@@ -3,7 +3,6 @@ import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 import { User, Role } from 'src/app/models/user.model';
 
-
 @Component({
   selector: 'app-sidebar',
   templateUrl: './sidebar.component.html',
@@ -32,16 +31,16 @@ export class SidebarComponent implements OnInit {
   }
 
   navigateToProfile(): void {
-    if (this.currentUser?.role === Role.ADMIN) {
-      this.router.navigate(['/admin']);
-    } else if (this.currentUser?.role === Role.PARAMETREUR) {
-      this.router.navigate(['/parametreur/profile']);
-    } else {
-      this.router.navigate(['/profile']);
-    }
+    this.router.navigate(['/profile']);
   }
 
   logout(): void {
     this.authService.logout();
+  }
+
+  navigateToUserManagement(): void {
+    if (this.isAdmin()) {
+      this.router.navigate(['/dashboard/users']);
+    }
   }
 }
