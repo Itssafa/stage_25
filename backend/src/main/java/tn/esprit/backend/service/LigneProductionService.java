@@ -28,7 +28,8 @@ public class LigneProductionService {
     public LigneProduction update(Long id, LigneProduction updated) {
         LigneProduction existing = repository.findById(id).orElse(null);
         if (existing == null) return null;
-        // TODO: mettre à jour les champs manuellement ici
+        
+        existing.setNom(updated.getNom());
         return repository.save(existing);
     }
 

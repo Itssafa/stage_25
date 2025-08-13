@@ -1,0 +1,127 @@
+<div class="affectation-container">
+  <h2>Gestion des Affectations</h2>
+  
+  <div class="form-section">
+    <h3>{{ isEditing ? 'Modifier' : 'Ajouter' }} une affectation</h3>
+    <form [formGroup]="affectationForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="dateDebut">Date de début:</label>
+        <input 
+          type="date" 
+          id="dateDebut" 
+          formControlName="dateDebut" 
+          class="form-control">
+        <div *ngIf="affectationForm.get('dateDebut')?.invalid && affectationForm.get('dateDebut')?.touched" class="error">
+          La date de début est requise
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="dateFin">Date de fin:</label>
+        <input 
+          type="date" 
+          id="dateFin" 
+          formControlName="dateFin" 
+          class="form-control">
+        <div *ngIf="affectationForm.get('dateFin')?.invalid && affectationForm.get('dateFin')?.touched" class="error">
+          La date de fin est requise
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="posteId">Poste:</label>
+        <select 
+          id="posteId" 
+          formControlName="posteId" 
+          class="form-control">
+          <option value="">Sélectionnez un poste</option>
+          <option *ngFor="let poste of postes" [value]="poste.idPoste">
+            {{ poste.nom }}
+          </option>
+        </select>
+        <div *ngIf="affectationForm.get('posteId')?.invalid && affectationForm.get('posteId')?.touched" class="error">
+          Veuillez sélectionner un poste
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="operationId">Opération:</label>
+        <select 
+          id="operationId" 
+          formControlName="operationId" 
+          class="form-control">
+          <option value="">Sélectionnez une opération</option>
+          <option *ngFor="let operation of operations" [value]="operation.idOp">
+            {{ operation.libelle }} ({{ operation.temps }}min)
+          </option>
+        </select>
+        <div *ngIf="affectationForm.get('operationId')?.invalid && affectationForm.get('operationId')?.touched" class="error">
+          Veuillez sélectionner une opération
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="ordreId">Ordre de fabrication:</label>
+        <select 
+          id="ordreId" 
+          formControlName="ordreId" 
+          class="form-control">
+          <option value="">Sélectionnez un ordre</option>
+          <option *ngFor="let ordre of ordres" [value]="ordre.idOrdre">
+            Ordre #{{ ordre.idOrdre }} - {{ ordre.produit?.nom }} (Qté: {{ ordre.quantite }})
+          </option>
+        </select>
+        <div *ngIf="affectationForm.get('ordreId')?.invalid && affectationForm.get('ordreId')?.touched" class="error">
+          Veuillez sélectionner un ordre de fabrication
+        </div>
+      </div>
+      
+      <div class="form-actions">
+        <button type="submit" [disabled]="affectationForm.invalid" class="btn btn-primary">
+          {{ isEditing ? 'Mettre à jour' : 'Ajouter' }}
+        </button>
+        <button type="button" (click)="resetForm()" class="btn btn-secondary">
+          Annuler
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="list-section">
+    <h3>Liste des affectations</h3>
+    <div *ngIf="loading" class="loading">Chargement...</div>
+    <div *ngIf="error" class="error">{{ error }}</div>
+    
+    <table *ngIf="affectations.length > 0" class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Date début</th>
+          <th>Date fin</th>
+          <th>Poste</th>
+          <th>Opération</th>
+          <th>Ordre</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let affectation of affectations">
+          <td>{{ affectation.idAffectation }}</td>
+          <td>{{ affectation.dateDebut | date:'dd/MM/yyyy' }}</td>
+          <td>{{ affectation.dateFin | date:'dd/MM/yyyy' }}</td>
+          <td>{{ affectation.poste?.nom || 'N/A' }}</td>
+          <td>{{ affectation.operation?.libelle || 'N/A' }}</td>
+          <td>Ordre #{{ affectation.ordre?.idOrdre || 'N/A' }}</td>
+          <td>
+            <button (click)="editAffectation(affectation)" class="btn btn-edit">Modifier</button>
+            <button (click)="deleteAffectation(affectation.idAffectation!)" class="btn btn-delete">Supprimer</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <div *ngIf="affectations.length === 0 && !loading" class="no-data">
+      Aucune affectation trouvée
+    </div>
+  </div>
+</div>

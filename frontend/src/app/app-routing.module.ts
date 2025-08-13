@@ -7,6 +7,14 @@ import { RegisterComponent } from './components/auth/register/register.component
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { HomepageComponent } from './components/homepage/homepage.component';
+import { LigneProductionComponent } from './components/ligne-production/ligne-production.component';
+import { PosteComponent } from './components/poste/poste.component';
+import { ProduitComponent } from './components/produit/produit.component';
+import { ApplicationComponent } from './components/application/application.component';
+import { OperationComponent } from './components/operation/operation.component';
+import { OrdreFabComponent } from './components/ordre-fab/ordre-fab.component';
+import { AffectationComponent } from './components/affectation/affectation.component';
+import { ParametreComponent } from './components/parametre/parametre.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/homepage', pathMatch: 'full' },          
@@ -22,15 +30,26 @@ const routes: Routes = [
     ]
   },
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
-  { path: '**', redirectTo: '/homepage' }      ,
+  
+  // Routes pour les entités de production
+  { path: 'lignes', component: LigneProductionComponent, canActivate: [AuthGuard] },
+  { path: 'postes', component: PosteComponent, canActivate: [AuthGuard] },
+  { path: 'produits', component: ProduitComponent, canActivate: [AuthGuard] },
+  { path: 'applications', component: ApplicationComponent, canActivate: [AuthGuard] },
+  { path: 'operations', component: OperationComponent, canActivate: [AuthGuard] },
+  { path: 'ordres', component: OrdreFabComponent, canActivate: [AuthGuard] },
+  { path: 'affectations', component: AffectationComponent, canActivate: [AuthGuard] },
+  { path: 'parametres', component: ParametreComponent, canActivate: [AuthGuard] },
   
   { 
-  path: 'admin', 
-  canActivate: [AuthGuard],
-  children: [
-    { path: 'users', component: DashboardComponent }
-  ]
-}
+    path: 'admin', 
+    canActivate: [AuthGuard],
+    children: [
+      { path: 'users', component: DashboardComponent }
+    ]
+  },
+  
+  { path: '**', redirectTo: '/homepage' }
 ];
 
 @NgModule({

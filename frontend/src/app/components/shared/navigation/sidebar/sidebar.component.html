@@ -23,9 +23,39 @@
       <li *ngIf="isParametreur()">
         <a routerLink="/ordres" routerLinkActive="active">📋 Ordres de fabrication</a>
       </li>
+      <li *ngIf="isParametreur()">
+        <a routerLink="/affectations" routerLinkActive="active">🔗 Affectations</a>
+      </li>
+      <li *ngIf="isParametreur()">
+        <a routerLink="/parametres" routerLinkActive="active">⚙️ Paramètres</a>
+      </li>
 
       <li *ngIf="isAdmin()">
         <a routerLink="/admin/users" routerLinkActive="active">👤 Gérer les utilisateurs</a>
+      </li>
+      <li *ngIf="isAdmin()">
+        <a routerLink="/lignes" routerLinkActive="active">🛠️ Lignes de production</a>
+      </li>
+      <li *ngIf="isAdmin()">
+        <a routerLink="/postes" routerLinkActive="active">⚙️ Postes</a>
+      </li>
+      <li *ngIf="isAdmin()">
+        <a routerLink="/produits" routerLinkActive="active">📦 Produits</a>
+      </li>
+      <li *ngIf="isAdmin()">
+        <a routerLink="/applications" routerLinkActive="active">💻 Applications</a>
+      </li>
+      <li *ngIf="isAdmin()">
+        <a routerLink="/operations" routerLinkActive="active">🔁 Opérations</a>
+      </li>
+      <li *ngIf="isAdmin()">
+        <a routerLink="/ordres" routerLinkActive="active">📋 Ordres de fabrication</a>
+      </li>
+      <li *ngIf="isAdmin()">
+        <a routerLink="/affectations" routerLinkActive="active">🔗 Affectations</a>
+      </li>
+      <li *ngIf="isAdmin()">
+        <a routerLink="/parametres" routerLinkActive="active">⚙️ Paramètres</a>
       </li>
 
       

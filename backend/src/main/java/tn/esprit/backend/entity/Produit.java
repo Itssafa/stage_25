@@ -1,6 +1,7 @@
 package tn.esprit.backend.entity;
 
 import jakarta.persistence.*;
+import tn.esprit.backend.enums.TypeProd;
 
 import java.util.List;
 
@@ -11,7 +12,10 @@ public class Produit {
     private Long idProduit;
 
     private String nom;
-    private String type;
+
+     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TypeProd type;
 
     @ManyToOne
     @JoinColumn(name = "ligne_id")

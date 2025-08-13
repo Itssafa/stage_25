@@ -1,0 +1,94 @@
+<div class="operation-container">
+  <h2>Gestion des Opérations</h2>
+  
+  <div class="form-section">
+    <h3>{{ isEditing ? 'Modifier' : 'Ajouter' }} une opération</h3>
+    <form [formGroup]="operationForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="libelle">Libellé de l'opération:</label>
+        <input 
+          type="text" 
+          id="libelle" 
+          formControlName="libelle" 
+          class="form-control"
+          placeholder="Entrez le libellé de l'opération">
+        <div *ngIf="operationForm.get('libelle')?.invalid && operationForm.get('libelle')?.touched" class="error">
+          Le libellé est requis (minimum 2 caractères)
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="temps">Temps (en minutes):</label>
+        <input 
+          type="number" 
+          id="temps" 
+          formControlName="temps" 
+          class="form-control"
+          placeholder="Entrez le temps en minutes"
+          min="1">
+        <div *ngIf="operationForm.get('temps')?.invalid && operationForm.get('temps')?.touched" class="error">
+          Le temps est requis et doit être supérieur à 0
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="posteId">Poste:</label>
+        <select 
+          id="posteId" 
+          formControlName="posteId" 
+          class="form-control">
+          <option value="">Sélectionnez un poste</option>
+          <option *ngFor="let poste of postes" [value]="poste.idPoste">
+            {{ poste.nom }} ({{ poste.ligne?.nom || 'N/A' }})
+          </option>
+        </select>
+        <div *ngIf="operationForm.get('posteId')?.invalid && operationForm.get('posteId')?.touched" class="error">
+          Veuillez sélectionner un poste
+        </div>
+      </div>
+      
+      <div class="form-actions">
+        <button type="submit" [disabled]="operationForm.invalid" class="btn btn-primary">
+          {{ isEditing ? 'Mettre à jour' : 'Ajouter' }}
+        </button>
+        <button type="button" (click)="resetForm()" class="btn btn-secondary">
+          Annuler
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="list-section">
+    <h3>Liste des opérations</h3>
+    <div *ngIf="loading" class="loading">Chargement...</div>
+    <div *ngIf="error" class="error">{{ error }}</div>
+    
+    <table *ngIf="operations.length > 0" class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Libellé</th>
+          <th>Temps (min)</th>
+          <th>Poste</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let operation of operations">
+          <td>{{ operation.idOp }}</td>
+          <td>{{ operation.libelle }}</td>
+          <td>{{ operation.temps }}</td>
+          <td>{{ operation.poste?.nom || 'N/A' }}</td>
+          <td>
+            <button (click)="editOperation(operation)" class="btn btn-edit">Modifier</button>
+            <button (click)="deleteOperation(operation.idOp!)" class="btn btn-delete">Supprimer</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <div *ngIf="operations.length === 0 && !loading" class="no-data">
+      Aucune opération trouvée
+    </div>
+  </div>
+</div>

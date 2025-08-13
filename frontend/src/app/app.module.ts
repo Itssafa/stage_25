@@ -21,6 +21,14 @@ import { AuthGuard } from './guards/auth.guard';
 import { JwtInterceptor } from './interceptors/jwt.interceptor';
 import { HomepageComponent } from './components/homepage/homepage.component';
 import { SidebarComponent } from './components/shared/navigation/sidebar/sidebar.component';
+import { LigneProductionComponent } from './components/ligne-production/ligne-production.component';
+import { PosteComponent } from './components/poste/poste.component';
+import { ProduitComponent } from './components/produit/produit.component';
+import { ApplicationComponent } from './components/application/application.component';
+import { OperationComponent } from './components/operation/operation.component';
+import { OrdreFabComponent } from './components/ordre-fab/ordre-fab.component';
+import { AffectationComponent } from './components/affectation/affectation.component';
+import { ParametreComponent } from './components/parametre/parametre.component';
 
 
 
@@ -33,7 +41,15 @@ import { SidebarComponent } from './components/shared/navigation/sidebar/sidebar
     DashboardComponent,
     ProfileComponent, 
     NavigationComponent, HomepageComponent,
-    SidebarComponent
+    SidebarComponent,
+    LigneProductionComponent,
+    PosteComponent,
+    ProduitComponent,
+    ApplicationComponent,
+    OperationComponent,
+    OrdreFabComponent,
+    AffectationComponent,
+    ParametreComponent
     
   ],
   imports: [

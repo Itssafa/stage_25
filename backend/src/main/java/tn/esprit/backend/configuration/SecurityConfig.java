@@ -37,14 +37,14 @@ public class SecurityConfig {
                         .requestMatchers("/api/public/**", "/test-simple", "/hello", "/error").permitAll()
 
                         // Endpoints autorisés aux rôles ADMIN et PARAMETREUR
-                        .requestMatchers("/api/ligneproductions/**").hasAnyAuthority("ADMIN", "PARAMETREUR")
-                        .requestMatchers("/api/postes/**").hasAnyAuthority("ADMIN", "PARAMETREUR")
-                        .requestMatchers("/api/produits/**").hasAnyAuthority("ADMIN", "PARAMETREUR")
-                        .requestMatchers("/api/operations/**").hasAnyAuthority("ADMIN", "PARAMETREUR")
-                        .requestMatchers("/api/parametres/**").hasAnyAuthority("ADMIN", "PARAMETREUR")
-                        .requestMatchers("/api/affectations/**").hasAnyAuthority("ADMIN", "PARAMETREUR")
-                        .requestMatchers("/api/ordrefabs/**").hasAnyAuthority("ADMIN", "PARAMETREUR")
-                        .requestMatchers("/api/applications/**").hasAnyAuthority("ADMIN", "PARAMETREUR")
+                        .requestMatchers("/api/ligneproductions/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_PARAMETREUR")
+                        .requestMatchers("/api/postes/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_PARAMETREUR")
+                        .requestMatchers("/api/produits/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_PARAMETREUR")
+                        .requestMatchers("/api/operations/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_PARAMETREUR")
+                        .requestMatchers("/api/parametres/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_PARAMETREUR")
+                        .requestMatchers("/api/affectations/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_PARAMETREUR")
+                        .requestMatchers("/api/ordrefabs/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_PARAMETREUR")
+                        .requestMatchers("/api/applications/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_PARAMETREUR")
 
                         // Toute autre requête doit être authentifiée
                         .anyRequest().authenticated()

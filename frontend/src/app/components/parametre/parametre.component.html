@@ -1,0 +1,93 @@
+<div class="parametre-container">
+  <h2>Gestion des Paramètres</h2>
+  
+  <div class="form-section">
+    <h3>{{ isEditing ? 'Modifier' : 'Ajouter' }} un paramètre</h3>
+    <form [formGroup]="parametreForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="nom">Nom du paramètre:</label>
+        <input 
+          type="text" 
+          id="nom" 
+          formControlName="nom" 
+          class="form-control"
+          placeholder="Entrez le nom du paramètre">
+        <div *ngIf="parametreForm.get('nom')?.invalid && parametreForm.get('nom')?.touched" class="error">
+          Le nom est requis (minimum 2 caractères)
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="valeur">Valeur:</label>
+        <input 
+          type="text" 
+          id="valeur" 
+          formControlName="valeur" 
+          class="form-control"
+          placeholder="Entrez la valeur du paramètre">
+        <div *ngIf="parametreForm.get('valeur')?.invalid && parametreForm.get('valeur')?.touched" class="error">
+          La valeur est requise
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="operationId">Opération:</label>
+        <select 
+          id="operationId" 
+          formControlName="operationId" 
+          class="form-control">
+          <option value="">Sélectionnez une opération</option>
+          <option *ngFor="let operation of operations" [value]="operation.idOp">
+            {{ operation.libelle }} ({{ operation.temps }}min)
+          </option>
+        </select>
+        <div *ngIf="parametreForm.get('operationId')?.invalid && parametreForm.get('operationId')?.touched" class="error">
+          Veuillez sélectionner une opération
+        </div>
+      </div>
+      
+      <div class="form-actions">
+        <button type="submit" [disabled]="parametreForm.invalid" class="btn btn-primary">
+          {{ isEditing ? 'Mettre à jour' : 'Ajouter' }}
+        </button>
+        <button type="button" (click)="resetForm()" class="btn btn-secondary">
+          Annuler
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="list-section">
+    <h3>Liste des paramètres</h3>
+    <div *ngIf="loading" class="loading">Chargement...</div>
+    <div *ngIf="error" class="error">{{ error }}</div>
+    
+    <table *ngIf="parametres.length > 0" class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nom</th>
+          <th>Valeur</th>
+          <th>Opération</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let parametre of parametres">
+          <td>{{ parametre.idParametre }}</td>
+          <td>{{ parametre.nom }}</td>
+          <td>{{ parametre.valeur }}</td>
+          <td>{{ parametre.operation?.libelle || 'N/A' }}</td>
+          <td>
+            <button (click)="editParametre(parametre)" class="btn btn-edit">Modifier</button>
+            <button (click)="deleteParametre(parametre.idParametre!)" class="btn btn-delete">Supprimer</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <div *ngIf="parametres.length === 0 && !loading" class="no-data">
+      Aucun paramètre trouvé
+    </div>
+  </div>
+</div>

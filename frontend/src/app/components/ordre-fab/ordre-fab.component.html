@@ -1,0 +1,107 @@
+<div class="ordre-fab-container">
+  <h2>Gestion des Ordres de Fabrication</h2>
+  
+  <div class="form-section">
+    <h3>{{ isEditing ? 'Modifier' : 'Ajouter' }} un ordre de fabrication</h3>
+    <form [formGroup]="ordreFabForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="quantite">Quantité:</label>
+        <input 
+          type="number" 
+          id="quantite" 
+          formControlName="quantite" 
+          class="form-control"
+          placeholder="Entrez la quantité"
+          min="1">
+        <div *ngIf="ordreFabForm.get('quantite')?.invalid && ordreFabForm.get('quantite')?.touched" class="error">
+          La quantité est requise (minimum 1)
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="dateDebut">Date de début:</label>
+        <input 
+          type="date" 
+          id="dateDebut" 
+          formControlName="dateDebut" 
+          class="form-control">
+        <div *ngIf="ordreFabForm.get('dateDebut')?.invalid && ordreFabForm.get('dateDebut')?.touched" class="error">
+          La date de début est requise
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="dateFin">Date de fin:</label>
+        <input 
+          type="date" 
+          id="dateFin" 
+          formControlName="dateFin" 
+          class="form-control">
+        <div *ngIf="ordreFabForm.get('dateFin')?.invalid && ordreFabForm.get('dateFin')?.touched" class="error">
+          La date de fin est requise
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="produitId">Produit:</label>
+        <select 
+          id="produitId" 
+          formControlName="produitId" 
+          class="form-control">
+          <option value="">Sélectionnez un produit</option>
+          <option *ngFor="let produit of produits" [value]="produit.idProduit">
+            {{ produit.nom }} ({{ produit.type }})
+          </option>
+        </select>
+        <div *ngIf="ordreFabForm.get('produitId')?.invalid && ordreFabForm.get('produitId')?.touched" class="error">
+          Veuillez sélectionner un produit
+        </div>
+      </div>
+      
+      <div class="form-actions">
+        <button type="submit" [disabled]="ordreFabForm.invalid" class="btn btn-primary">
+          {{ isEditing ? 'Mettre à jour' : 'Ajouter' }}
+        </button>
+        <button type="button" (click)="resetForm()" class="btn btn-secondary">
+          Annuler
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="list-section">
+    <h3>Liste des ordres de fabrication</h3>
+    <div *ngIf="loading" class="loading">Chargement...</div>
+    <div *ngIf="error" class="error">{{ error }}</div>
+    
+    <table *ngIf="ordresFab.length > 0" class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Quantité</th>
+          <th>Date début</th>
+          <th>Date fin</th>
+          <th>Produit</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let ordreFab of ordresFab">
+          <td>{{ ordreFab.idOrdre }}</td>
+          <td>{{ ordreFab.quantite }}</td>
+          <td>{{ ordreFab.dateDebut | date:'dd/MM/yyyy' }}</td>
+          <td>{{ ordreFab.dateFin | date:'dd/MM/yyyy' }}</td>
+          <td>{{ ordreFab.produit?.nom || 'N/A' }}</td>
+          <td>
+            <button (click)="editOrdreFab(ordreFab)" class="btn btn-edit">Modifier</button>
+            <button (click)="deleteOrdreFab(ordreFab.idOrdre!)" class="btn btn-delete">Supprimer</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <div *ngIf="ordresFab.length === 0 && !loading" class="no-data">
+      Aucun ordre de fabrication trouvé
+    </div>
+  </div>
+</div>

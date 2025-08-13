@@ -28,7 +28,7 @@ public class OrdreFabService {
     public OrdreFab update(Long id, OrdreFab updated) {
         OrdreFab existing = repository.findById(id).orElse(null);
         if (existing == null) return null;
-        // TODO: mettre à jour les champs manuellement ici
+        
         return repository.save(existing);
     }
 

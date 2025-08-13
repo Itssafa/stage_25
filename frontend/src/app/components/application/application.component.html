@@ -1,0 +1,62 @@
+<div class="application-container">
+  <h2>Gestion des Applications</h2>
+  
+  <div class="form-section">
+    <h3>{{ isEditing ? 'Modifier' : 'Ajouter' }} une application</h3>
+    <form [formGroup]="applicationForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="nom">Nom de l'application:</label>
+        <input 
+          type="text" 
+          id="nom" 
+          formControlName="nom" 
+          class="form-control"
+          placeholder="Entrez le nom de l'application">
+        <div *ngIf="applicationForm.get('nom')?.invalid && applicationForm.get('nom')?.touched" class="error">
+          Le nom est requis (minimum 2 caractères)
+        </div>
+      </div>
+      
+     
+      
+      <div class="form-actions">
+        <button type="submit" [disabled]="applicationForm.invalid" class="btn btn-primary">
+          {{ isEditing ? 'Mettre à jour' : 'Ajouter' }}
+        </button>
+        <button type="button" (click)="resetForm()" class="btn btn-secondary">
+          Annuler
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="list-section">
+    <h3>Liste des applications</h3>
+    <div *ngIf="loading" class="loading">Chargement...</div>
+    <div *ngIf="error" class="error">{{ error }}</div>
+    
+    <table *ngIf="applications.length > 0" class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nom</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let application of applications">
+          <td>{{ application.idApplication }}</td>
+          <td>{{ application.nom }}</td>
+          <td>
+            <button (click)="editApplication(application)" class="btn btn-edit">Modifier</button>
+            <button (click)="deleteApplication(application.idApplication!)" class="btn btn-delete">Supprimer</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <div *ngIf="applications.length === 0 && !loading" class="no-data">
+      Aucune application trouvée
+    </div>
+  </div>
+</div>

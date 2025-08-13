@@ -1,0 +1,78 @@
+<div class="poste-container">
+  <h2>Gestion des Postes</h2>
+  
+  <div class="form-section">
+    <h3>{{ isEditing ? 'Modifier' : 'Ajouter' }} un poste</h3>
+    <form [formGroup]="posteForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="nom">Nom du poste:</label>
+        <input 
+          type="text" 
+          id="nom" 
+          formControlName="nom" 
+          class="form-control"
+          placeholder="Entrez le nom du poste">
+        <div *ngIf="posteForm.get('nom')?.invalid && posteForm.get('nom')?.touched" class="error">
+          Le nom est requis (minimum 2 caractères)
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="ligneId">Ligne de production:</label>
+        <select 
+          id="ligneId" 
+          formControlName="ligneId" 
+          class="form-control">
+          <option value="">Sélectionnez une ligne</option>
+          <option *ngFor="let ligne of lignes" [value]="ligne.idLigne">
+            {{ ligne.nom }}
+          </option>
+        </select>
+        <div *ngIf="posteForm.get('ligneId')?.invalid && posteForm.get('ligneId')?.touched" class="error">
+          Veuillez sélectionner une ligne de production
+        </div>
+      </div>
+      
+      <div class="form-actions">
+        <button type="submit" [disabled]="posteForm.invalid" class="btn btn-primary">
+          {{ isEditing ? 'Mettre à jour' : 'Ajouter' }}
+        </button>
+        <button type="button" (click)="resetForm()" class="btn btn-secondary">
+          Annuler
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="list-section">
+    <h3>Liste des postes</h3>
+    <div *ngIf="loading" class="loading">Chargement...</div>
+    <div *ngIf="error" class="error">{{ error }}</div>
+    
+    <table *ngIf="postes.length > 0" class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nom</th>
+          <th>Ligne de production</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let poste of postes">
+          <td>{{ poste.idPoste }}</td>
+          <td>{{ poste.nom }}</td>
+          <td>{{ poste.ligne?.nom || 'N/A' }}</td>
+          <td>
+            <button (click)="editPoste(poste)" class="btn btn-edit">Modifier</button>
+            <button (click)="deletePoste(poste.idPoste!)" class="btn btn-delete">Supprimer</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <div *ngIf="postes.length === 0 && !loading" class="no-data">
+      Aucun poste trouvé
+    </div>
+  </div>
+</div>
