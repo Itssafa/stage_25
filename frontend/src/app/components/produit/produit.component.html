@@ -19,14 +19,17 @@
       
       <div class="form-group">
         <label for="type">Type du produit:</label>
-        <input 
-          type="text" 
+        <select 
           id="type" 
           formControlName="type" 
-          class="form-control"
-          placeholder="Entrez le type du produit">
+          class="form-control">
+          <option value="">Sélectionnez un type</option>
+          <option *ngFor="let type of typeOptions" [value]="type">
+            {{ type }}
+          </option>
+        </select>
         <div *ngIf="produitForm.get('type')?.invalid && produitForm.get('type')?.touched" class="error">
-          Le type est requis (minimum 2 caractères)
+          Veuillez sélectionner un type de produit
         </div>
       </div>
       

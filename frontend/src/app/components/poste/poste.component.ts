@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 interface LigneProduction {
   idLigne: number;
@@ -18,7 +20,7 @@ interface Poste {
   templateUrl: './poste.component.html',
   styleUrls: ['./poste.component.css']
 })
-export class PosteComponent implements OnInit {
+export class PosteComponent implements OnInit, OnDestroy {
   posteForm: FormGroup;
   postes: Poste[] = [];
   lignes: LigneProduction[] = [];
@@ -26,6 +28,8 @@ export class PosteComponent implements OnInit {
   error = '';
   isEditing = false;
   editingId: number | null = null;
+  
+  private destroy$ = new Subject<void>();
   
   private apiUrl = 'http://localhost:8085/api/postes';
   private ligneApiUrl = 'http://localhost:8085/api/ligneproductions';
@@ -45,6 +49,11 @@ export class PosteComponent implements OnInit {
     this.loadLignes();
   }
 
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
     return new HttpHeaders({
@@ -54,13 +63,32 @@ export class PosteComponent implements OnInit {
   }
 
   loadLignes() {
-    this.http.get<LigneProduction[]>(this.ligneApiUrl, { headers: this.getHeaders() })
+    const headers = this.getHeaders();
+    if (!headers.get('Authorization') || headers.get('Authorization') === 'Bearer null') {
+      console.error('Token manquant ou invalide');
+      return;
+    }
+    
+    this.http.get<LigneProduction[]>(this.ligneApiUrl, { headers })
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
-          this.lignes = data;
+          this.lignes = data || [];
         },
         error: (err) => {
           console.error('Erreur lors du chargement des lignes:', err);
+          console.error('Error details:', {
+            status: err.status,
+            statusText: err.statusText,
+            url: err.url,
+            message: err.message,
+            error: err.error
+          });
+          console.error('Full error object:', err);
+          if (err.error && err.error.text) {
+            console.error('Response text that failed to parse:', err.error.text.substring(0, 1000));
+          }
+          this.error = 'Erreur lors du chargement des lignes de production';
         }
       });
   }
@@ -69,16 +97,35 @@ export class PosteComponent implements OnInit {
     this.loading = true;
     this.error = '';
     
-    this.http.get<Poste[]>(this.apiUrl, { headers: this.getHeaders() })
+    const headers = this.getHeaders();
+    if (!headers.get('Authorization') || headers.get('Authorization') === 'Bearer null') {
+      this.error = 'Token manquant ou invalide';
+      this.loading = false;
+      return;
+    }
+    
+    this.http.get<Poste[]>(this.apiUrl, { headers })
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
-          this.postes = data;
+          this.postes = data || [];
           this.loading = false;
         },
         error: (err) => {
           this.error = 'Erreur lors du chargement des postes';
           this.loading = false;
           console.error('Erreur:', err);
+          console.error('Error details:', {
+            status: err.status,
+            statusText: err.statusText,
+            url: err.url,
+            message: err.message,
+            error: err.error
+          });
+          console.error('Full error object:', err);
+          if (err.error && err.error.text) {
+            console.error('Response text that failed to parse:', err.error.text.substring(0, 1000));
+          }
         }
       });
   }

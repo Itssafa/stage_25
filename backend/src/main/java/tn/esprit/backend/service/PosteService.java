@@ -28,7 +28,10 @@ public class PosteService {
     public Poste update(Long id, Poste updated) {
         Poste existing = repository.findById(id).orElse(null);
         if (existing == null) return null;
-        // TODO: mettre à jour les champs manuellement ici
+        
+        existing.setNom(updated.getNom());
+        existing.setLigne(updated.getLigne());
+        
         return repository.save(existing);
     }
 

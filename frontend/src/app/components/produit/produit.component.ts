@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 // === Enum TypeProduit ===
 export enum TypeProduit {
@@ -27,7 +29,7 @@ interface Produit {
   templateUrl: './produit.component.html',
   styleUrls: ['./produit.component.css']
 })
-export class ProduitComponent implements OnInit {
+export class ProduitComponent implements OnInit, OnDestroy {
   produitForm: FormGroup;
   produits: Produit[] = [];
   lignes: LigneProduction[] = [];
@@ -35,6 +37,8 @@ export class ProduitComponent implements OnInit {
   error = '';
   isEditing = false;
   editingId: number | null = null;
+  
+  private destroy$ = new Subject<void>();
 
   // Liste des types pour le select HTML
   typeOptions = Object.values(TypeProduit);
@@ -58,6 +62,11 @@ export class ProduitComponent implements OnInit {
     this.loadLignes();
   }
 
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
     return new HttpHeaders({
@@ -67,13 +76,21 @@ export class ProduitComponent implements OnInit {
   }
 
   loadLignes() {
-    this.http.get<LigneProduction[]>(this.ligneApiUrl, { headers: this.getHeaders() })
+    const headers = this.getHeaders();
+    if (!headers.get('Authorization') || headers.get('Authorization') === 'Bearer null') {
+      console.error('Token manquant ou invalide');
+      return;
+    }
+    
+    this.http.get<LigneProduction[]>(this.ligneApiUrl, { headers })
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
-          this.lignes = data;
+          this.lignes = data || [];
         },
         error: (err) => {
           console.error('Erreur lors du chargement des lignes:', err);
+          this.error = 'Erreur lors du chargement des lignes de production';
         }
       });
   }
@@ -82,10 +99,18 @@ export class ProduitComponent implements OnInit {
     this.loading = true;
     this.error = '';
 
-    this.http.get<Produit[]>(this.apiUrl, { headers: this.getHeaders() })
+    const headers = this.getHeaders();
+    if (!headers.get('Authorization') || headers.get('Authorization') === 'Bearer null') {
+      this.error = 'Token manquant ou invalide';
+      this.loading = false;
+      return;
+    }
+
+    this.http.get<Produit[]>(this.apiUrl, { headers })
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
-          this.produits = data;
+          this.produits = data || [];
           this.loading = false;
         },
         error: (err) => {

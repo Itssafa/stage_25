@@ -2,11 +2,13 @@ package tn.esprit.backend.controller;
 
 import tn.esprit.backend.entity.Produit;
 import tn.esprit.backend.service.ProduitService;
+import tn.esprit.backend.dto.ProduitDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/produits")
@@ -17,25 +19,28 @@ public class ProduitController {
     private ProduitService service;
 
     @GetMapping
-    public List<Produit> getAll() {
-        return service.getAll();
+    public List<ProduitDTO> getAll() {
+        return service.getAll().stream()
+                .map(ProduitDTO::fromEntity)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Produit> getById(@PathVariable Long id) {
+    public ResponseEntity<ProduitDTO> getById(@PathVariable Long id) {
         Produit obj = service.getById(id);
-        return obj != null ? ResponseEntity.ok(obj) : ResponseEntity.notFound().build();
+        return obj != null ? ResponseEntity.ok(ProduitDTO.fromEntity(obj)) : ResponseEntity.notFound().build();
     }
 
     @PostMapping
-    public Produit create(@RequestBody Produit obj) {
-        return service.create(obj);
+    public ProduitDTO create(@RequestBody Produit obj) {
+        Produit created = service.create(obj);
+        return ProduitDTO.fromEntity(created);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Produit> update(@PathVariable Long id, @RequestBody Produit obj) {
+    public ResponseEntity<ProduitDTO> update(@PathVariable Long id, @RequestBody Produit obj) {
         Produit updated = service.update(id, obj);
-        return updated != null ? ResponseEntity.ok(updated) : ResponseEntity.notFound().build();
+        return updated != null ? ResponseEntity.ok(ProduitDTO.fromEntity(updated)) : ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")

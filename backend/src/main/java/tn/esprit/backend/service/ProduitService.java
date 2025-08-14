@@ -28,7 +28,11 @@ public class ProduitService {
     public Produit update(Long id, Produit updated) {
         Produit existing = repository.findById(id).orElse(null);
         if (existing == null) return null;
-        // TODO: mettre à jour les champs manuellement ici
+        
+        existing.setNom(updated.getNom());
+        existing.setType(updated.getType());
+        existing.setLigne(updated.getLigne());
+        
         return repository.save(existing);
     }
 

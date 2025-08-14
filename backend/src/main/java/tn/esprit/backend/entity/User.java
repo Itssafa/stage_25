@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import tn.esprit.backend.enums.Role;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.List;
 
@@ -54,8 +55,10 @@ public class User {
         updatedAt = java.time.LocalDateTime.now();
     }
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties({"user", "ordre", "operation", "poste"})
     private List<Affectation> affectations;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties({"user"})
     private List<Application> applications;
 }

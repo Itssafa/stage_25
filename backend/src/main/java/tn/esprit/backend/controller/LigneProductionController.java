@@ -2,6 +2,7 @@ package tn.esprit.backend.controller;
 
 import tn.esprit.backend.entity.LigneProduction;
 import tn.esprit.backend.service.LigneProductionService;
+import tn.esprit.backend.dto.LigneProductionSimpleDTO;
 import tn.esprit.backend.annotation.RequireRole;
 import tn.esprit.backend.annotation.RequireLoginCapability;
 import tn.esprit.backend.enums.Role;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/ligneproductions")
@@ -20,10 +22,10 @@ public class LigneProductionController {
     private LigneProductionService service;
 
     @GetMapping
-    @RequireRole({Role.ADMIN, Role.PARAMETREUR})
-    @RequireLoginCapability
-    public List<LigneProduction> getAll() {
-        return service.getAll();
+    public List<LigneProductionSimpleDTO> getAll() {
+        return service.getAll().stream()
+                .map(ligne -> new LigneProductionSimpleDTO(ligne.getIdLigne(), ligne.getNom()))
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")

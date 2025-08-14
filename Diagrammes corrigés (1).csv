@@ -1,0 +1,109 @@
+Id,Nom,Bibliothèque de formes,ID de page,Contenu par,Groupe,Source de la ligne,Destination de la ligne,Source de la flèche,Destination de la flèche,Statut,Zone de texte 1,Zone de texte 2,Zone de texte 3,Commentaires
+1,Document,,,,,,,,,Brouillon,Diagrammes corrigés,,,
+2,Page,,,,,,,,,,Page 1,,,
+3,Bloc,Standard,2,,72,,,,,,Diagramme de classe ,,,
+4,Bloc,Standard,2,,72,,,,,,"Safa Ben Mustapha  |  August 13, 2025",,,
+5,Classe,UML,2,,,,,,,,Produit ,"​+ nom : String
++ code : String
++ type : TYPEPROD
++ ordreFab : String 
+",,
+6,Classe,UML,2,,,,,,,,Poste,"​+ idPoste : int
++ etat : ETATPOSTE",,
+7,Classe,UML,2,,,,,,,,Utilisateur,"​+ matricule : String
++ nom : String
++ prénom : String
++ adresseMail : String
++ motDePasse : STRING
++ Role : ROLE",,
+8,Classe,UML,2,,,,,,,,LigneProduction,"​+ id : int
++ nom : String",,
+9,Classe,UML,2,,,,,,,,Application ,"​+ idApp : int 
++ description : String ",,
+10,Classe,UML,2,,,,,,,,Operation,"​+ idOperation : int 
++ description : String
++ Parametre : String ",,
+11,Classe,UML,2,,,,,,,,"«enumeration»
+STATUTORDFAB","ENATTENTE
+ENCOURS
+TERMINÉE
+ANNULÉ",,
+12,Classe,UML,2,,,,,,,,"«enumeration»
+TYPEPROD","PSFINI
+PFINI
+C.E
+COMPOSANT",,
+13,Classe,UML,2,,,,,,,,"«enumeration»
+ROLE","ADMINISTRATEUR
+PARAMETREUR
+DEFAULT",,
+14,Classe,UML,2,,,,,,,,"«enumeration»
+ETATPOSTE","DISPONIBLE
+OCCUPÉE
+ENMAINTENACE",,
+15,Acteur,UML,2,,,,,,,,Administrateur,,,
+16,Acteur,UML,2,,,,,,,,Parametreur,,,
+17,Acteur,UML,2,,,,,,,,utilisateur simple ,,,
+18,Conteneur rectangulaire,UML,2,,,,,,,,Système,,,
+19,Cas d'utilisation,UML,2,18,,,,,,,consulte la page d'acceuil,,,
+20,Bloc,Standard,2,,73,,,,,,Diagramme de cas dutilisation ,,,
+21,Bloc,Standard,2,,73,,,,,,"Safa Ben Mustapha  |  August 13, 2025",,,
+22,Cas d'utilisation,UML,2,18,,,,,,,crée un compte,,,
+23,Cas d'utilisation,UML,2,18,,,,,,,s'authentifier,,,
+24,Classe,UML,2,,,,,,,,ordreFab ,"​+ statut : STATUTORDFAB
++code : String
++ id : int
++dateDeb : Date
++dateFIN : Date
+",,
+25,Cas d'utilisation,UML,2,18,,,,,,,gère les produits,,,
+26,Cas d'utilisation,UML,2,18,,,,,,,gère les postes,,,
+27,Cas d'utilisation,UML,2,18,,,,,,,gère la ligne de production ,,,
+28,Cas d'utilisation,UML,2,18,,,,,,,gère les paramètres,,,
+29,Cas d'utilisation,UML,2,18,,,,,,,gère les applications,,,
+30,Cas d'utilisation,UML,2,18,,,,,,,gère les opérations,,,
+31,Cas d'utilisation,UML,2,18,,,,,,,gère les utilisateurs ,,,
+32,Classe,UML,2,,,,,,,,Affectation ,"​+ statAffect : boolean
++ idApp : int
++ idPoste : int ",,
+33,Classe,UML,2,,,,,,,,parametre,​+ description : String ,,
+34,Texte,Standard,2,18,,,,,,,<<include>>,,,
+35,Ligne,,2,,72,,3,None,None,,,,,
+36,Ligne,,2,,,8,6,None,Arrow,,1.,0..*,,
+37,Ligne,,2,,,6,9,None,Arrow,,1..*,1..*,,
+38,Ligne,,2,,,9,10,None,Arrow,,1,1,,
+39,Ligne,,2,,,12,5,None,None,,,,,
+40,Ligne,,2,,,7,13,None,None,,,,,
+41,Ligne,,2,,,6,14,None,None,,,,,
+42,Ligne,,2,,,7,5,None,None,,1..*,0..*,,
+43,Ligne,,2,,,17,19,None,None,,,,,
+44,Ligne,,2,,,16,26,None,None,,,,,
+45,Ligne,,2,,,16,28,None,None,,,,,
+46,Ligne,,2,,,16,29,None,None,,,,,
+47,Ligne,,2,,73,20,20,None,None,,,,,
+48,Ligne,,2,,,17,22,None,None,,,,,
+49,Ligne,,2,,,16,27,None,None,,,,,
+50,Ligne,,2,,,16,30,None,None,,,,,
+51,Ligne,,2,,,7,8,None,None,,,,,
+52,Ligne,,2,,,7,9,None,None,,,,,
+53,Ligne,,2,,,7,6,None,None,,,,,
+54,Ligne,,2,,,7,10,None,None,,,,,
+55,Ligne,,2,,,16,25,None,None,,,,,
+56,Ligne,,2,,,7,24,None,None,,,,,
+57,Ligne,,2,,,24,8,None,None,,,,,
+58,Ligne,,2,,,24,5,None,None,,,,,
+59,Ligne,,2,,,11,24,None,None,,,,,
+60,Ligne,,2,,,32,37,None,None,,,,,
+61,Ligne,,2,,,33,32,None,None,,1,1,,
+62,Ligne,,2,,,15,31,None,None,,,,,
+63,Ligne,,2,,,15,,None,Generalization,,hérite,,,
+64,Ligne,,2,,,16,,None,Generalization,,hérite,,,
+65,Ligne,,2,,,23,27,None,None,,<<include>>,,,
+66,Ligne,,2,,,28,23,None,None,,<<include>>,,,
+67,Ligne,,2,,,26,23,None,None,,<<include>>,,,
+68,Ligne,,2,,,30,23,None,None,,<<include>>,,,
+69,Ligne,,2,,,25,23,None,None,,<<include>>,,,
+70,Ligne,,2,,,29,23,None,None,,<<include>>,,,
+71,Ligne,,2,,,31,23,None,None,,<<include>>,,,
+72,Groupe 1,,2,,,,,,,,,,,
+73,Groupe 2,,2,,,,,,,,,,,
