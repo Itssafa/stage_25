@@ -45,9 +45,181 @@
         </div>
       </div>
       
+      <!-- Dashboard ADMIN -->
+      <div *ngIf="currentUser.role === 'ADMIN'" class="admin-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card users-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-content">
+              <h3>{{stats.totalUsers}}</h3>
+              <p>Utilisateurs Total</p>
+              <small>{{stats.activeUsers}} actifs</small>
+            </div>
+          </div>
+          
+          <div class="stat-card orders-card">
+            <div class="stat-icon">📋</div>
+            <div class="stat-content">
+              <h3>{{stats.totalOrdresFab}}</h3>
+              <p>Ordres de Fabrication</p>
+              <small>{{stats.ordresEnCours}} en cours</small>
+            </div>
+          </div>
+          
+          <div class="stat-card products-card">
+            <div class="stat-icon">📦</div>
+            <div class="stat-content">
+              <h3>{{stats.totalProduits}}</h3>
+              <p>Produits</p>
+              <small>Catalogue complet</small>
+            </div>
+          </div>
+          
+          <div class="stat-card workstations-card">
+            <div class="stat-icon">🏭</div>
+            <div class="stat-content">
+              <h3>{{stats.totalPostes}}</h3>
+              <p>Postes de Travail</p>
+              <small>Ligne de production</small>
+            </div>
+          </div>
+        </div>
+        
+        <div class="ios-card admin-overview">
+          <div class="card-header">
+            <h3>📊 Vue d'ensemble Administrateur</h3>
+          </div>
+          <div class="card-content">
+            <div class="overview-grid">
+              <div class="overview-item">
+                <span class="overview-label">Utilisateurs Actifs</span>
+                <div class="overview-progress">
+                  <div class="progress-bar" [style.width.%]="(stats.activeUsers / stats.totalUsers) * 100"></div>
+                </div>
+                <span class="overview-value">{{stats.activeUsers}}/{{stats.totalUsers}}</span>
+              </div>
+              
+              <div class="overview-item">
+                <span class="overview-label">Ordres Terminés</span>
+                <div class="overview-progress">
+                  <div class="progress-bar success" [style.width.%]="(stats.ordresTermines / stats.totalOrdresFab) * 100"></div>
+                </div>
+                <span class="overview-value">{{stats.ordresTermines}}/{{stats.totalOrdresFab}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard PARAMETREUR -->
+      <div *ngIf="currentUser.role === 'PARAMETREUR'" class="parametreur-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card orders-card">
+            <div class="stat-icon">📋</div>
+            <div class="stat-content">
+              <h3>{{stats.totalOrdresFab}}</h3>
+              <p>Ordres de Fabrication</p>
+              <small>{{stats.ordresEnCours}} en cours</small>
+            </div>
+          </div>
+          
+          <div class="stat-card params-card">
+            <div class="stat-icon">⚙️</div>
+            <div class="stat-content">
+              <h3>{{stats.totalParametres}}</h3>
+              <p>Paramètres</p>
+              <small>Configuration système</small>
+            </div>
+          </div>
+          
+          <div class="stat-card operations-card">
+            <div class="stat-icon">🔧</div>
+            <div class="stat-content">
+              <h3>{{stats.totalOperations}}</h3>
+              <p>Opérations</p>
+              <small>Processus actifs</small>
+            </div>
+          </div>
+          
+          <div class="stat-card assignments-card">
+            <div class="stat-icon">🔗</div>
+            <div class="stat-content">
+              <h3>{{stats.totalAffectations}}</h3>
+              <p>Affectations</p>
+              <small>Postes/Applications</small>
+            </div>
+          </div>
+        </div>
+        
+        <div class="ios-card parametreur-tasks">
+          <div class="card-header">
+            <h3>🎯 Tâches Récentes</h3>
+          </div>
+          <div class="card-content">
+            <div class="task-list">
+              <div class="task-item">
+                <span class="task-icon">✅</span>
+                <span class="task-text">Configuration des paramètres système</span>
+              </div>
+              <div class="task-item">
+                <span class="task-icon">⏳</span>
+                <span class="task-text">Gestion des affectations postes</span>
+              </div>
+              <div class="task-item">
+                <span class="task-icon">🔄</span>
+                <span class="task-text">Suivi des ordres de fabrication</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard DEFAULT USER -->
+      <div *ngIf="currentUser.role === 'DEFAULT'" class="default-dashboard">
+        <div class="ios-card welcome-card">
+          <div class="card-header">
+            <h3>👋 Bienvenue {{currentUser.prenom}}</h3>
+          </div>
+          <div class="card-content">
+            <div class="welcome-content">
+              <div class="welcome-icon">🎯</div>
+              <p>Votre compte est en attente d'activation par un administrateur.</p>
+              <p>Une fois activé, vous aurez accès aux fonctionnalités de paramétrage du système.</p>
+            </div>
+            
+            <div class="status-indicator">
+              <div class="status-dot pending"></div>
+              <span>Statut: En attente d'activation</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="ios-card info-card">
+          <div class="card-header">
+            <h3>ℹ️ Informations</h3>
+          </div>
+          <div class="card-content">
+            <div class="info-list">
+              <div class="info-item">
+                <span class="info-icon">📝</span>
+                <span>Vous pouvez modifier votre profil personnel</span>
+              </div>
+              <div class="info-item">
+                <span class="info-icon">🔒</span>
+                <span>Accès limité aux fonctionnalités</span>
+              </div>
+              <div class="info-item">
+                <span class="info-icon">⏱️</span>
+                <span>En attente d'activation par l'administrateur</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="ios-card features-card">
         <div class="card-header">
-          <h3> gestion</h3>
+          <h3>🚀 Fonctionnalités Disponibles</h3>
         </div>
         <div class="card-content">
           <div class="features-list">

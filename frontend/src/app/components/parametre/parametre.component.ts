@@ -15,8 +15,9 @@ interface Affectation {
 }
 
 interface Parametre {
-  idParametre?: number;
+  idParam?: number;
   nom: string;
+  description?: string;
   affectation?: Affectation;
 }
 
@@ -124,7 +125,7 @@ export class ParametreComponent implements OnInit {
     this.http.put<Parametre>(`${this.apiUrl}/${id}`, parametre, { headers: this.getHeaders() })
       .subscribe({
         next: (updatedParametre) => {
-          const index = this.parametres.findIndex(p => p.idParametre === id);
+          const index = this.parametres.findIndex(p => p.idParam === id);
           if (index !== -1) {
             this.parametres[index] = updatedParametre;
           }
@@ -140,7 +141,7 @@ export class ParametreComponent implements OnInit {
 
   editParametre(parametre: Parametre) {
     this.isEditing = true;
-    this.editingId = parametre.idParametre || null;
+    this.editingId = parametre.idParam || null;
     this.parametreForm.patchValue({
       nom: parametre.nom,
       affectationId: parametre.affectation?.idAffectation
@@ -152,7 +153,7 @@ export class ParametreComponent implements OnInit {
       this.http.delete(`${this.apiUrl}/${id}`, { headers: this.getHeaders() })
         .subscribe({
           next: () => {
-            this.parametres = this.parametres.filter(p => p.idParametre !== id);
+            this.parametres = this.parametres.filter(p => p.idParam !== id);
             console.log('Paramètre supprimé avec succès');
           },
           error: (err) => {

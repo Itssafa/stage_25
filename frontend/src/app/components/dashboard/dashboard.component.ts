@@ -18,7 +18,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
   pendingUsers: User[] = [];
   showUserManagement = false;
   private routeSubscription: Subscription | undefined;
-  Role = Role; // Rendre l'énumération accessible dans le template
+  Role = Role;
+  
+  // Statistiques pour le dashboard
+  stats = {
+    totalUsers: 0,
+    activeUsers: 0,
+    adminUsers: 0,
+    parametreurUsers: 0,
+    defaultUsers: 0,
+    totalOrdresFab: 0,
+    ordresEnCours: 0,
+    ordresTermines: 0,
+    totalProduits: 0,
+    totalPostes: 0,
+    totalOperations: 0,
+    totalParametres: 0,
+    totalAffectations: 0
+  }; // Rendre l'énumération accessible dans le template
 
   constructor(
     public authService: AuthService,
@@ -47,6 +64,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.authService.currentUser$.subscribe((user: User | null) => {
       this.currentUser = user;
       this.loading = false;
+      if (user) {
+        this.loadDashboardStats();
+      }
     });
   }
 
@@ -104,22 +124,30 @@ export class DashboardComponent implements OnInit, OnDestroy {
     switch (role) {
       case this.Role.ADMIN:
         return [
-          'Gestion des utilisateurs',
-          'user2'
+          'Gestion complète des utilisateurs',
+          'Administration des ordres de fabrication',
+          'Supervision de la production',
+          'Configuration système avancée',
+          'Rapports et statistiques',
+          'Gestion des rôles et permissions'
         ];
       case this.Role.PARAMETREUR:
         return [
-          'Gestion des entités système',
+          'Gestion des ordres de fabrication',
           'Configuration des paramètres',
-          'Consultation des données',
-          'Modification du profil personnel'
+          'Gestion des postes et opérations',
+          'Affectation des ressources',
+          'Suivi de la production',
+          'Consultation des statistiques'
         ];
       case this.Role.DEFAULT:
         return [
-          'Modifier votre compte',
+          'Consultation du profil personnel',
+          'Modification des informations de base',
+          'Accès en lecture seule'
         ];
       default:
-        return ['Accès limité'];
+        return ['Accès limité en attente d\'activation'];
     }
   }
 
@@ -145,5 +173,113 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   isAdmin(): boolean {
     return this.currentUser?.role === this.Role.ADMIN || false;
+  }
+
+  private getHeaders() {
+    const token = localStorage.getItem('token');
+    return {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    };
+  }
+
+  loadDashboardStats(): void {
+    const headers = this.getHeaders();
+    
+    // Charger les statistiques selon le rôle
+    if (this.currentUser?.role === this.Role.ADMIN) {
+      this.loadAdminStats(headers);
+    } else if (this.currentUser?.role === this.Role.PARAMETREUR) {
+      this.loadParametreurStats(headers);
+    } else {
+      this.loadDefaultUserStats(headers);
+    }
+  }
+
+  private loadAdminStats(headers: any): void {
+    // Statistiques utilisateurs
+    this.http.get<any[]>('http://localhost:8085/api/users', { headers })
+      .subscribe({
+        next: (users) => {
+          this.stats.totalUsers = users.length;
+          this.stats.adminUsers = users.filter(u => u.role === 'ADMIN').length;
+          this.stats.parametreurUsers = users.filter(u => u.role === 'PARAMETREUR' && u.isActive).length;
+          this.stats.defaultUsers = users.filter(u => u.role === 'DEFAULT').length;
+          this.stats.activeUsers = this.stats.adminUsers + this.stats.parametreurUsers;
+        },
+        error: (err) => console.error('Erreur chargement stats utilisateurs:', err)
+      });
+
+    // Statistiques ordres de fabrication
+    this.http.get<any[]>('http://localhost:8085/api/ordrefabs', { headers })
+      .subscribe({
+        next: (ordres) => {
+          this.stats.totalOrdresFab = ordres.length;
+          this.stats.ordresEnCours = ordres.filter(o => o.statuts === 'EN_COURS').length;
+          this.stats.ordresTermines = ordres.filter(o => o.statuts === 'TERMINE').length;
+        },
+        error: (err) => console.error('Erreur chargement stats ordres:', err)
+      });
+
+    // Autres statistiques
+    this.loadCommonStats(headers);
+  }
+
+  private loadParametreurStats(headers: any): void {
+    // Statistiques ordres de fabrication (lecture seule)
+    this.http.get<any[]>('http://localhost:8085/api/ordrefabs', { headers })
+      .subscribe({
+        next: (ordres) => {
+          this.stats.totalOrdresFab = ordres.length;
+          this.stats.ordresEnCours = ordres.filter(o => o.statuts === 'EN_COURS').length;
+          this.stats.ordresTermines = ordres.filter(o => o.statuts === 'TERMINE').length;
+        },
+        error: (err) => console.error('Erreur chargement stats ordres:', err)
+      });
+
+    this.loadCommonStats(headers);
+  }
+
+  private loadDefaultUserStats(headers: any): void {
+    // Statistiques limitées pour utilisateur DEFAULT
+    this.stats.totalUsers = 0;
+    this.stats.activeUsers = 0;
+  }
+
+  private loadCommonStats(headers: any): void {
+    // Produits
+    this.http.get<any[]>('http://localhost:8085/api/produits', { headers })
+      .subscribe({
+        next: (produits) => this.stats.totalProduits = produits.length,
+        error: (err) => console.error('Erreur chargement stats produits:', err)
+      });
+
+    // Postes
+    this.http.get<any[]>('http://localhost:8085/api/postes', { headers })
+      .subscribe({
+        next: (postes) => this.stats.totalPostes = postes.length,
+        error: (err) => console.error('Erreur chargement stats postes:', err)
+      });
+
+    // Opérations
+    this.http.get<any[]>('http://localhost:8085/api/operations', { headers })
+      .subscribe({
+        next: (operations) => this.stats.totalOperations = operations.length,
+        error: (err) => console.error('Erreur chargement stats opérations:', err)
+      });
+
+    // Paramètres
+    this.http.get<any[]>('http://localhost:8085/api/parametres', { headers })
+      .subscribe({
+        next: (parametres) => this.stats.totalParametres = parametres.length,
+        error: (err) => console.error('Erreur chargement stats paramètres:', err)
+      });
+
+    // Affectations
+    this.http.get<any[]>('http://localhost:8085/api/affectations', { headers })
+      .subscribe({
+        next: (affectations) => this.stats.totalAffectations = affectations.length,
+        error: (err) => console.error('Erreur chargement stats affectations:', err)
+      });
   }
 }

@@ -60,12 +60,12 @@
       </thead>
       <tbody>
         <tr *ngFor="let parametre of parametres">
-          <td>{{ parametre.idParametre }}</td>
+          <td>{{ parametre.idParam }}</td>
           <td>{{ parametre.nom }}</td>
           <td>{{ parametre.affectation?.poste?.nom || 'N/A' }} - {{ parametre.affectation?.application?.nom || 'N/A' }}</td>
           <td>
             <button (click)="editParametre(parametre)" class="btn btn-edit">Modifier</button>
-            <button (click)="deleteParametre(parametre.idParametre!)" class="btn btn-delete">Supprimer</button>
+            <button (click)="deleteParametre(parametre.idParam!)" class="btn btn-delete">Supprimer</button>
           </td>
         </tr>
       </tbody>

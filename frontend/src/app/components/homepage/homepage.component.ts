@@ -18,4 +18,10 @@ export class HomepageComponent {
     this.router.navigate(['/register']);
   }
 
+  scrollToFeatures(): void {
+    const featuresSection = document.getElementById('features');
+    if (featuresSection) {
+      featuresSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
 }
