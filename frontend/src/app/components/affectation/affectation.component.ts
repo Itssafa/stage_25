@@ -10,27 +10,16 @@ interface Poste {
   };
 }
 
-interface Operation {
-  idOp: number;
-  libelle: string;
-  temps: number;
-}
-
-interface OrdreFab {
-  idOrdre: number;
-  quantite: number;
-  produit?: {
-    nom: string;
-  };
+interface Application {
+  idApp: number;
+  nomApp: string;
+  description: string;
 }
 
 interface Affectation {
   idAffectation?: number;
-  dateDebut: string;
-  dateFin: string;
   poste?: Poste;
-  operation?: Operation;
-  ordre?: OrdreFab;
+  application?: Application;
 }
 
 @Component({
@@ -42,8 +31,7 @@ export class AffectationComponent implements OnInit {
   affectationForm: FormGroup;
   affectations: Affectation[] = [];
   postes: Poste[] = [];
-  operations: Operation[] = [];
-  ordres: OrdreFab[] = [];
+  applications: Application[] = [];
   loading = false;
   error = '';
   isEditing = false;
@@ -51,27 +39,22 @@ export class AffectationComponent implements OnInit {
   
   private apiUrl = 'http://localhost:8085/api/affectations';
   private posteApiUrl = 'http://localhost:8085/api/postes';
-  private operationApiUrl = 'http://localhost:8085/api/operations';
-  private ordreApiUrl = 'http://localhost:8085/api/ordrefabs';
+  private applicationApiUrl = 'http://localhost:8085/api/applications';
 
   constructor(
     private fb: FormBuilder,
     private http: HttpClient
   ) {
     this.affectationForm = this.fb.group({
-      dateDebut: ['', [Validators.required]],
-      dateFin: ['', [Validators.required]],
       posteId: ['', [Validators.required]],
-      operationId: ['', [Validators.required]],
-      ordreId: ['', [Validators.required]]
+      appId: ['', [Validators.required]]
     });
   }
 
   ngOnInit() {
     this.loadAffectations();
     this.loadPostes();
-    this.loadOperations();
-    this.loadOrdres();
+    this.loadApplications();
   }
 
   private getHeaders(): HttpHeaders {
@@ -94,26 +77,14 @@ export class AffectationComponent implements OnInit {
       });
   }
 
-  loadOperations() {
-    this.http.get<Operation[]>(this.operationApiUrl, { headers: this.getHeaders() })
+  loadApplications() {
+    this.http.get<Application[]>(this.applicationApiUrl, { headers: this.getHeaders() })
       .subscribe({
         next: (data) => {
-          this.operations = data;
+          this.applications = data;
         },
         error: (err) => {
-          console.error('Erreur lors du chargement des opérations:', err);
-        }
-      });
-  }
-
-  loadOrdres() {
-    this.http.get<OrdreFab[]>(this.ordreApiUrl, { headers: this.getHeaders() })
-      .subscribe({
-        next: (data) => {
-          this.ordres = data;
-        },
-        error: (err) => {
-          console.error('Erreur lors du chargement des ordres:', err);
+          console.error('Erreur lors du chargement des applications:', err);
         }
       });
   }
@@ -138,24 +109,19 @@ export class AffectationComponent implements OnInit {
 
   onSubmit() {
     if (this.affectationForm.valid) {
-      const affectationData = {
-        dateDebut: this.affectationForm.get('dateDebut')?.value,
-        dateFin: this.affectationForm.get('dateFin')?.value,
-        poste: { idPoste: this.affectationForm.get('posteId')?.value },
-        operation: { idOp: this.affectationForm.get('operationId')?.value },
-        ordre: { idOrdre: this.affectationForm.get('ordreId')?.value }
-      };
+      const posteId = this.affectationForm.get('posteId')?.value;
+      const appId = this.affectationForm.get('appId')?.value;
       
       if (this.isEditing && this.editingId) {
-        this.updateAffectation(this.editingId, affectationData);
+        this.updateAffectation(this.editingId, { posteId, appId });
       } else {
-        this.createAffectation(affectationData);
+        this.createAffectation(posteId, appId);
       }
     }
   }
 
-  createAffectation(affectation: any) {
-    this.http.post<Affectation>(this.apiUrl, affectation, { headers: this.getHeaders() })
+  createAffectation(posteId: number, appId: number) {
+    this.http.post<Affectation>(`${this.apiUrl}?posteId=${posteId}&appId=${appId}`, {}, { headers: this.getHeaders() })
       .subscribe({
         next: (newAffectation) => {
           this.affectations.push(newAffectation);
@@ -191,11 +157,8 @@ export class AffectationComponent implements OnInit {
     this.isEditing = true;
     this.editingId = affectation.idAffectation || null;
     this.affectationForm.patchValue({
-      dateDebut: affectation.dateDebut,
-      dateFin: affectation.dateFin,
       posteId: affectation.poste?.idPoste,
-      operationId: affectation.operation?.idOp,
-      ordreId: affectation.ordre?.idOrdre
+      appId: affectation.application?.idApp
     });
   }
 

@@ -49,6 +49,7 @@
           <td>{{ ligne.nom }}</td>
           <td>
             <button (click)="editLigne(ligne)" class="btn btn-edit">Modifier</button>
+            <button (click)="deleteLigne(ligne.idLigne)" class="btn btn-delete">supprimer</button>
            
           </td>
         </tr>

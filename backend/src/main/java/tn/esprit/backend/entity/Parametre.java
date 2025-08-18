@@ -10,20 +10,20 @@ public class Parametre {
     private Long idParam;
 
     private String nom;
-    private String valeur;
+    private String description;
 
-    @ManyToOne
-    @JoinColumn(name = "operation_id")
-    @JsonIgnoreProperties({"parametres", "affectations", "poste"})
-    private Operation operation;
+    @OneToOne
+    @JoinColumn(name = "affectation_id")
+    @JsonIgnoreProperties({"parametre"})
+    private Affectation affectation;
 
     // Constructors
     public Parametre() {}
 
-    public Parametre(String nom, String valeur, Operation operation) {
+    public Parametre(String nom, String description, Affectation affectation) {
         this.nom = nom;
-        this.valeur = valeur;
-        this.operation = operation;
+        this.description = description;
+        this.affectation = affectation;
     }
 
     // Getters and Setters
@@ -43,20 +43,20 @@ public class Parametre {
         this.nom = nom;
     }
 
-    public String getValeur() {
-        return valeur;
+    public String getDescription() {
+        return description;
     }
 
-    public void setValeur(String valeur) {
-        this.valeur = valeur;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public Operation getOperation() {
-        return operation;
+    public Affectation getAffectation() {
+        return affectation;
     }
 
-    public void setOperation(Operation operation) {
-        this.operation = operation;
+    public void setAffectation(Affectation affectation) {
+        this.affectation = affectation;
     }
 }
 

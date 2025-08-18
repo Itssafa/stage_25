@@ -29,6 +29,7 @@ import { OperationComponent } from './components/operation/operation.component';
 import { OrdreFabComponent } from './components/ordre-fab/ordre-fab.component';
 import { AffectationComponent } from './components/affectation/affectation.component';
 import { ParametreComponent } from './components/parametre/parametre.component';
+import { UserManagementComponent } from './components/user-management/user-management.component';
 
 
 
@@ -49,7 +50,8 @@ import { ParametreComponent } from './components/parametre/parametre.component';
     OperationComponent,
     OrdreFabComponent,
     AffectationComponent,
-    ParametreComponent
+    ParametreComponent,
+    UserManagementComponent
     
   ],
   imports: [

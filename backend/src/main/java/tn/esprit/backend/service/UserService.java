@@ -12,6 +12,8 @@ import tn.esprit.backend.repository.UserRepository;
 
 import java.util.Collections;
 import java.util.List;
+import java.time.LocalDateTime;
+import tn.esprit.backend.dto.UserDTO;
 
 @Service
 @RequiredArgsConstructor
@@ -52,6 +54,10 @@ public class UserService implements UserDetailsService {
         return userRepository.findById(id).orElse(null);
     }
 
+    public User getById(Long id) {
+        return findById(id);
+    }
+
     public List<User> findAll() {
         return userRepository.findAll();
     }
@@ -87,5 +93,79 @@ public class UserService implements UserDetailsService {
     public boolean canUserManageEntities(String username) {
         User user = findByUsername(username);
         return user != null && user.getRole().canManageEntities();
+    }
+
+    // Methodes pour la gestion des utilisateurs par ADMIN
+    public List<UserDTO> getDefaultUsers() {
+        List<User> defaultUsers = userRepository.findByRole(Role.DEFAULT);
+        return defaultUsers.stream()
+                .map(UserDTO::fromEntity)
+                .toList();
+    }
+
+    public List<UserDTO> getActiveUsers() {
+        List<User> activeUsers = userRepository.findByRoleAndIsActive(Role.PARAMETREUR, true);
+        return activeUsers.stream()
+                .map(UserDTO::fromEntity)
+                .toList();
+    }
+
+    public List<UserDTO> getActiveAdminAndParametreurUsers() {
+        List<User> adminUsers = userRepository.findByRole(Role.ADMIN);
+        List<User> parametreurUsers = userRepository.findByRoleAndIsActive(Role.PARAMETREUR, true);
+        
+        List<User> allUsers = new java.util.ArrayList<>();
+        allUsers.addAll(adminUsers);
+        allUsers.addAll(parametreurUsers);
+        
+        return allUsers.stream()
+                .map(UserDTO::fromEntity)
+                .toList();
+    }
+
+    public UserDTO activateUser(Long userId, Integer durationDays) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null || user.getRole() != Role.DEFAULT) {
+            return null;
+        }
+
+        user.setRole(Role.PARAMETREUR);
+        user.setIsActive(true);
+        user.setActivationDate(LocalDateTime.now());
+        user.setActivationDurationDays(durationDays);
+        user.setDeactivationDate(null);
+
+        User savedUser = userRepository.save(user);
+        return UserDTO.fromEntity(savedUser);
+    }
+
+    public UserDTO deactivateUser(Long userId) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null || user.getRole() != Role.PARAMETREUR) {
+            return null;
+        }
+
+        user.setRole(Role.DEFAULT);
+        user.setIsActive(false);
+        user.setDeactivationDate(LocalDateTime.now());
+        user.setActivationDate(null);
+        user.setActivationDurationDays(null);
+
+        User savedUser = userRepository.save(user);
+        return UserDTO.fromEntity(savedUser);
+    }
+
+    public UserDTO updateUser(Long userId, UserDTO userDTO) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            return null;
+        }
+
+        user.setUsername(userDTO.getUsername());
+        user.setPrenom(userDTO.getPrenom());
+        user.setAdresseMail(userDTO.getAdresseMail());
+
+        User savedUser = userRepository.save(user);
+        return UserDTO.fromEntity(savedUser);
     }
 }

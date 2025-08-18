@@ -28,7 +28,11 @@ public class ParametreService {
     public Parametre update(Long id, Parametre updated) {
         Parametre existing = repository.findById(id).orElse(null);
         if (existing == null) return null;
-        // TODO: mettre à jour les champs manuellement ici
+        
+        existing.setNom(updated.getNom());
+        existing.setDescription(updated.getDescription());
+        existing.setAffectation(updated.getAffectation());
+        
         return repository.save(existing);
     }
 

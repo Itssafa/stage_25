@@ -2,11 +2,13 @@ package tn.esprit.backend.controller;
 
 import tn.esprit.backend.entity.Operation;
 import tn.esprit.backend.service.OperationService;
+import tn.esprit.backend.dto.OperationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/operations")
@@ -17,25 +19,28 @@ public class OperationController {
     private OperationService service;
 
     @GetMapping
-    public List<Operation> getAll() {
-        return service.getAll();
+    public List<OperationDTO> getAll() {
+        return service.getAll().stream()
+                .map(OperationDTO::fromEntity)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Operation> getById(@PathVariable Long id) {
+    public ResponseEntity<OperationDTO> getById(@PathVariable Long id) {
         Operation obj = service.getById(id);
-        return obj != null ? ResponseEntity.ok(obj) : ResponseEntity.notFound().build();
+        return obj != null ? ResponseEntity.ok(OperationDTO.fromEntity(obj)) : ResponseEntity.notFound().build();
     }
 
     @PostMapping
-    public Operation create(@RequestBody Operation obj) {
-        return service.create(obj);
+    public OperationDTO create(@RequestBody Operation obj) {
+        Operation created = service.create(obj);
+        return OperationDTO.fromEntity(created);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Operation> update(@PathVariable Long id, @RequestBody Operation obj) {
+    public ResponseEntity<OperationDTO> update(@PathVariable Long id, @RequestBody Operation obj) {
         Operation updated = service.update(id, obj);
-        return updated != null ? ResponseEntity.ok(updated) : ResponseEntity.notFound().build();
+        return updated != null ? ResponseEntity.ok(OperationDTO.fromEntity(updated)) : ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")

@@ -2,19 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
-interface Poste {
-  idPoste: number;
-  nom: string;
-  ligne?: {
-    nom: string;
-  };
-}
-
 interface Operation {
-  idOp?: number;
-  libelle: string;
-  temps: number;
-  poste?: Poste;
+  id?: number;
+  nomOp: string;
+  description: string;
+  parametre: string;
 }
 
 @Component({
@@ -25,29 +17,26 @@ interface Operation {
 export class OperationComponent implements OnInit {
   operationForm: FormGroup;
   operations: Operation[] = [];
-  postes: Poste[] = [];
   loading = false;
   error = '';
   isEditing = false;
   editingId: number | null = null;
   
   private apiUrl = 'http://localhost:8085/api/operations';
-  private posteApiUrl = 'http://localhost:8085/api/postes';
 
   constructor(
     private fb: FormBuilder,
     private http: HttpClient
   ) {
     this.operationForm = this.fb.group({
-      libelle: ['', [Validators.required, Validators.minLength(2)]],
-      temps: ['', [Validators.required, Validators.min(1)]],
-      posteId: ['', [Validators.required]]
+      nomOp: ['', [Validators.required, Validators.minLength(2)]],
+      description: ['', [Validators.required, Validators.minLength(2)]],
+      parametre: ['', [Validators.required]]
     });
   }
 
   ngOnInit() {
     this.loadOperations();
-    this.loadPostes();
   }
 
   private getHeaders(): HttpHeaders {
@@ -56,18 +45,6 @@ export class OperationComponent implements OnInit {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     });
-  }
-
-  loadPostes() {
-    this.http.get<Poste[]>(this.posteApiUrl, { headers: this.getHeaders() })
-      .subscribe({
-        next: (data) => {
-          this.postes = data;
-        },
-        error: (err) => {
-          console.error('Erreur lors du chargement des postes:', err);
-        }
-      });
   }
 
   loadOperations() {
@@ -91,9 +68,9 @@ export class OperationComponent implements OnInit {
   onSubmit() {
     if (this.operationForm.valid) {
       const operationData = {
-        libelle: this.operationForm.get('libelle')?.value,
-        temps: this.operationForm.get('temps')?.value,
-        poste: { idPoste: this.operationForm.get('posteId')?.value }
+        nomOp: this.operationForm.get('nomOp')?.value,
+        description: this.operationForm.get('description')?.value,
+        parametre: this.operationForm.get('parametre')?.value
       };
       
       if (this.isEditing && this.editingId) {
@@ -123,7 +100,7 @@ export class OperationComponent implements OnInit {
     this.http.put<Operation>(`${this.apiUrl}/${id}`, operation, { headers: this.getHeaders() })
       .subscribe({
         next: (updatedOperation) => {
-          const index = this.operations.findIndex(o => o.idOp === id);
+          const index = this.operations.findIndex(o => o.id === id);
           if (index !== -1) {
             this.operations[index] = updatedOperation;
           }
@@ -139,11 +116,11 @@ export class OperationComponent implements OnInit {
 
   editOperation(operation: Operation) {
     this.isEditing = true;
-    this.editingId = operation.idOp || null;
+    this.editingId = operation.id || null;
     this.operationForm.patchValue({
-      libelle: operation.libelle,
-      temps: operation.temps,
-      posteId: operation.poste?.idPoste
+      nomOp: operation.nomOp,
+      description: operation.description,
+      parametre: operation.parametre
     });
   }
 
@@ -152,7 +129,7 @@ export class OperationComponent implements OnInit {
       this.http.delete(`${this.apiUrl}/${id}`, { headers: this.getHeaders() })
         .subscribe({
           next: () => {
-            this.operations = this.operations.filter(o => o.idOp !== id);
+            this.operations = this.operations.filter(o => o.id !== id);
             console.log('Opération supprimée avec succès');
           },
           error: (err) => {

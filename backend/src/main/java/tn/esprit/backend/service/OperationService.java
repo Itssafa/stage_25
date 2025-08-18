@@ -28,7 +28,11 @@ public class OperationService {
     public Operation update(Long id, Operation updated) {
         Operation existing = repository.findById(id).orElse(null);
         if (existing == null) return null;
-        // TODO: mettre à jour les champs manuellement ici
+        
+        existing.setNomOp(updated.getNomOp());
+        existing.setDescription(updated.getDescription());
+        existing.setParametre(updated.getParametre());
+        
         return repository.save(existing);
     }
 

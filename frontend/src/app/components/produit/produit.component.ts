@@ -20,6 +20,7 @@ interface LigneProduction {
 interface Produit {
   idProduit?: number;
   nom: string;
+  code: string;
   type: TypeProduit;
   ligne?: LigneProduction;
 }
@@ -53,6 +54,7 @@ export class ProduitComponent implements OnInit, OnDestroy {
     this.produitForm = this.fb.group({
       nom: ['', [Validators.required, Validators.minLength(2)]],
       type: ['', [Validators.required]], // plus de minLength ici
+      code: ['', [Validators.required]],
       ligneId: ['', [Validators.required]]
     });
   }
@@ -125,6 +127,7 @@ export class ProduitComponent implements OnInit, OnDestroy {
     if (this.produitForm.valid) {
       const produitData = {
         nom: this.produitForm.get('nom')?.value,
+        code: this.produitForm.get('code')?.value,
         type: this.produitForm.get('type')?.value,
         ligne: { idLigne: this.produitForm.get('ligneId')?.value }
       };
@@ -175,6 +178,7 @@ export class ProduitComponent implements OnInit, OnDestroy {
     this.editingId = produit.idProduit || null;
     this.produitForm.patchValue({
       nom: produit.nom,
+      code: produit.code,
       type: produit.type,
       ligneId: produit.ligne?.idLigne
     });

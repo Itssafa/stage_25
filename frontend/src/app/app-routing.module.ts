@@ -15,6 +15,7 @@ import { OperationComponent } from './components/operation/operation.component';
 import { OrdreFabComponent } from './components/ordre-fab/ordre-fab.component';
 import { AffectationComponent } from './components/affectation/affectation.component';
 import { ParametreComponent } from './components/parametre/parametre.component';
+import { UserManagementComponent } from './components/user-management/user-management.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/homepage', pathMatch: 'full' },          
@@ -45,7 +46,7 @@ const routes: Routes = [
     path: 'admin', 
     canActivate: [AuthGuard],
     children: [
-      { path: 'users', component: DashboardComponent }
+      { path: 'users', component: UserManagementComponent }
     ]
   },
   

@@ -25,12 +25,17 @@ public class ApplicationService {
         return repository.save(obj);
     }
 
-    public Application update(Long id, Application updated) {
-        Application existing = repository.findById(id).orElse(null);
-        if (existing == null) return null;
-        // TODO: mettre à jour les champs manuellement ici
-        return repository.save(existing);
-    }
+   public Application update(Long id, Application updated) {
+    Application existing = repository.findById(id).orElse(null);
+    if (existing == null) return null;
+
+    existing.setNomApp(updated.getNomApp());
+    existing.setDescription(updated.getDescription());
+    existing.setOperation(updated.getOperation());
+
+    return repository.save(existing);
+}
+
 
     public void delete(Long id) {
         repository.deleteById(id);

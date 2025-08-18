@@ -30,6 +30,7 @@ public class ProduitService {
         if (existing == null) return null;
         
         existing.setNom(updated.getNom());
+        existing.setCode(updated.getCode());
         existing.setType(updated.getType());
         existing.setLigne(updated.getLigne());
         

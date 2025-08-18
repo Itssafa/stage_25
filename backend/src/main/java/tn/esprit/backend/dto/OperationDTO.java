@@ -1,24 +1,29 @@
-package tn.esprit.backend.entity;
+package tn.esprit.backend.dto;
 
-import jakarta.persistence.*;
+import tn.esprit.backend.entity.Operation;
 
-@Entity
-public class Operation {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class OperationDTO {
     private Long id;
-    
-    private String nomOp;
     private String description;
+    private String nomOp;
     private String parametre;
 
-    // Constructors
-    public Operation() {}
+    public OperationDTO() {}
 
-    public Operation(String nomOp, String description, String parametre) {
+    public OperationDTO(Long id, String nomOp, String description, String parametre) {
+        this.id = id;
         this.nomOp = nomOp;
         this.description = description;
         this.parametre = parametre;
+    }
+
+    public static OperationDTO fromEntity(Operation operation) {
+        OperationDTO dto = new OperationDTO();
+        dto.setId(operation.getId());
+        dto.setNomOp(operation.getNomOp());
+        dto.setDescription(operation.getDescription());
+        dto.setParametre(operation.getParametre());
+        return dto;
     }
 
     // Getters and Setters
@@ -30,7 +35,7 @@ public class Operation {
         this.id = id;
     }
 
-     public String getNomOp() {
+    public String getNomOp() {
         return nomOp;
     }
 
@@ -54,4 +59,3 @@ public class Operation {
         this.parametre = parametre;
     }
 }
-

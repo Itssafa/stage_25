@@ -2,17 +2,22 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
-interface Operation {
-  idOp: number;
-  libelle: string;
-  temps: number;
+interface Affectation {
+  idAffectation: number;
+  poste?: {
+    idPoste: number;
+    nom: string;
+  };
+  application?: {
+    idApplication: number;
+    nom: string;
+  };
 }
 
 interface Parametre {
   idParametre?: number;
   nom: string;
-  valeur: string;
-  operation?: Operation;
+  affectation?: Affectation;
 }
 
 @Component({
@@ -23,14 +28,14 @@ interface Parametre {
 export class ParametreComponent implements OnInit {
   parametreForm: FormGroup;
   parametres: Parametre[] = [];
-  operations: Operation[] = [];
+  affectations: Affectation[] = [];
   loading = false;
   error = '';
   isEditing = false;
   editingId: number | null = null;
   
   private apiUrl = 'http://localhost:8085/api/parametres';
-  private operationApiUrl = 'http://localhost:8085/api/operations';
+  private affectationApiUrl = 'http://localhost:8085/api/affectations';
 
   constructor(
     private fb: FormBuilder,
@@ -38,14 +43,13 @@ export class ParametreComponent implements OnInit {
   ) {
     this.parametreForm = this.fb.group({
       nom: ['', [Validators.required, Validators.minLength(2)]],
-      valeur: ['', [Validators.required]],
-      operationId: ['', [Validators.required]]
+      affectationId: ['', [Validators.required]]
     });
   }
 
   ngOnInit() {
     this.loadParametres();
-    this.loadOperations();
+    this.loadAffectations();
   }
 
   private getHeaders(): HttpHeaders {
@@ -56,14 +60,14 @@ export class ParametreComponent implements OnInit {
     });
   }
 
-  loadOperations() {
-    this.http.get<Operation[]>(this.operationApiUrl, { headers: this.getHeaders() })
+  loadAffectations() {
+    this.http.get<Affectation[]>(this.affectationApiUrl, { headers: this.getHeaders() })
       .subscribe({
         next: (data) => {
-          this.operations = data;
+          this.affectations = data;
         },
         error: (err) => {
-          console.error('Erreur lors du chargement des opérations:', err);
+          console.error('Erreur lors du chargement des affectations:', err);
         }
       });
   }
@@ -90,8 +94,7 @@ export class ParametreComponent implements OnInit {
     if (this.parametreForm.valid) {
       const parametreData = {
         nom: this.parametreForm.get('nom')?.value,
-        valeur: this.parametreForm.get('valeur')?.value,
-        operation: { idOp: this.parametreForm.get('operationId')?.value }
+        affectation: { idAffectation: this.parametreForm.get('affectationId')?.value }
       };
       
       if (this.isEditing && this.editingId) {
@@ -140,8 +143,7 @@ export class ParametreComponent implements OnInit {
     this.editingId = parametre.idParametre || null;
     this.parametreForm.patchValue({
       nom: parametre.nom,
-      valeur: parametre.valeur,
-      operationId: parametre.operation?.idOp
+      affectationId: parametre.affectation?.idAffectation
     });
   }
 

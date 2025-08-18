@@ -13,6 +13,7 @@ public class Produit {
     private Long idProduit;
 
     private String nom;
+    private String code;
 
      @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -30,8 +31,9 @@ public class Produit {
     // Constructors
     public Produit() {}
 
-    public Produit(String nom, TypeProd type, LigneProduction ligne) {
+    public Produit(String nom, String code, TypeProd type, LigneProduction ligne) {
         this.nom = nom;
+        this.code = code;
         this.type = type;
         this.ligne = ligne;
     }
@@ -51,6 +53,14 @@ public class Produit {
 
     public void setNom(String nom) {
         this.nom = nom;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public TypeProd getType() {

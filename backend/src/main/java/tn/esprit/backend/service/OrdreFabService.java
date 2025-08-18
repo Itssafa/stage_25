@@ -29,6 +29,14 @@ public class OrdreFabService {
         OrdreFab existing = repository.findById(id).orElse(null);
         if (existing == null) return null;
         
+        existing.setCode_fab(updated.getCode_fab());
+        existing.setStatuts(updated.getStatuts());
+        existing.setQuantite(updated.getQuantite());
+        existing.setDatedeb(updated.getDatedeb());
+        existing.setDatefin(updated.getDatefin());
+        existing.setUser(updated.getUser());
+        existing.setProduit(updated.getProduit());
+        
         return repository.save(existing);
     }
 

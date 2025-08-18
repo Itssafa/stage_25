@@ -2,10 +2,19 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
+
+interface Operation {
+  id: number;
+  nomOp: string;
+  description: string;
+  parametre: string;
+}
+
 interface Application {
-  idApplication?: number;
-  nom: string;
-  
+  idApp?: number;
+  nomApp: string;
+  description: string;
+  operation?: Operation;
 }
 
 @Component({
@@ -16,25 +25,29 @@ interface Application {
 export class ApplicationComponent implements OnInit {
   applicationForm: FormGroup;
   applications: Application[] = [];
+  operations: Operation[] = [];
   loading = false;
   error = '';
   isEditing = false;
   editingId: number | null = null;
   
   private apiUrl = 'http://localhost:8085/api/applications';
+  private operationApiUrl = 'http://localhost:8085/api/operations';
 
   constructor(
     private fb: FormBuilder,
     private http: HttpClient
   ) {
     this.applicationForm = this.fb.group({
-      nom: ['', [Validators.required, Validators.minLength(2)]],
-      version: ['', [Validators.required, Validators.minLength(1)]]
+      nomApp: ['', [Validators.required, Validators.minLength(2)]],
+      description: ['', [Validators.required, Validators.minLength(5)]],
+      operationId: ['']
     });
   }
 
   ngOnInit() {
     this.loadApplications();
+    this.loadOperations();
   }
 
   private getHeaders(): HttpHeaders {
@@ -43,6 +56,18 @@ export class ApplicationComponent implements OnInit {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     });
+  }
+
+  loadOperations() {
+    this.http.get<Operation[]>(this.operationApiUrl, { headers: this.getHeaders() })
+      .subscribe({
+        next: (data) => {
+          this.operations = data;
+        },
+        error: (err) => {
+          console.error('Erreur lors du chargement des opérations:', err);
+        }
+      });
   }
 
   loadApplications() {
@@ -65,10 +90,16 @@ export class ApplicationComponent implements OnInit {
 
   onSubmit() {
     if (this.applicationForm.valid) {
-      const applicationData = {
-        nom: this.applicationForm.get('nom')?.value,
-        version: this.applicationForm.get('version')?.value
+      const operationId = this.applicationForm.get('operationId')?.value;
+      const applicationData: any = {
+        nomApp: this.applicationForm.get('nomApp')?.value,
+        description: this.applicationForm.get('description')?.value
       };
+      
+      // Ajouter l'opération si sélectionnée
+      if (operationId) {
+        applicationData.operation = { id: operationId };
+      }
       
       if (this.isEditing && this.editingId) {
         this.updateApplication(this.editingId, applicationData);
@@ -97,7 +128,7 @@ export class ApplicationComponent implements OnInit {
     this.http.put<Application>(`${this.apiUrl}/${id}`, application, { headers: this.getHeaders() })
       .subscribe({
         next: (updatedApplication) => {
-          const index = this.applications.findIndex(a => a.idApplication === id);
+          const index = this.applications.findIndex(a => a.idApp === id);
           if (index !== -1) {
             this.applications[index] = updatedApplication;
           }
@@ -113,10 +144,12 @@ export class ApplicationComponent implements OnInit {
 
   editApplication(application: Application) {
     this.isEditing = true;
-    this.editingId = application.idApplication || null;
+    this.editingId = application.idApp || null;
     this.applicationForm.patchValue({
-      nom: application.nom
-        });
+      nomApp: application.nomApp,
+      description: application.description,
+      operationId: application.operation?.id || ''
+    });
   }
 
   deleteApplication(id: number) {
@@ -124,7 +157,7 @@ export class ApplicationComponent implements OnInit {
       this.http.delete(`${this.apiUrl}/${id}`, { headers: this.getHeaders() })
         .subscribe({
           next: () => {
-            this.applications = this.applications.filter(a => a.idApplication !== id);
+            this.applications = this.applications.filter(a => a.idApp !== id);
             console.log('Application supprimée avec succès');
           },
           error: (err) => {

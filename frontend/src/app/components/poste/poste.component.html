@@ -55,19 +55,42 @@
           <th>ID</th>
           <th>Nom</th>
           <th>Ligne de production</th>
+          <th>Applications</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let poste of postes">
-          <td>{{ poste.idPoste }}</td>
-          <td>{{ poste.nom }}</td>
-          <td>{{ poste.ligne?.nom || 'N/A' }}</td>
-          <td>
-            <button (click)="editPoste(poste)" class="btn btn-edit">Modifier</button>
-            <button (click)="deletePoste(poste.idPoste!)" class="btn btn-delete">Supprimer</button>
-          </td>
-        </tr>
+        <ng-container *ngFor="let poste of postes">
+          <tr>
+            <td>{{ poste.idPoste }}</td>
+            <td>{{ poste.nom }}</td>
+            <td>{{ poste.ligne?.nom || 'N/A' }}</td>
+            <td>
+              <button (click)="toggleApplications(poste.idPoste!)" class="btn btn-info">
+                {{ selectedPosteId === poste.idPoste ? 'Masquer' : 'Voir' }} Applications
+              </button>
+            </td>
+            <td>
+              <button (click)="editPoste(poste)" class="btn btn-edit">Modifier</button>
+              <button (click)="deletePoste(poste.idPoste!)" class="btn btn-delete">Supprimer</button>
+            </td>
+          </tr>
+          <tr *ngIf="selectedPosteId === poste.idPoste && applications[poste.idPoste!]">
+            <td colspan="5">
+              <div class="applications-list">
+                <h4>Applications affectées au poste "{{ poste.nom }}":</h4>
+                <div *ngIf="applications[poste.idPoste!] && applications[poste.idPoste!].length === 0" class="no-applications">
+                  Aucune application affectée
+                </div>
+                <ul *ngIf="applications[poste.idPoste!] && applications[poste.idPoste!].length > 0">
+                  <li *ngFor="let app of applications[poste.idPoste!]">
+                    <strong>{{ app.nomApp }}</strong> - {{ app.description }}
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+        </ng-container>
       </tbody>
     </table>
     

@@ -5,6 +5,35 @@
     <h3>{{ isEditing ? 'Modifier' : 'Ajouter' }} un ordre de fabrication</h3>
     <form [formGroup]="ordreFabForm" (ngSubmit)="onSubmit()">
       <div class="form-group">
+        <label for="code_fab">Code de fabrication:</label>
+        <input 
+          type="text" 
+          id="code_fab" 
+          formControlName="code_fab" 
+          class="form-control"
+          placeholder="Entrez le code de fabrication">
+        <div *ngIf="ordreFabForm.get('code_fab')?.invalid && ordreFabForm.get('code_fab')?.touched" class="error">
+          Le code de fabrication est requis (minimum 3 caractères)
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="statuts">Statut:</label>
+        <select 
+          id="statuts" 
+          formControlName="statuts" 
+          class="form-control">
+          <option value="">Sélectionnez un statut</option>
+          <option *ngFor="let statut of statuts" [value]="statut">
+            {{ statut.replace('_', ' ') }}
+          </option>
+        </select>
+        <div *ngIf="ordreFabForm.get('statuts')?.invalid && ordreFabForm.get('statuts')?.touched" class="error">
+          Veuillez sélectionner un statut
+        </div>
+      </div>
+      
+      <div class="form-group">
         <label for="quantite">Quantité:</label>
         <input 
           type="number" 
@@ -19,26 +48,42 @@
       </div>
       
       <div class="form-group">
-        <label for="dateDebut">Date de début:</label>
+        <label for="datedeb">Date de début:</label>
         <input 
           type="date" 
-          id="dateDebut" 
-          formControlName="dateDebut" 
+          id="datedeb" 
+          formControlName="datedeb" 
           class="form-control">
-        <div *ngIf="ordreFabForm.get('dateDebut')?.invalid && ordreFabForm.get('dateDebut')?.touched" class="error">
+        <div *ngIf="ordreFabForm.get('datedeb')?.invalid && ordreFabForm.get('datedeb')?.touched" class="error">
           La date de début est requise
         </div>
       </div>
       
       <div class="form-group">
-        <label for="dateFin">Date de fin:</label>
+        <label for="datefin">Date de fin:</label>
         <input 
           type="date" 
-          id="dateFin" 
-          formControlName="dateFin" 
+          id="datefin" 
+          formControlName="datefin" 
           class="form-control">
-        <div *ngIf="ordreFabForm.get('dateFin')?.invalid && ordreFabForm.get('dateFin')?.touched" class="error">
+        <div *ngIf="ordreFabForm.get('datefin')?.invalid && ordreFabForm.get('datefin')?.touched" class="error">
           La date de fin est requise
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="userId">Utilisateur (ADMIN/PARAMETREUR):</label>
+        <select 
+          id="userId" 
+          formControlName="userId" 
+          class="form-control">
+          <option value="">Sélectionnez un utilisateur</option>
+          <option *ngFor="let user of users" [value]="user.matricule">
+            {{ user.username }} - {{ user.prenom }} ({{ user.role }})
+          </option>
+        </select>
+        <div *ngIf="ordreFabForm.get('userId')?.invalid && ordreFabForm.get('userId')?.touched" class="error">
+          Veuillez sélectionner un utilisateur
         </div>
       </div>
       
@@ -78,23 +123,29 @@
       <thead>
         <tr>
           <th>ID</th>
+          <th>Code Fab</th>
+          <th>Statut</th>
           <th>Quantité</th>
           <th>Date début</th>
           <th>Date fin</th>
+          <th>Utilisateur</th>
           <th>Produit</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let ordreFab of ordresFab">
-          <td>{{ ordreFab.idOrdre }}</td>
+          <td>{{ ordreFab.id_orf }}</td>
+          <td>{{ ordreFab.code_fab }}</td>
+          <td>{{ ordreFab.statuts?.replace('_', ' ') }}</td>
           <td>{{ ordreFab.quantite }}</td>
-          <td>{{ ordreFab.dateDebut | date:'dd/MM/yyyy' }}</td>
-          <td>{{ ordreFab.dateFin | date:'dd/MM/yyyy' }}</td>
+          <td>{{ ordreFab.datedeb | date:'dd/MM/yyyy' }}</td>
+          <td>{{ ordreFab.datefin | date:'dd/MM/yyyy' }}</td>
+          <td>{{ ordreFab.user?.username || 'N/A' }}</td>
           <td>{{ ordreFab.produit?.nom || 'N/A' }}</td>
           <td>
             <button (click)="editOrdreFab(ordreFab)" class="btn btn-edit">Modifier</button>
-            <button (click)="deleteOrdreFab(ordreFab.idOrdre!)" class="btn btn-delete">Supprimer</button>
+            <button (click)="deleteOrdreFab(ordreFab.id_orf!)" class="btn btn-delete">Supprimer</button>
           </td>
         </tr>
       </tbody>

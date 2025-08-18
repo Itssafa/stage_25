@@ -18,12 +18,8 @@ public class Poste {
     @JsonIgnoreProperties({"postes", "produits"})
     private LigneProduction ligne;
 
-    @OneToMany(mappedBy = "poste", cascade = CascadeType.ALL)
-    @JsonIgnoreProperties({"poste"})
-    private List<Operation> operations;
-
-    @OneToMany(mappedBy = "poste", cascade = CascadeType.ALL)
-    @JsonIgnoreProperties({"poste"})
+    @OneToMany(mappedBy = "poste", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("poste")
     private List<Affectation> affectations;
 
     // Constructors
@@ -59,14 +55,6 @@ public class Poste {
         this.ligne = ligne;
     }
 
-    public List<Operation> getOperations() {
-        return operations;
-    }
-
-    public void setOperations(List<Operation> operations) {
-        this.operations = operations;
-    }
-
     public List<Affectation> getAffectations() {
         return affectations;
     }
@@ -75,4 +63,3 @@ public class Poste {
         this.affectations = affectations;
     }
 }
-

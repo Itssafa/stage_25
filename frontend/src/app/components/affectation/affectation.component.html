@@ -5,30 +5,6 @@
     <h3>{{ isEditing ? 'Modifier' : 'Ajouter' }} une affectation</h3>
     <form [formGroup]="affectationForm" (ngSubmit)="onSubmit()">
       <div class="form-group">
-        <label for="dateDebut">Date de début:</label>
-        <input 
-          type="date" 
-          id="dateDebut" 
-          formControlName="dateDebut" 
-          class="form-control">
-        <div *ngIf="affectationForm.get('dateDebut')?.invalid && affectationForm.get('dateDebut')?.touched" class="error">
-          La date de début est requise
-        </div>
-      </div>
-      
-      <div class="form-group">
-        <label for="dateFin">Date de fin:</label>
-        <input 
-          type="date" 
-          id="dateFin" 
-          formControlName="dateFin" 
-          class="form-control">
-        <div *ngIf="affectationForm.get('dateFin')?.invalid && affectationForm.get('dateFin')?.touched" class="error">
-          La date de fin est requise
-        </div>
-      </div>
-      
-      <div class="form-group">
         <label for="posteId">Poste:</label>
         <select 
           id="posteId" 
@@ -36,7 +12,7 @@
           class="form-control">
           <option value="">Sélectionnez un poste</option>
           <option *ngFor="let poste of postes" [value]="poste.idPoste">
-            {{ poste.nom }}
+            {{ poste.nom }} ({{ poste.ligne?.nom }})
           </option>
         </select>
         <div *ngIf="affectationForm.get('posteId')?.invalid && affectationForm.get('posteId')?.touched" class="error">
@@ -45,34 +21,18 @@
       </div>
       
       <div class="form-group">
-        <label for="operationId">Opération:</label>
+        <label for="appId">Application:</label>
         <select 
-          id="operationId" 
-          formControlName="operationId" 
+          id="appId" 
+          formControlName="appId" 
           class="form-control">
-          <option value="">Sélectionnez une opération</option>
-          <option *ngFor="let operation of operations" [value]="operation.idOp">
-            {{ operation.libelle }} ({{ operation.temps }}min)
+          <option value="">Sélectionnez une application</option>
+          <option *ngFor="let application of applications" [value]="application.idApp">
+            {{ application.nomApp }} - {{ application.description }}
           </option>
         </select>
-        <div *ngIf="affectationForm.get('operationId')?.invalid && affectationForm.get('operationId')?.touched" class="error">
-          Veuillez sélectionner une opération
-        </div>
-      </div>
-      
-      <div class="form-group">
-        <label for="ordreId">Ordre de fabrication:</label>
-        <select 
-          id="ordreId" 
-          formControlName="ordreId" 
-          class="form-control">
-          <option value="">Sélectionnez un ordre</option>
-          <option *ngFor="let ordre of ordres" [value]="ordre.idOrdre">
-            Ordre #{{ ordre.idOrdre }} - {{ ordre.produit?.nom }} (Qté: {{ ordre.quantite }})
-          </option>
-        </select>
-        <div *ngIf="affectationForm.get('ordreId')?.invalid && affectationForm.get('ordreId')?.touched" class="error">
-          Veuillez sélectionner un ordre de fabrication
+        <div *ngIf="affectationForm.get('appId')?.invalid && affectationForm.get('appId')?.touched" class="error">
+          Veuillez sélectionner une application
         </div>
       </div>
       
@@ -96,22 +56,16 @@
       <thead>
         <tr>
           <th>ID</th>
-          <th>Date début</th>
-          <th>Date fin</th>
           <th>Poste</th>
-          <th>Opération</th>
-          <th>Ordre</th>
+          <th>Application</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let affectation of affectations">
           <td>{{ affectation.idAffectation }}</td>
-          <td>{{ affectation.dateDebut | date:'dd/MM/yyyy' }}</td>
-          <td>{{ affectation.dateFin | date:'dd/MM/yyyy' }}</td>
-          <td>{{ affectation.poste?.nom || 'N/A' }}</td>
-          <td>{{ affectation.operation?.libelle || 'N/A' }}</td>
-          <td>Ordre #{{ affectation.ordre?.idOrdre || 'N/A' }}</td>
+          <td>{{ affectation.poste?.nom || 'N/A' }} ({{ affectation.poste?.ligne?.nom || 'N/A' }})</td>
+          <td>{{ affectation.application?.nomApp || 'N/A' }} - {{ affectation.application?.description || 'N/A' }}</td>
           <td>
             <button (click)="editAffectation(affectation)" class="btn btn-edit">Modifier</button>
             <button (click)="deleteAffectation(affectation.idAffectation!)" class="btn btn-delete">Supprimer</button>

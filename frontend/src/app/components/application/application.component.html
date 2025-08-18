@@ -5,18 +5,45 @@
     <h3>{{ isEditing ? 'Modifier' : 'Ajouter' }} une application</h3>
     <form [formGroup]="applicationForm" (ngSubmit)="onSubmit()">
       <div class="form-group">
-        <label for="nom">Nom de l'application:</label>
-        <input 
-          type="text" 
-          id="nom" 
-          formControlName="nom" 
-          class="form-control"
-          placeholder="Entrez le nom de l'application">
-        <div *ngIf="applicationForm.get('nom')?.invalid && applicationForm.get('nom')?.touched" class="error">
+        <label for="nomApp">Nom de l'application:</label>
+       <input 
+  type="text" 
+  id="nomApp" 
+  formControlName="nomApp" 
+  class="form-control"
+  placeholder="Entrez le nom de l'application">
+
+        <div *ngIf="applicationForm.get('nomApp')?.invalid && applicationForm.get('nomApp')?.touched" class="error">
           Le nom est requis (minimum 2 caractères)
         </div>
       </div>
       
+
+      <div class="form-group">
+        <label for="description">description de l'application:</label>
+        <input 
+          type="text" 
+          id="description" 
+          formControlName="description" 
+          class="form-control"
+          placeholder="Entrez une description de l'application">
+        <div *ngIf="applicationForm.get('description')?.invalid && applicationForm.get('description')?.touched" class="error">
+          Le description est requis (minimum 5 caractères)
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="operationId">Opération (optionnel):</label>
+        <select 
+          id="operationId" 
+          formControlName="operationId" 
+          class="form-control">
+          <option value="">Sélectionnez une opération</option>
+          <option *ngFor="let operation of operations" [value]="operation.id">
+            {{ operation.nomOp }} - {{ operation.description }}
+          </option>
+        </select>
+      </div>
      
       
       <div class="form-actions">
@@ -40,16 +67,20 @@
         <tr>
           <th>ID</th>
           <th>Nom</th>
+          <th>Description</th>
+          <th>Opération</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let application of applications">
-          <td>{{ application.idApplication }}</td>
-          <td>{{ application.nom }}</td>
+          <td>{{ application.idApp }}</td>
+          <td>{{ application.nomApp }}</td>
+          <td>{{ application.description }}</td>
+          <td>{{ application.operation?.nomOp || 'Aucune' }}</td>
           <td>
             <button (click)="editApplication(application)" class="btn btn-edit">Modifier</button>
-            <button (click)="deleteApplication(application.idApplication!)" class="btn btn-delete">Supprimer</button>
+            <button (click)="deleteApplication(application.idApp!)" class="btn btn-delete">Supprimer</button>
           </td>
         </tr>
       </tbody>

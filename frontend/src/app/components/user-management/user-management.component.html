@@ -1,0 +1,155 @@
+<div class="user-management-container">
+  <h2>Gestion des Utilisateurs</h2>
+
+  <div *ngIf="error" class="error">{{ error }}</div>
+  <div *ngIf="loading" class="loading">Chargement...</div>
+
+  <!-- Liste des utilisateurs en attente d'activation -->
+  <div class="users-section">
+    <h3>Utilisateurs en attente d'activation ({{ defaultUsers.length }})</h3>
+    
+    <table *ngIf="defaultUsers.length > 0" class="table">
+      <thead>
+        <tr>
+          <th>Matricule</th>
+          <th>Nom d'utilisateur</th>
+          <th>Prénom</th>
+          <th>Email</th>
+          <th>Date de création</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of defaultUsers">
+          <td>{{ user.matricule }}</td>
+          <td>{{ user.username }}</td>
+          <td>{{ user.prenom }}</td>
+          <td>{{ user.adresseMail }}</td>
+          <td>{{ formatDate(user.createdAt) }}</td>
+          <td>
+            <button (click)="editUser(user)" class="btn btn-edit">Modifier</button>
+            <button (click)="openActivationModal(user)" class="btn btn-activate">Activer</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <div *ngIf="defaultUsers.length === 0 && !loading" class="no-data">
+      Aucun utilisateur en attente d'activation
+    </div>
+  </div>
+
+  <!-- Liste des utilisateurs activés -->
+  <div class="users-section">
+    <h3>Utilisateurs activés ({{ activeUsers.length }})</h3>
+    
+    <table *ngIf="activeUsers.length > 0" class="table">
+      <thead>
+        <tr>
+          <th>Matricule</th>
+          <th>Nom d'utilisateur</th>
+          <th>Prénom</th>
+          <th>Email</th>
+          <th>Date d'activation</th>
+          <th>Durée</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of activeUsers">
+          <td>{{ user.matricule }}</td>
+          <td>{{ user.username }}</td>
+          <td>{{ user.prenom }}</td>
+          <td>{{ user.adresseMail }}</td>
+          <td>{{ formatDate(user.activationDate!) }}</td>
+          <td>{{ getDurationText(user.activationDurationDays!) }}</td>
+          <td>
+            <button (click)="editUser(user)" class="btn btn-edit">Modifier</button>
+            <button (click)="deactivateUser(user)" class="btn btn-deactivate">Désactiver</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <div *ngIf="activeUsers.length === 0 && !loading" class="no-data">
+      Aucun utilisateur activé
+    </div>
+  </div>
+
+  <!-- Modal d'édition -->
+  <div *ngIf="isEditing" class="modal-overlay">
+    <div class="modal">
+      <h3>Modifier l'utilisateur</h3>
+      <form [formGroup]="editForm" (ngSubmit)="saveUser()">
+        <div class="form-group">
+          <label for="username">Nom d'utilisateur:</label>
+          <input 
+            type="text" 
+            id="username" 
+            formControlName="username" 
+            class="form-control">
+          <div *ngIf="editForm.get('username')?.invalid && editForm.get('username')?.touched" class="error">
+            Le nom d'utilisateur est requis (minimum 3 caractères)
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="prenom">Prénom:</label>
+          <input 
+            type="text" 
+            id="prenom" 
+            formControlName="prenom" 
+            class="form-control">
+          <div *ngIf="editForm.get('prenom')?.invalid && editForm.get('prenom')?.touched" class="error">
+            Le prénom est requis (minimum 2 caractères)
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="adresseMail">Email:</label>
+          <input 
+            type="email" 
+            id="adresseMail" 
+            formControlName="adresseMail" 
+            class="form-control">
+          <div *ngIf="editForm.get('adresseMail')?.invalid && editForm.get('adresseMail')?.touched" class="error">
+            Une adresse email valide est requise
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="submit" [disabled]="editForm.invalid" class="btn btn-primary">Sauvegarder</button>
+          <button type="button" (click)="cancelEdit()" class="btn btn-secondary">Annuler</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal d'activation -->
+  <div *ngIf="showActivationModal" class="modal-overlay">
+    <div class="modal">
+      <h3>Activer l'utilisateur: {{ userToActivate?.username }}</h3>
+      <form [formGroup]="activationForm" (ngSubmit)="activateUser()">
+        <div class="form-group">
+          <label for="durationDays">Durée d'activation (en jours):</label>
+          <input 
+            type="number" 
+            id="durationDays" 
+            formControlName="durationDays" 
+            class="form-control"
+            placeholder="Laisser vide pour une durée indéterminée"
+            min="1">
+          <div *ngIf="activationForm.get('durationDays')?.invalid && activationForm.get('durationDays')?.touched" class="error">
+            La durée doit être supérieure à 0
+          </div>
+          <small class="help-text">Si aucune durée n'est spécifiée, l'activation sera indéterminée</small>
+        </div>
+        
+        <div class="form-actions">
+          <button type="submit" [disabled]="activationForm.invalid" class="btn btn-activate">Activer</button>
+          <button type="button" (click)="closeActivationModal()" class="btn btn-secondary">Annuler</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

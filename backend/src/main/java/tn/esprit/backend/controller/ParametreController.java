@@ -1,7 +1,9 @@
 package tn.esprit.backend.controller;
 
 import tn.esprit.backend.entity.Parametre;
+import tn.esprit.backend.entity.Affectation;
 import tn.esprit.backend.service.ParametreService;
+import tn.esprit.backend.service.AffectationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +18,9 @@ public class ParametreController {
     @Autowired
     private ParametreService service;
 
+    @Autowired
+    private AffectationService affectationService;
+
     @GetMapping
     public List<Parametre> getAll() {
         return service.getAll();
@@ -28,12 +33,31 @@ public class ParametreController {
     }
 
     @PostMapping
-    public Parametre create(@RequestBody Parametre obj) {
-        return service.create(obj);
+    public ResponseEntity<Parametre> create(@RequestBody Parametre obj) {
+        // Valider et récupérer l'affectation
+        if (obj.getAffectation() != null && obj.getAffectation().getIdAffectation() != null) {
+            Affectation affectation = affectationService.getById(obj.getAffectation().getIdAffectation());
+            if (affectation == null) {
+                return ResponseEntity.badRequest().build();
+            }
+            obj.setAffectation(affectation);
+        }
+        
+        Parametre created = service.create(obj);
+        return ResponseEntity.ok(created);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Parametre> update(@PathVariable Long id, @RequestBody Parametre obj) {
+        // Valider et récupérer l'affectation
+        if (obj.getAffectation() != null && obj.getAffectation().getIdAffectation() != null) {
+            Affectation affectation = affectationService.getById(obj.getAffectation().getIdAffectation());
+            if (affectation == null) {
+                return ResponseEntity.badRequest().build();
+            }
+            obj.setAffectation(affectation);
+        }
+        
         Parametre updated = service.update(id, obj);
         return updated != null ? ResponseEntity.ok(updated) : ResponseEntity.notFound().build();
     }

@@ -6,14 +6,24 @@ import tn.esprit.backend.enums.TypeProd;
 public class ProduitDTO {
     private Long idProduit;
     private String nom;
+    private String code;
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
     private TypeProd type;
     private LigneProductionSimpleDTO ligne;
 
     public ProduitDTO() {}
 
-    public ProduitDTO(Long idProduit, String nom, TypeProd type, LigneProductionSimpleDTO ligne) {
+    public ProduitDTO(Long idProduit, String nom, String code, TypeProd type, LigneProductionSimpleDTO ligne) {
         this.idProduit = idProduit;
         this.nom = nom;
+        this.code = code;
         this.type = type;
         this.ligne = ligne;
     }
@@ -22,6 +32,7 @@ public class ProduitDTO {
         ProduitDTO dto = new ProduitDTO();
         dto.setIdProduit(produit.getIdProduit());
         dto.setNom(produit.getNom());
+        dto.setCode(produit.getCode());
         dto.setType(produit.getType());
         if (produit.getLigne() != null) {
             dto.setLigne(new LigneProductionSimpleDTO(

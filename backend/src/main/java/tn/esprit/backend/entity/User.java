@@ -10,6 +10,7 @@ import tn.esprit.backend.enums.Role;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.List;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -50,15 +51,27 @@ public class User {
     @Column(name = "updated_at")
     private java.time.LocalDateTime updatedAt = java.time.LocalDateTime.now();
 
+    @Column(name = "is_active")
+    private Boolean isActive = false; // Compte inactif par défaut
+
+    @Column(name = "activation_date")
+    private LocalDateTime activationDate;
+
+    @Column(name = "activation_duration_days")
+    private Integer activationDurationDays; // null = durée indéterminée
+
+    @Column(name = "deactivation_date")
+    private LocalDateTime deactivationDate;
+
     @PreUpdate
     protected void onUpdate() {
         updatedAt = java.time.LocalDateTime.now();
     }
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    @JsonIgnoreProperties({"user", "ordre", "operation", "poste"})
-    private List<Affectation> affectations;
+    // @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    // @JsonIgnoreProperties({"user", "ordre", "operation", "poste"})
+    // private List<Affectation> affectations;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    @JsonIgnoreProperties({"user"})
-    private List<Application> applications;
+    //@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    //@JsonIgnoreProperties({"user"})
+    //private List<Application> applications;
 }

@@ -18,31 +18,18 @@
       </div>
       
       <div class="form-group">
-        <label for="valeur">Valeur:</label>
-        <input 
-          type="text" 
-          id="valeur" 
-          formControlName="valeur" 
-          class="form-control"
-          placeholder="Entrez la valeur du paramètre">
-        <div *ngIf="parametreForm.get('valeur')?.invalid && parametreForm.get('valeur')?.touched" class="error">
-          La valeur est requise
-        </div>
-      </div>
-      
-      <div class="form-group">
-        <label for="operationId">Opération:</label>
+        <label for="affectationId">Affectation:</label>
         <select 
-          id="operationId" 
-          formControlName="operationId" 
+          id="affectationId" 
+          formControlName="affectationId" 
           class="form-control">
-          <option value="">Sélectionnez une opération</option>
-          <option *ngFor="let operation of operations" [value]="operation.idOp">
-            {{ operation.libelle }} ({{ operation.temps }}min)
+          <option value="">Sélectionnez une affectation</option>
+          <option *ngFor="let affectation of affectations" [value]="affectation.idAffectation">
+            {{ affectation.poste?.nom || 'N/A' }} - {{ affectation.application?.nom || 'N/A' }}
           </option>
         </select>
-        <div *ngIf="parametreForm.get('operationId')?.invalid && parametreForm.get('operationId')?.touched" class="error">
-          Veuillez sélectionner une opération
+        <div *ngIf="parametreForm.get('affectationId')?.invalid && parametreForm.get('affectationId')?.touched" class="error">
+          Veuillez sélectionner une affectation
         </div>
       </div>
       
@@ -67,8 +54,7 @@
         <tr>
           <th>ID</th>
           <th>Nom</th>
-          <th>Valeur</th>
-          <th>Opération</th>
+          <th>Affectation</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -76,8 +62,7 @@
         <tr *ngFor="let parametre of parametres">
           <td>{{ parametre.idParametre }}</td>
           <td>{{ parametre.nom }}</td>
-          <td>{{ parametre.valeur }}</td>
-          <td>{{ parametre.operation?.libelle || 'N/A' }}</td>
+          <td>{{ parametre.affectation?.poste?.nom || 'N/A' }} - {{ parametre.affectation?.application?.nom || 'N/A' }}</td>
           <td>
             <button (click)="editParametre(parametre)" class="btn btn-edit">Modifier</button>
             <button (click)="deleteParametre(parametre.idParametre!)" class="btn btn-delete">Supprimer</button>

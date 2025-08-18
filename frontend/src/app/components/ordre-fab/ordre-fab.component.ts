@@ -2,6 +2,15 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
+interface User {
+  matricule: number;
+  username: string;
+  prenom: string;
+  adresseMail: string;
+  role: string;
+  isActive: boolean;
+}
+
 interface Produit {
   idProduit: number;
   nom: string;
@@ -9,10 +18,13 @@ interface Produit {
 }
 
 interface OrdreFab {
-  idOrdre?: number;
+  id_orf?: number;
+  code_fab: string;
+  statuts: string;
   quantite: number;
-  dateDebut: string;
-  dateFin: string;
+  datedeb: string;
+  datefin: string;
+  user?: User;
   produit?: Produit;
 }
 
@@ -25,6 +37,8 @@ export class OrdreFabComponent implements OnInit {
   ordreFabForm: FormGroup;
   ordresFab: OrdreFab[] = [];
   produits: Produit[] = [];
+  users: User[] = [];
+  statuts: string[] = [];
   loading = false;
   error = '';
   isEditing = false;
@@ -32,15 +46,20 @@ export class OrdreFabComponent implements OnInit {
   
   private apiUrl = 'http://localhost:8085/api/ordrefabs';
   private produitApiUrl = 'http://localhost:8085/api/produits';
+  private userApiUrl = 'http://localhost:8085/api/admin/user-management/active-admin-param';
+  private statutApiUrl = 'http://localhost:8085/api/ordrefabs/statuts';
 
   constructor(
     private fb: FormBuilder,
     private http: HttpClient
   ) {
     this.ordreFabForm = this.fb.group({
+      code_fab: ['', [Validators.required, Validators.minLength(3)]],
+      statuts: ['', [Validators.required]],
       quantite: ['', [Validators.required, Validators.min(1)]],
-      dateDebut: ['', [Validators.required]],
-      dateFin: ['', [Validators.required]],
+      datedeb: ['', [Validators.required]],
+      datefin: ['', [Validators.required]],
+      userId: ['', [Validators.required]],
       produitId: ['', [Validators.required]]
     });
   }
@@ -48,6 +67,8 @@ export class OrdreFabComponent implements OnInit {
   ngOnInit() {
     this.loadOrdresFab();
     this.loadProduits();
+    this.loadUsers();
+    this.loadStatuts();
   }
 
   private getHeaders(): HttpHeaders {
@@ -66,6 +87,30 @@ export class OrdreFabComponent implements OnInit {
         },
         error: (err) => {
           console.error('Erreur lors du chargement des produits:', err);
+        }
+      });
+  }
+
+  loadUsers() {
+    this.http.get<User[]>(this.userApiUrl, { headers: this.getHeaders() })
+      .subscribe({
+        next: (data) => {
+          this.users = data;
+        },
+        error: (err) => {
+          console.error('Erreur lors du chargement des utilisateurs:', err);
+        }
+      });
+  }
+
+  loadStatuts() {
+    this.http.get<string[]>(this.statutApiUrl, { headers: this.getHeaders() })
+      .subscribe({
+        next: (data) => {
+          this.statuts = data;
+        },
+        error: (err) => {
+          console.error('Erreur lors du chargement des statuts:', err);
         }
       });
   }
@@ -91,9 +136,12 @@ export class OrdreFabComponent implements OnInit {
   onSubmit() {
     if (this.ordreFabForm.valid) {
       const ordreFabData = {
+        code_fab: this.ordreFabForm.get('code_fab')?.value,
+        statuts: this.ordreFabForm.get('statuts')?.value,
         quantite: this.ordreFabForm.get('quantite')?.value,
-        dateDebut: this.ordreFabForm.get('dateDebut')?.value,
-        dateFin: this.ordreFabForm.get('dateFin')?.value,
+        datedeb: this.ordreFabForm.get('datedeb')?.value,
+        datefin: this.ordreFabForm.get('datefin')?.value,
+        user: { matricule: this.ordreFabForm.get('userId')?.value },
         produit: { idProduit: this.ordreFabForm.get('produitId')?.value }
       };
       
@@ -124,7 +172,7 @@ export class OrdreFabComponent implements OnInit {
     this.http.put<OrdreFab>(`${this.apiUrl}/${id}`, ordreFab, { headers: this.getHeaders() })
       .subscribe({
         next: (updatedOrdreFab) => {
-          const index = this.ordresFab.findIndex(o => o.idOrdre === id);
+          const index = this.ordresFab.findIndex(o => o.id_orf === id);
           if (index !== -1) {
             this.ordresFab[index] = updatedOrdreFab;
           }
@@ -140,11 +188,14 @@ export class OrdreFabComponent implements OnInit {
 
   editOrdreFab(ordreFab: OrdreFab) {
     this.isEditing = true;
-    this.editingId = ordreFab.idOrdre || null;
+    this.editingId = ordreFab.id_orf || null;
     this.ordreFabForm.patchValue({
+      code_fab: ordreFab.code_fab,
+      statuts: ordreFab.statuts,
       quantite: ordreFab.quantite,
-      dateDebut: ordreFab.dateDebut,
-      dateFin: ordreFab.dateFin,
+      datedeb: ordreFab.datedeb,
+      datefin: ordreFab.datefin,
+      userId: ordreFab.user?.matricule,
       produitId: ordreFab.produit?.idProduit
     });
   }
@@ -154,7 +205,7 @@ export class OrdreFabComponent implements OnInit {
       this.http.delete(`${this.apiUrl}/${id}`, { headers: this.getHeaders() })
         .subscribe({
           next: () => {
-            this.ordresFab = this.ordresFab.filter(o => o.idOrdre !== id);
+            this.ordresFab = this.ordresFab.filter(o => o.id_orf !== id);
             console.log('Ordre de fabrication supprimé avec succès');
           },
           error: (err) => {

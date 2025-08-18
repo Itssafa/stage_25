@@ -9,6 +9,12 @@ interface LigneProduction {
   nom: string;
 }
 
+interface Application {
+  idApp: number;
+  nomApp: string;
+  description: string;
+}
+
 interface Poste {
   idPoste?: number;
   nom: string;
@@ -24,10 +30,12 @@ export class PosteComponent implements OnInit, OnDestroy {
   posteForm: FormGroup;
   postes: Poste[] = [];
   lignes: LigneProduction[] = [];
+  applications: { [key: number]: Application[] } = {};
   loading = false;
   error = '';
   isEditing = false;
   editingId: number | null = null;
+  selectedPosteId: number | null = null;
   
   private destroy$ = new Subject<void>();
   
@@ -200,6 +208,31 @@ export class PosteComponent implements OnInit, OnDestroy {
             console.error('Erreur:', err);
           }
         });
+    }
+  }
+
+  loadApplicationsByPoste(posteId: number) {
+    this.http.get<Application[]>(`${this.apiUrl}/${posteId}/applications`, { headers: this.getHeaders() })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.applications[posteId] = data || [];
+        },
+        error: (err) => {
+          console.error('Erreur lors du chargement des applications du poste:', err);
+          this.applications[posteId] = [];
+        }
+      });
+  }
+
+  toggleApplications(posteId: number) {
+    if (this.selectedPosteId === posteId) {
+      this.selectedPosteId = null;
+    } else {
+      this.selectedPosteId = posteId;
+      if (!this.applications[posteId]) {
+        this.loadApplicationsByPoste(posteId);
+      }
     }
   }
 

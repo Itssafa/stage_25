@@ -115,7 +115,7 @@ export class LigneProductionComponent implements OnInit {
     });
   }
 
-  deleteLigne(id: number) {
+  deleteLigne(id?: number) {
     if (confirm('Êtes-vous sûr de vouloir supprimer cette ligne de production ?')) {
       this.http.delete(`${this.apiUrl}/${id}`, { headers: this.getHeaders() })
         .subscribe({

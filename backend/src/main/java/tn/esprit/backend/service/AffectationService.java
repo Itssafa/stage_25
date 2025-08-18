@@ -28,7 +28,7 @@ public class AffectationService {
     public Affectation update(Long id, Affectation updated) {
         Affectation existing = repository.findById(id).orElse(null);
         if (existing == null) return null;
-        // TODO: mettre à jour les champs manuellement ici
+        // TODO: mettre a jour les champs manuellement ici
         return repository.save(existing);
     }
 

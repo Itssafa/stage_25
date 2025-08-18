@@ -5,45 +5,41 @@
     <h3>{{ isEditing ? 'Modifier' : 'Ajouter' }} une opération</h3>
     <form [formGroup]="operationForm" (ngSubmit)="onSubmit()">
       <div class="form-group">
-        <label for="libelle">Libellé de l'opération:</label>
+        <label for="nomOp">Nom de l'opération:</label>
         <input 
           type="text" 
-          id="libelle" 
-          formControlName="libelle" 
+          id="nomOp" 
+          formControlName="nomOp" 
           class="form-control"
-          placeholder="Entrez le libellé de l'opération">
-        <div *ngIf="operationForm.get('libelle')?.invalid && operationForm.get('libelle')?.touched" class="error">
-          Le libellé est requis (minimum 2 caractères)
+          placeholder="Entrez le nom de l'opération">
+        <div *ngIf="operationForm.get('nomOp')?.invalid && operationForm.get('nomOp')?.touched" class="error">
+          Le nom de l'opération est requis (minimum 2 caractères)
         </div>
       </div>
-      
+
       <div class="form-group">
-        <label for="temps">Temps (en minutes):</label>
+        <label for="description">Description de l'opération:</label>
         <input 
-          type="number" 
-          id="temps" 
-          formControlName="temps" 
+          type="text" 
+          id="description" 
+          formControlName="description" 
           class="form-control"
-          placeholder="Entrez le temps en minutes"
-          min="1">
-        <div *ngIf="operationForm.get('temps')?.invalid && operationForm.get('temps')?.touched" class="error">
-          Le temps est requis et doit être supérieur à 0
+          placeholder="Entrez la description de l'opération">
+        <div *ngIf="operationForm.get('description')?.invalid && operationForm.get('description')?.touched" class="error">
+          La description est requise (minimum 2 caractères)
         </div>
       </div>
       
       <div class="form-group">
-        <label for="posteId">Poste:</label>
-        <select 
-          id="posteId" 
-          formControlName="posteId" 
-          class="form-control">
-          <option value="">Sélectionnez un poste</option>
-          <option *ngFor="let poste of postes" [value]="poste.idPoste">
-            {{ poste.nom }} ({{ poste.ligne?.nom || 'N/A' }})
-          </option>
-        </select>
-        <div *ngIf="operationForm.get('posteId')?.invalid && operationForm.get('posteId')?.touched" class="error">
-          Veuillez sélectionner un poste
+        <label for="parametre">Paramètre:</label>
+        <input 
+          type="text" 
+          id="parametre" 
+          formControlName="parametre" 
+          class="form-control"
+          placeholder="Entrez le paramètre">
+        <div *ngIf="operationForm.get('parametre')?.invalid && operationForm.get('parametre')?.touched" class="error">
+          Le paramètre est requis
         </div>
       </div>
       
@@ -67,21 +63,21 @@
       <thead>
         <tr>
           <th>ID</th>
-          <th>Libellé</th>
-          <th>Temps (min)</th>
-          <th>Poste</th>
+          <th>Nom Opération</th>
+          <th>Description</th>
+          <th>Paramètre</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let operation of operations">
-          <td>{{ operation.idOp }}</td>
-          <td>{{ operation.libelle }}</td>
-          <td>{{ operation.temps }}</td>
-          <td>{{ operation.poste?.nom || 'N/A' }}</td>
+          <td>{{ operation.id }}</td>
+          <td>{{ operation.nomOp }}</td>
+          <td>{{ operation.description }}</td>
+          <td>{{ operation.parametre }}</td>
           <td>
             <button (click)="editOperation(operation)" class="btn btn-edit">Modifier</button>
-            <button (click)="deleteOperation(operation.idOp!)" class="btn btn-delete">Supprimer</button>
+            <button (click)="deleteOperation(operation.id!)" class="btn btn-delete">Supprimer</button>
           </td>
         </tr>
       </tbody>

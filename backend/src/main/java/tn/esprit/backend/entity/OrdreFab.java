@@ -10,39 +10,68 @@ import java.util.List;
 public class OrdreFab {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idOrdre;
+    private Long id_orf;
+
+    private String code_fab;
+    
+    @Enumerated(EnumType.STRING)
+    private StatutOrdre statuts;
 
     private int quantite;
 
-    private LocalDate dateDebut;
-    private LocalDate dateFin;
+    private LocalDate datedeb;
+    private LocalDate datefin;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @JsonIgnoreProperties({"ordres"})
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "produit_id")
     @JsonIgnoreProperties({"ordres", "ligne"})
     private Produit produit;
 
-    @OneToMany(mappedBy = "ordre", cascade = CascadeType.ALL)
-    @JsonIgnoreProperties({"ordre", "operation", "poste", "user"})
-    private List<Affectation> affectations;
+    // @OneToMany(mappedBy = "ordre", cascade = CascadeType.ALL)
+    // @JsonIgnoreProperties({"ordre", "operation", "poste", "user"})
+    // private List<Affectation> affectations;
 
     // Constructors
     public OrdreFab() {}
 
-    public OrdreFab(int quantite, LocalDate dateDebut, LocalDate dateFin, Produit produit) {
+    public OrdreFab(String code_fab, StatutOrdre statuts, int quantite, LocalDate datedeb, LocalDate datefin, User user, Produit produit) {
+        this.code_fab = code_fab;
+        this.statuts = statuts;
         this.quantite = quantite;
-        this.dateDebut = dateDebut;
-        this.dateFin = dateFin;
+        this.datedeb = datedeb;
+        this.datefin = datefin;
+        this.user = user;
         this.produit = produit;
     }
 
     // Getters and Setters
-    public Long getIdOrdre() {
-        return idOrdre;
+    public Long getId_orf() {
+        return id_orf;
     }
 
-    public void setIdOrdre(Long idOrdre) {
-        this.idOrdre = idOrdre;
+    public void setId_orf(Long id_orf) {
+        this.id_orf = id_orf;
+    }
+
+    public String getCode_fab() {
+        return code_fab;
+    }
+
+    public void setCode_fab(String code_fab) {
+        this.code_fab = code_fab;
+    }
+
+    public StatutOrdre getStatuts() {
+        return statuts;
+    }
+
+    public void setStatuts(StatutOrdre statuts) {
+        this.statuts = statuts;
     }
 
     public int getQuantite() {
@@ -53,20 +82,28 @@ public class OrdreFab {
         this.quantite = quantite;
     }
 
-    public LocalDate getDateDebut() {
-        return dateDebut;
+    public LocalDate getDatedeb() {
+        return datedeb;
     }
 
-    public void setDateDebut(LocalDate dateDebut) {
-        this.dateDebut = dateDebut;
+    public void setDatedeb(LocalDate datedeb) {
+        this.datedeb = datedeb;
     }
 
-    public LocalDate getDateFin() {
-        return dateFin;
+    public LocalDate getDatefin() {
+        return datefin;
     }
 
-    public void setDateFin(LocalDate dateFin) {
-        this.dateFin = dateFin;
+    public void setDatefin(LocalDate datefin) {
+        this.datefin = datefin;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public Produit getProduit() {
@@ -77,12 +114,12 @@ public class OrdreFab {
         this.produit = produit;
     }
 
-    public List<Affectation> getAffectations() {
-        return affectations;
-    }
+    // public List<Affectation> getAffectations() {
+    //     return affectations;
+    // }
 
-    public void setAffectations(List<Affectation> affectations) {
-        this.affectations = affectations;
-    }
+    // public void setAffectations(List<Affectation> affectations) {
+    //     this.affectations = affectations;
+    // }
 }
 
