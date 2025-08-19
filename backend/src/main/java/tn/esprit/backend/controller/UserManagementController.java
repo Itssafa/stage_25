@@ -37,6 +37,12 @@ public class UserManagementController {
         return ResponseEntity.ok(activeUsers);
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
+        List<UserDTO> allUsers = userService.getAllUsersForStats();
+        return ResponseEntity.ok(allUsers);
+    }
+
     @PostMapping("/{userId}/activate")
     public ResponseEntity<UserDTO> activateUser(@PathVariable Long userId, @RequestBody ActivationRequest request) {
         UserDTO activatedUser = userService.activateUser(userId, request.getDurationDays());

@@ -2,7 +2,7 @@
 
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { ReactiveFormsModule } from '@angular/forms'; // <--- IMPORTANT: Make sure this is imported
+import { ReactiveFormsModule, FormsModule } from '@angular/forms'; // <--- IMPORTANT: Make sure this is imported
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http'; 
 
 import { AppRoutingModule } from './app-routing.module';
@@ -57,9 +57,9 @@ import { UserManagementComponent } from './components/user-management/user-manag
   imports: [
     BrowserModule,
     AppRoutingModule,
-    ReactiveFormsModule, // <--- IMPORTANT: Add ReactiveFormsModule here
-    HttpClientModule, // <--- IMPORTANT: Add HttpClientModule here
-    ReactiveFormsModule 
+    ReactiveFormsModule,
+    FormsModule,
+    HttpClientModule
   ],
   providers: [
     AuthService,

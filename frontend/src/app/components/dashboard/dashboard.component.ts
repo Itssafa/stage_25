@@ -184,23 +184,32 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   loadDashboardStats(): void {
+    if (!this.currentUser) {
+      console.log('Current user not loaded yet');
+      return;
+    }
+    
     const headers = this.getHeaders();
     
     // Charger les statistiques selon le rôle
-    if (this.currentUser?.role === this.Role.ADMIN) {
+    if (this.currentUser.role === this.Role.ADMIN) {
+      console.log('Loading admin stats');
       this.loadAdminStats(headers);
-    } else if (this.currentUser?.role === this.Role.PARAMETREUR) {
+    } else if (this.currentUser.role === this.Role.PARAMETREUR) {
+      console.log('Loading parametreur stats');
       this.loadParametreurStats(headers);
     } else {
+      console.log('Loading default user stats');
       this.loadDefaultUserStats(headers);
     }
   }
 
   private loadAdminStats(headers: any): void {
     // Statistiques utilisateurs
-    this.http.get<any[]>('http://localhost:8085/api/users', { headers })
+    this.http.get<any[]>('http://localhost:8085/api/admin/user-management/all', { headers })
       .subscribe({
         next: (users) => {
+          console.log('Users loaded:', users); // Debug log
           this.stats.totalUsers = users.length;
           this.stats.adminUsers = users.filter(u => u.role === 'ADMIN').length;
           this.stats.parametreurUsers = users.filter(u => u.role === 'PARAMETREUR' && u.isActive).length;

@@ -168,4 +168,11 @@ public class UserService implements UserDetailsService {
         User savedUser = userRepository.save(user);
         return UserDTO.fromEntity(savedUser);
     }
+
+    public List<UserDTO> getAllUsersForStats() {
+        List<User> allUsers = userRepository.findAll();
+        return allUsers.stream()
+                .map(UserDTO::fromEntity)
+                .toList();
+    }
 }

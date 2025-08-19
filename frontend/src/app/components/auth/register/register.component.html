@@ -39,16 +39,24 @@
       
       <div class="form-group">
         <label for="email">Adresse email *</label>
-        <input
-          type="email"
-          id="email"
-          formControlName="adresseMail"
-          class="form-input"
-          placeholder="votre@email.com"
-        >
+        <div class="email-field">
+          <input
+            type="email"
+            id="email"
+            formControlName="adresseMail"
+            class="form-input"
+            placeholder="votre@email.com"
+            (blur)="onEmailBlur()"
+          >
+          <span *ngIf="emailVerified" class="verification-status verified">✅</span>
+          <span *ngIf="!emailVerified && registerForm.get('adresseMail')?.value" class="verification-status pending">⏳</span>
+        </div>
         <div class="error-message" *ngIf="registerForm.get('adresseMail')?.touched && registerForm.get('adresseMail')?.errors">
           <span *ngIf="registerForm.get('adresseMail')?.errors?.['required']">L'email est requis</span>
           <span *ngIf="registerForm.get('adresseMail')?.errors?.['email']">Format email invalide</span>
+        </div>
+        <div class="email-help" *ngIf="!emailVerified && registerForm.get('adresseMail')?.value">
+          📧 Un code de vérification sera envoyé à cette adresse
         </div>
       </div>
       
@@ -79,6 +87,32 @@
           <span *ngIf="registerForm.get('motDePasse')?.errors?.['pattern']">Doit contenir au moins une minuscule, une majuscule et un caractère spécial</span>
         </div>
       </div>
+
+      <div class="form-group">
+        <label for="confirmPassword">Confirmer le mot de passe *</label>
+        <div class="password-field">
+          <input
+            [type]="hideConfirmPassword ? 'password' : 'text'"
+            id="confirmPassword"
+            formControlName="confirmMotDePasse"
+            class="form-input"
+            placeholder="Retapez votre mot de passe"
+          >
+          <button
+            type="button"
+            class="password-toggle"
+            (click)="hideConfirmPassword = !hideConfirmPassword"
+          >
+            {{hideConfirmPassword ? '👁️' : '🙈'}}
+          </button>
+        </div>
+        <div class="error-message" *ngIf="registerForm.get('confirmMotDePasse')?.touched && registerForm.get('confirmMotDePasse')?.errors?.['required']">
+          La confirmation du mot de passe est requise
+        </div>
+        <div class="error-message" *ngIf="registerForm.errors?.['passwordMismatch'] && registerForm.get('confirmMotDePasse')?.touched">
+          Les mots de passe ne correspondent pas
+        </div>
+      </div>
       
       <div class="alert error" *ngIf="errorMessage">
         ❌ {{errorMessage}}
@@ -91,9 +125,9 @@
       <button
         type="submit"
         class="btn-primary"
-        [disabled]="loading || registerForm.invalid"
+        [disabled]="loading || registerForm.invalid || !emailVerified"
       >
-        <span *ngIf="!loading"> Créer mon compte</span>
+        <span *ngIf="!loading">🚀 Créer mon compte</span>
         <span *ngIf="loading">⏳ Création...</span>
       </button>
     </form>
@@ -101,8 +135,62 @@
     <div class="auth-footer">
       <p>Déjà un compte ?</p>
       <button type="button" class="btn-secondary" (click)="navigateToLogin()">
-         Se connecter
+        🔐 Se connecter
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- Popup de vérification email -->
+<div class="modal-overlay" *ngIf="showEmailVerification" (click)="closeEmailVerification()">
+  <div class="modal-content email-verification-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>📧 Vérification Email</h3>
+      <button type="button" class="close-btn" (click)="closeEmailVerification()">✕</button>
+    </div>
+    
+    <div class="modal-body">
+      <p class="verification-message">
+        Un code de vérification a été envoyé à:<br>
+        <strong>{{ registerForm.get('adresseMail')?.value }}</strong>
+      </p>
+      
+      <div class="verification-input-group">
+        <label for="verificationCode">Code de vérification (6 chiffres)</label>
+        <input
+          type="text"
+          id="verificationCode"
+          [(ngModel)]="enteredCode"
+          class="verification-input"
+          placeholder="000000"
+          maxlength="6"
+          (keypress)="$event.charCode >= 48 && $event.charCode <= 57 || $event.preventDefault()"
+        >
+      </div>
+      
+      <div class="verification-actions">
+        <button 
+          type="button" 
+          class="btn-primary verification-btn"
+          (click)="verifyEmailCode()"
+          [disabled]="enteredCode.length !== 6"
+        >
+          ✅ Vérifier
+        </button>
+        
+        <button 
+          type="button" 
+          class="btn-secondary resend-btn"
+          (click)="resendVerificationCode()"
+        >
+          🔄 Renvoyer le code
+        </button>
+      </div>
+      
+      <div class="verification-help">
+        <p>💡 Le code expire dans 10 minutes</p>
+        <p>📱 Vérifiez aussi votre dossier spam</p>
+      </div>
     </div>
   </div>
 </div>
