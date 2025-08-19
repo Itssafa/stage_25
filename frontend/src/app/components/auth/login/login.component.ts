@@ -3,6 +3,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../services/auth.service';
 import { Role, LoginResponse } from '../../../models/user.model';
 
@@ -16,11 +17,22 @@ export class LoginComponent {
   loading = false;
   errorMessage = '';
   hidePassword = true;
+  
+  // Variables pour la récupération de mot de passe
+  showForgotPassword = false;
+  showResetForm = false;
+  resetPhone = '';
+  enteredResetCode = '';
+  newPassword = '';
+  confirmNewPassword = '';
+  hideNewPassword = true;
+  hideConfirmNewPassword = true;
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private http: HttpClient
   ) {
     this.loginForm = this.fb.group({
       username: ['', [Validators.required]],
@@ -84,6 +96,83 @@ export class LoginComponent {
   }
 
   navigateToRegister(): void {
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/register']);
+  }
+
+  // Méthodes pour la récupération de mot de passe
+  openForgotPassword(): void {
+    console.log('openForgotPassword appelée');
+    this.showForgotPassword = true;
+    this.showResetForm = false;
+    this.resetPhone = '';
+    this.enteredResetCode = '';
+    this.newPassword = '';
+    this.confirmNewPassword = '';
+    this.errorMessage = '';
+    console.log('showForgotPassword:', this.showForgotPassword);
+  }
+
+  closeForgotPassword(): void {
+    this.showForgotPassword = false;
+    this.showResetForm = false;
+    this.resetPhone = '';
+    this.enteredResetCode = '';
+    this.newPassword = '';
+    this.confirmNewPassword = '';
+    this.errorMessage = '';
+  }
+
+  sendResetCode(): void {
+    const headers = { 'Content-Type': 'application/json' };
+    this.http.post<any>('http://localhost:8085/api/auth/send-reset-code', 
+      { telephone: this.resetPhone }, { headers })
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.showResetForm = true;
+            this.errorMessage = '';
+            console.log('Code de récupération envoyé:', response.code);
+          } else {
+            this.errorMessage = response.message || 'Erreur lors de l\'envoi du code';
+          }
+        },
+        error: (error) => {
+          console.error('Erreur envoi code reset:', error);
+          this.errorMessage = 'Numéro de téléphone non trouvé ou erreur serveur';
+        }
+      });
+  }
+
+  resendResetCode(): void {
+    this.sendResetCode();
+  }
+
+  resetPassword(): void {
+    if (this.newPassword !== this.confirmNewPassword) {
+      this.errorMessage = 'Les mots de passe ne correspondent pas';
+      return;
+    }
+
+    const headers = { 'Content-Type': 'application/json' };
+    this.http.post<any>('http://localhost:8085/api/auth/reset-password', {
+      telephone: this.resetPhone,
+      code: this.enteredResetCode,
+      newPassword: this.newPassword
+    }, { headers })
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.closeForgotPassword();
+            this.errorMessage = '';
+            alert('Mot de passe réinitialisé avec succès! Vous pouvez maintenant vous connecter.');
+          } else {
+            this.errorMessage = response.message || 'Code incorrect ou expiré';
+          }
+        },
+        error: (error) => {
+          console.error('Erreur reset password:', error);
+          this.errorMessage = 'Erreur lors de la réinitialisation du mot de passe';
+        }
+      });
   }
 }

@@ -38,25 +38,40 @@
       </div>
       
       <div class="form-group">
-        <label for="email">Adresse email *</label>
-        <div class="email-field">
+        <label for="telephone">Numéro de téléphone *</label>
+        <div class="phone-field">
           <input
-            type="email"
-            id="email"
-            formControlName="adresseMail"
+            type="tel"
+            id="telephone"
+            formControlName="telephone"
             class="form-input"
-            placeholder="votre@email.com"
-            (blur)="onEmailBlur()"
+            placeholder="+33 6 12 34 56 78"
+            (blur)="onPhoneBlur()"
           >
-          <span *ngIf="emailVerified" class="verification-status verified">✅</span>
-          <span *ngIf="!emailVerified && registerForm.get('adresseMail')?.value" class="verification-status pending">⏳</span>
+          <span *ngIf="phoneVerified" class="verification-status verified">✅</span>
+          <span *ngIf="!phoneVerified && registerForm.get('telephone')?.value" class="verification-status pending">⏳</span>
         </div>
+        <div class="error-message" *ngIf="registerForm.get('telephone')?.touched && registerForm.get('telephone')?.errors">
+          <span *ngIf="registerForm.get('telephone')?.errors?.['required']">Le numéro de téléphone est requis</span>
+          <span *ngIf="registerForm.get('telephone')?.errors?.['pattern']">Format de téléphone invalide</span>
+        </div>
+        <div class="phone-help" *ngIf="!phoneVerified && registerForm.get('telephone')?.value">
+          📱 Un code de vérification sera envoyé par SMS
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="email">Adresse email *</label>
+        <input
+          type="email"
+          id="email"
+          formControlName="adresseMail"
+          class="form-input"
+          placeholder="votre@email.com"
+        >
         <div class="error-message" *ngIf="registerForm.get('adresseMail')?.touched && registerForm.get('adresseMail')?.errors">
           <span *ngIf="registerForm.get('adresseMail')?.errors?.['required']">L'email est requis</span>
           <span *ngIf="registerForm.get('adresseMail')?.errors?.['email']">Format email invalide</span>
-        </div>
-        <div class="email-help" *ngIf="!emailVerified && registerForm.get('adresseMail')?.value">
-          📧 Un code de vérification sera envoyé à cette adresse
         </div>
       </div>
       
@@ -125,7 +140,7 @@
       <button
         type="submit"
         class="btn-primary"
-        [disabled]="loading || registerForm.invalid || !emailVerified"
+        [disabled]="loading || registerForm.invalid || !phoneVerified"
       >
         <span *ngIf="!loading">🚀 Créer mon compte</span>
         <span *ngIf="loading">⏳ Création...</span>
@@ -141,18 +156,18 @@
   </div>
 </div>
 
-<!-- Popup de vérification email -->
-<div class="modal-overlay" *ngIf="showEmailVerification" (click)="closeEmailVerification()">
-  <div class="modal-content email-verification-modal" (click)="$event.stopPropagation()">
+<!-- Popup de vérification SMS -->
+<div class="modal-overlay" *ngIf="showSmsVerification" (click)="closeSmsVerification()">
+  <div class="modal-content sms-verification-modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h3>📧 Vérification Email</h3>
-      <button type="button" class="close-btn" (click)="closeEmailVerification()">✕</button>
+      <h3>📱 Vérification SMS</h3>
+      <button type="button" class="close-btn" (click)="closeSmsVerification()">✕</button>
     </div>
     
     <div class="modal-body">
       <p class="verification-message">
-        Un code de vérification a été envoyé à:<br>
-        <strong>{{ registerForm.get('adresseMail')?.value }}</strong>
+        Un code de vérification a été envoyé par SMS au:<br>
+        <strong>{{ registerForm.get('telephone')?.value }}</strong>
       </p>
       
       <div class="verification-input-group">
@@ -172,7 +187,7 @@
         <button 
           type="button" 
           class="btn-primary verification-btn"
-          (click)="verifyEmailCode()"
+          (click)="verifySmsCode()"
           [disabled]="enteredCode.length !== 6"
         >
           ✅ Vérifier
@@ -181,7 +196,7 @@
         <button 
           type="button" 
           class="btn-secondary resend-btn"
-          (click)="resendVerificationCode()"
+          (click)="resendSmsCode()"
         >
           🔄 Renvoyer le code
         </button>
@@ -189,7 +204,7 @@
       
       <div class="verification-help">
         <p>💡 Le code expire dans 10 minutes</p>
-        <p>📱 Vérifiez aussi votre dossier spam</p>
+        <p>📱 Vérifiez que votre téléphone est allumé</p>
       </div>
     </div>
   </div>

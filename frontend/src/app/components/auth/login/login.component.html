@@ -58,7 +58,12 @@
         <span *ngIf="loading">⏳ Connexion...</span>
       </button>
       
-      
+      <div class="forgot-password-link">
+        <button type="button" class="btn-link" (click)="openForgotPassword()">
+          🔑 Mot de passe oublié?
+        </button>
+      </div>
+    </form>
     
     <div class="auth-footer">
       <p>Pas encore de compte ?</p>
@@ -66,4 +71,128 @@
          Créer un compte
       </button>
     </div>
+  </div>
+</div>
+
+<!-- Popup de récupération de mot de passe -->
+<div class="modal-overlay" *ngIf="showForgotPassword" (click)="closeForgotPassword()">
+  <div class="modal-content forgot-password-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>🔑 Récupération du mot de passe</h3>
+      <button type="button" class="close-btn" (click)="closeForgotPassword()">✕</button>
+    </div>
+    
+    <div class="modal-body" *ngIf="!showResetForm">
+      <p class="forgot-password-message">
+        Entrez votre numéro de téléphone pour recevoir un code de récupération par SMS.
+      </p>
+      
+      <div class="form-group">
+        <label for="resetPhone">Numéro de téléphone</label>
+        <input
+          type="tel"
+          id="resetPhone"
+          [(ngModel)]="resetPhone"
+          class="form-input"
+          placeholder="+216 12 345 678"
+        >
+      </div>
+      
+      <div class="modal-actions">
+        <button 
+          type="button" 
+          class="btn-primary"
+          (click)="sendResetCode()"
+          [disabled]="!resetPhone || resetPhone.trim().length === 0"
+        >
+          📱 Envoyer le code
+        </button>
+      </div>
+    </div>
+
+    <!-- Étape 2: Vérification du code et nouveau mot de passe -->
+    <div class="modal-body" *ngIf="showResetForm">
+      <p class="verification-message">
+        Un code de vérification a été envoyé par SMS au:<br>
+        <strong>{{ resetPhone }}</strong>
+      </p>
+      
+      <div class="form-group">
+        <label for="resetCode">Code de vérification (6 chiffres)</label>
+        <input
+          type="text"
+          id="resetCode"
+          [(ngModel)]="enteredResetCode"
+          class="verification-input"
+          placeholder="000000"
+          maxlength="6"
+          (keypress)="$event.charCode >= 48 && $event.charCode <= 57 || $event.preventDefault()"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="newPassword">Nouveau mot de passe</label>
+        <div class="password-field">
+          <input
+            [type]="hideNewPassword ? 'password' : 'text'"
+            id="newPassword"
+            [(ngModel)]="newPassword"
+            class="form-input"
+            placeholder="Nouveau mot de passe"
+          >
+          <button
+            type="button"
+            class="password-toggle"
+            (click)="hideNewPassword = !hideNewPassword"
+          >
+            {{hideNewPassword ? '👁️' : '🙈'}}
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="confirmNewPassword">Confirmer le nouveau mot de passe</label>
+        <div class="password-field">
+          <input
+            [type]="hideConfirmNewPassword ? 'password' : 'text'"
+            id="confirmNewPassword"
+            [(ngModel)]="confirmNewPassword"
+            class="form-input"
+            placeholder="Confirmer le mot de passe"
+          >
+          <button
+            type="button"
+            class="password-toggle"
+            (click)="hideConfirmNewPassword = !hideConfirmNewPassword"
+          >
+            {{hideConfirmNewPassword ? '👁️' : '🙈'}}
+          </button>
+        </div>
+      </div>
+      
+      <div class="modal-actions">
+        <button 
+          type="button" 
+          class="btn-primary"
+          (click)="resetPassword()"
+          [disabled]="enteredResetCode.length !== 6 || !newPassword || !confirmNewPassword || newPassword !== confirmNewPassword"
+        >
+          ✅ Réinitialiser le mot de passe
+        </button>
+        
+        <button 
+          type="button" 
+          class="btn-secondary"
+          (click)="resendResetCode()"
+        >
+          🔄 Renvoyer le code
+        </button>
+      </div>
+      
+      <div class="verification-help">
+        <p>💡 Le code expire dans 10 minutes</p>
+      </div>
+    </div>
+  </div>
+</div>
 

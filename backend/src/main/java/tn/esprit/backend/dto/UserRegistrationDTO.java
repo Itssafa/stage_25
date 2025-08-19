@@ -15,6 +15,10 @@ public class UserRegistrationDTO {
     @NotBlank(message = "Le prénom est obligatoire")
     private String prenom;
 
+    @NotBlank(message = "Le numéro de téléphone est obligatoire")
+    @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Format de téléphone invalide")
+    private String telephone;
+
     @Email(message = "L'adresse email doit être valide")
     private String adresseMail;
 

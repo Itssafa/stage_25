@@ -20,11 +20,11 @@ export class RegisterComponent {
   hidePassword = true;
   hideConfirmPassword = true;
   
-  // Variables pour la vérification email
-  showEmailVerification = false;
-  emailVerificationCode = '';
+  // Variables pour la vérification SMS
+  showSmsVerification = false;
+  smsVerificationCode = '';
   enteredCode = '';
-  emailVerified = false;
+  phoneVerified = false;
 
   constructor(
     private fb: FormBuilder,
@@ -35,6 +35,7 @@ export class RegisterComponent {
     this.registerForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
       prenom: ['', [Validators.required]],
+      telephone: ['', [Validators.required, Validators.pattern('^\\+?[1-9]\\d{1,14}$')]],
       adresseMail: ['', [Validators.required, Validators.email]],
       motDePasse: ['', [
         Validators.required,
@@ -57,7 +58,7 @@ export class RegisterComponent {
   }
 
   onSubmit(): void {
-    if (this.registerForm.valid && this.emailVerified) {
+    if (this.registerForm.valid && this.phoneVerified) {
       this.loading = true;
       this.errorMessage = '';
       this.successMessage = '';
@@ -93,8 +94,8 @@ export class RegisterComponent {
         }
       });
     } else {
-      if (!this.emailVerified) {
-        this.errorMessage = 'Veuillez vérifier votre adresse email avant de continuer.';
+      if (!this.phoneVerified) {
+        this.errorMessage = 'Veuillez vérifier votre numéro de téléphone avant de continuer.';
       } else {
         console.log('Formulaire invalide:', this.registerForm.errors);
       }
@@ -105,49 +106,49 @@ export class RegisterComponent {
     this.router.navigate(['/login']);
   }
 
-  // Méthode appelée quand l'utilisateur quitte le champ email
-  onEmailBlur(): void {
-    const emailControl = this.registerForm.get('adresseMail');
-    if (emailControl?.valid && emailControl.value && !this.emailVerified) {
-      this.sendVerificationCode(emailControl.value);
+  // Méthode appelée quand l'utilisateur quitte le champ téléphone
+  onPhoneBlur(): void {
+    const phoneControl = this.registerForm.get('telephone');
+    if (phoneControl?.valid && phoneControl.value && !this.phoneVerified) {
+      this.sendSmsCode(phoneControl.value);
     }
   }
 
-  // Envoyer le code de vérification par email
-  sendVerificationCode(email: string): void {
+  // Envoyer le code de vérification par SMS
+  sendSmsCode(telephone: string): void {
     const headers = { 'Content-Type': 'application/json' };
-    this.http.post<any>('http://localhost:8085/api/auth/send-verification-code', { email }, { headers })
+    this.http.post<any>('http://localhost:8085/api/auth/send-sms-code', { telephone }, { headers })
       .subscribe({
         next: (response) => {
           if (response.success) {
-            this.showEmailVerification = true;
-            this.successMessage = 'Code de vérification envoyé à votre email!';
+            this.showSmsVerification = true;
+            this.successMessage = 'Code de vérification envoyé par SMS!';
             setTimeout(() => this.successMessage = '', 3000);
           } else {
-            this.errorMessage = response.message || 'Erreur lors de l\'envoi du code';
+            this.errorMessage = response.message || 'Erreur lors de l\'envoi du SMS';
           }
         },
         error: (error) => {
-          console.error('Erreur envoi code:', error);
-          this.errorMessage = 'Erreur lors de l\'envoi du code de vérification. Vérifiez la configuration email.';
+          console.error('Erreur envoi SMS:', error);
+          this.errorMessage = 'Erreur lors de l\'envoi du code SMS. Vérifiez la configuration SMS.';
           setTimeout(() => this.errorMessage = '', 5000);
         }
       });
   }
 
-  // Vérifier le code saisi par l'utilisateur
-  verifyEmailCode(): void {
-    const email = this.registerForm.get('adresseMail')?.value;
+  // Vérifier le code SMS saisi par l'utilisateur
+  verifySmsCode(): void {
+    const telephone = this.registerForm.get('telephone')?.value;
     const headers = { 'Content-Type': 'application/json' };
     
-    this.http.post<any>('http://localhost:8085/api/auth/verify-email-code', 
-      { email, code: this.enteredCode }, { headers })
+    this.http.post<any>('http://localhost:8085/api/auth/verify-sms-code', 
+      { telephone, code: this.enteredCode }, { headers })
       .subscribe({
         next: (response) => {
           if (response.success) {
-            this.emailVerified = true;
-            this.showEmailVerification = false;
-            this.successMessage = 'Email vérifié avec succès!';
+            this.phoneVerified = true;
+            this.showSmsVerification = false;
+            this.successMessage = 'Téléphone vérifié avec succès!';
             setTimeout(() => this.successMessage = '', 3000);
           } else {
             this.errorMessage = response.message || 'Code de vérification incorrect';
@@ -155,24 +156,24 @@ export class RegisterComponent {
           }
         },
         error: (error) => {
-          console.error('Erreur vérification code:', error);
-          this.errorMessage = 'Erreur lors de la vérification du code';
+          console.error('Erreur vérification SMS:', error);
+          this.errorMessage = 'Erreur lors de la vérification du code SMS';
           setTimeout(() => this.errorMessage = '', 3000);
         }
       });
   }
 
-  // Fermer le popup de vérification
-  closeEmailVerification(): void {
-    this.showEmailVerification = false;
+  // Fermer le popup de vérification SMS
+  closeSmsVerification(): void {
+    this.showSmsVerification = false;
     this.enteredCode = '';
   }
 
-  // Renvoyer le code de vérification
-  resendVerificationCode(): void {
-    const email = this.registerForm.get('adresseMail')?.value;
-    if (email) {
-      this.sendVerificationCode(email);
+  // Renvoyer le code SMS
+  resendSmsCode(): void {
+    const telephone = this.registerForm.get('telephone')?.value;
+    if (telephone) {
+      this.sendSmsCode(telephone);
     }
   }
 }

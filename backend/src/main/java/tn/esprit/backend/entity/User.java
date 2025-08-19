@@ -33,6 +33,10 @@ public class User {
     @Email(message = "L'adresse email doit être valide")
     private String adresseMail;
 
+    @NotBlank(message = "Le numéro de téléphone est obligatoire")
+    @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Format de téléphone invalide")
+    private String telephone;
+
     @NotBlank(message = "Le mot de passe est obligatoire")
     @Size(min = 8, message = "Le mot de passe doit comporter au moins 8 caractères")
     @Pattern(

@@ -73,6 +73,24 @@ public class UserService implements UserDetailsService {
     public boolean existsByUsername(String username) {
         return userRepository.findByUsername(username) != null;
     }
+    
+    public boolean existsByTelephone(String telephone) {
+        return userRepository.findByTelephone(telephone) != null;
+    }
+    
+    public User findByTelephone(String telephone) {
+        return userRepository.findByTelephone(telephone);
+    }
+    
+    public boolean updatePasswordByTelephone(String telephone, String newPassword) {
+        User user = userRepository.findByTelephone(telephone);
+        if (user != null) {
+            user.setMotDePasse(newPassword);
+            userRepository.save(user);
+            return true;
+        }
+        return false;
+    }
 
     // Méthodes utilitaires pour les permissions
     public boolean canUserLogin(String username) {

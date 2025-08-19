@@ -61,6 +61,7 @@ public class PublicController {
             User newUser = new User();
             newUser.setUsername(registrationDTO.getUsername());
             newUser.setPrenom(registrationDTO.getPrenom());
+            newUser.setTelephone(registrationDTO.getTelephone());
             newUser.setAdresseMail(registrationDTO.getAdresseMail());
             newUser.setMotDePasse(passwordEncoder.encode(registrationDTO.getMotDePasse()));
             newUser.setRole(Role.DEFAULT);

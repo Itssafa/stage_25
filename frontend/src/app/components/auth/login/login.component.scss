@@ -165,6 +165,172 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+// Style pour le lien "Mot de passe oublié"
+.forgot-password-link {
+  text-align: center;
+  margin-top: 15px;
+  
+  .btn-link {
+    background: none;
+    border: none;
+    color: #667eea;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    
+    &:hover {
+      color: #5a67d8;
+      text-decoration: underline;
+    }
+  }
+}
+
+// Styles pour le modal de récupération
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 20px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 30px;
+    border-bottom: 1px solid #eee;
+    
+    h3 {
+      margin: 0;
+      color: #333;
+      font-size: 20px;
+    }
+    
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: #999;
+      
+      &:hover {
+        color: #333;
+      }
+    }
+  }
+  
+  .modal-body {
+    padding: 30px;
+    
+    .forgot-password-message,
+    .verification-message {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #666;
+      line-height: 1.5;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+      
+      label {
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: 500;
+      }
+    }
+    
+    .verification-input {
+      width: 100%;
+      padding: 15px 20px;
+      border: 2px solid rgba(102, 126, 234, 0.1);
+      border-radius: 15px;
+      font-size: 24px;
+      text-align: center;
+      letter-spacing: 5px;
+      font-weight: bold;
+      color: #667eea;
+      
+      &:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 20px rgba(102, 126, 234, 0.2);
+      }
+    }
+    
+    .modal-actions {
+      display: flex;
+      gap: 15px;
+      margin-top: 25px;
+      
+      button {
+        flex: 1;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        
+        &.btn-primary {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          
+          &:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+          }
+        }
+        
+        &.btn-secondary {
+          background: #f8f9fa;
+          color: #666;
+          border: 1px solid #e9ecef;
+          
+          &:hover {
+            background: #e9ecef;
+            color: #333;
+          }
+        }
+        
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+      }
+    }
+    
+    .verification-help {
+      text-align: center;
+      margin-top: 20px;
+      
+      p {
+        color: #999;
+        font-size: 12px;
+        margin: 5px 0;
+      }
+    }
+  }
+}
+
 @media (max-width: 768px) {
   .auth-container {
     padding: 15px;
@@ -172,5 +338,22 @@
   
   .auth-card {
     padding: 30px 20px;
+  }
+  
+  .modal-content {
+    margin: 20px;
+    width: calc(100% - 40px);
+    
+    .modal-body {
+      padding: 20px;
+    }
+    
+    .modal-actions {
+      flex-direction: column;
+      
+      button {
+        width: 100%;
+      }
+    }
   }
 }
