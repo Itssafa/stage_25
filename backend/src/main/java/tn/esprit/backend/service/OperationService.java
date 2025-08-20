@@ -31,7 +31,6 @@ public class OperationService {
         
         existing.setNomOp(updated.getNomOp());
         existing.setDescription(updated.getDescription());
-        existing.setParametre(updated.getParametre());
         
         return repository.save(existing);
     }

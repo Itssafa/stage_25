@@ -3,6 +3,7 @@ package tn.esprit.backend.controller;
 import tn.esprit.backend.entity.LigneProduction;
 import tn.esprit.backend.service.LigneProductionService;
 import tn.esprit.backend.dto.LigneProductionSimpleDTO;
+import tn.esprit.backend.dto.LigneProductionDTO;
 import tn.esprit.backend.annotation.RequireRole;
 import tn.esprit.backend.annotation.RequireLoginCapability;
 import tn.esprit.backend.enums.Role;
@@ -22,9 +23,9 @@ public class LigneProductionController {
     private LigneProductionService service;
 
     @GetMapping
-    public List<LigneProductionSimpleDTO> getAll() {
+    public List<LigneProductionDTO> getAll() {
         return service.getAll().stream()
-                .map(ligne -> new LigneProductionSimpleDTO(ligne.getIdLigne(), ligne.getNom()))
+                .map(LigneProductionDTO::fromEntity)
                 .collect(Collectors.toList());
     }
 

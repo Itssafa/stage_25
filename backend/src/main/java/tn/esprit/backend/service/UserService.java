@@ -142,19 +142,32 @@ public class UserService implements UserDetailsService {
     }
 
     public UserDTO activateUser(Long userId, Integer durationDays) {
-        User user = userRepository.findById(userId).orElse(null);
-        if (user == null || user.getRole() != Role.DEFAULT) {
-            return null;
+        try {
+            User user = userRepository.findById(userId).orElse(null);
+            if (user == null || user.getRole() != Role.DEFAULT) {
+                return null;
+            }
+
+            // Vérifications des champs obligatoires avant activation
+            if (user.getUsername() == null || user.getUsername().trim().isEmpty() ||
+                user.getPrenom() == null || user.getPrenom().trim().isEmpty() ||
+                user.getMotDePasse() == null || user.getMotDePasse().trim().isEmpty() ||
+                user.getTelephone() == null || user.getTelephone().trim().isEmpty()) {
+                throw new RuntimeException("L'utilisateur a des champs obligatoires manquants");
+            }
+
+            user.setRole(Role.PARAMETREUR);
+            user.setIsActive(true);
+            user.setActivationDate(LocalDateTime.now());
+            user.setActivationDurationDays(durationDays);
+            user.setDeactivationDate(null);
+
+            User savedUser = userRepository.save(user);
+            return UserDTO.fromEntity(savedUser);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Erreur lors de l'activation de l'utilisateur: " + e.getMessage(), e);
         }
-
-        user.setRole(Role.PARAMETREUR);
-        user.setIsActive(true);
-        user.setActivationDate(LocalDateTime.now());
-        user.setActivationDurationDays(durationDays);
-        user.setDeactivationDate(null);
-
-        User savedUser = userRepository.save(user);
-        return UserDTO.fromEntity(savedUser);
     }
 
     public UserDTO deactivateUser(Long userId) {

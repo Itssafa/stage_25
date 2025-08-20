@@ -45,20 +45,30 @@ public class UserManagementController {
 
     @PostMapping("/{userId}/activate")
     public ResponseEntity<UserDTO> activateUser(@PathVariable Long userId, @RequestBody ActivationRequest request) {
-        UserDTO activatedUser = userService.activateUser(userId, request.getDurationDays());
-        if (activatedUser == null) {
-            return ResponseEntity.badRequest().build();
+        try {
+            UserDTO activatedUser = userService.activateUser(userId, request.getDurationDays());
+            if (activatedUser == null) {
+                return ResponseEntity.badRequest().build();
+            }
+            return ResponseEntity.ok(activatedUser);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
         }
-        return ResponseEntity.ok(activatedUser);
     }
 
     @PostMapping("/{userId}/deactivate")
     public ResponseEntity<UserDTO> deactivateUser(@PathVariable Long userId) {
-        UserDTO deactivatedUser = userService.deactivateUser(userId);
-        if (deactivatedUser == null) {
-            return ResponseEntity.badRequest().build();
+        try {
+            UserDTO deactivatedUser = userService.deactivateUser(userId);
+            if (deactivatedUser == null) {
+                return ResponseEntity.badRequest().build();
+            }
+            return ResponseEntity.ok(deactivatedUser);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
         }
-        return ResponseEntity.ok(deactivatedUser);
     }
 
     @PutMapping("/{userId}")

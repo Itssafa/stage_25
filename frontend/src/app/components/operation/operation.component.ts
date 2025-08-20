@@ -6,7 +6,6 @@ interface Operation {
   id?: number;
   nomOp: string;
   description: string;
-  parametre: string;
 }
 
 @Component({
@@ -30,8 +29,7 @@ export class OperationComponent implements OnInit {
   ) {
     this.operationForm = this.fb.group({
       nomOp: ['', [Validators.required, Validators.minLength(2)]],
-      description: ['', [Validators.required, Validators.minLength(2)]],
-      parametre: ['', [Validators.required]]
+      description: ['', [Validators.required, Validators.minLength(2)]]
     });
   }
 
@@ -69,8 +67,7 @@ export class OperationComponent implements OnInit {
     if (this.operationForm.valid) {
       const operationData = {
         nomOp: this.operationForm.get('nomOp')?.value,
-        description: this.operationForm.get('description')?.value,
-        parametre: this.operationForm.get('parametre')?.value
+        description: this.operationForm.get('description')?.value
       };
       
       if (this.isEditing && this.editingId) {
@@ -119,8 +116,7 @@ export class OperationComponent implements OnInit {
     this.editingId = operation.id || null;
     this.operationForm.patchValue({
       nomOp: operation.nomOp,
-      description: operation.description,
-      parametre: operation.parametre
+      description: operation.description
     });
   }
 

@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { User } from '../../models/user.model';
 
 // === Enum TypeProduit ===
 export enum TypeProduit {
@@ -22,6 +23,7 @@ interface Produit {
   nom: string;
   code: string;
   type: TypeProduit;
+  user?: User;
   ligne?: LigneProduction;
 }
 
@@ -34,6 +36,7 @@ export class ProduitComponent implements OnInit, OnDestroy {
   produitForm: FormGroup;
   produits: Produit[] = [];
   lignes: LigneProduction[] = [];
+  users: User[] = [];
   loading = false;
   error = '';
   isEditing = false;
@@ -46,6 +49,7 @@ export class ProduitComponent implements OnInit, OnDestroy {
 
   private apiUrl = 'http://localhost:8085/api/produits';
   private ligneApiUrl = 'http://localhost:8085/api/ligneproductions';
+  private userApiUrl = 'http://localhost:8085/api/admin/user-management/active';
 
   constructor(
     private fb: FormBuilder,
@@ -55,6 +59,7 @@ export class ProduitComponent implements OnInit, OnDestroy {
       nom: ['', [Validators.required, Validators.minLength(2)]],
       type: ['', [Validators.required]], // plus de minLength ici
       code: ['', [Validators.required]],
+      userId: ['', [Validators.required]],
       ligneId: ['', [Validators.required]]
     });
   }
@@ -62,6 +67,7 @@ export class ProduitComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.loadProduits();
     this.loadLignes();
+    this.loadUsers();
   }
 
   ngOnDestroy() {
@@ -75,6 +81,25 @@ export class ProduitComponent implements OnInit, OnDestroy {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     });
+  }
+
+  loadUsers() {
+    const headers = this.getHeaders();
+    if (!headers.get('Authorization') || headers.get('Authorization') === 'Bearer null') {
+      console.error('Token manquant ou invalide');
+      return;
+    }
+    
+    this.http.get<User[]>(this.userApiUrl, { headers })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.users = data || [];
+        },
+        error: (err) => {
+          console.error('Erreur lors du chargement des utilisateurs:', err);
+        }
+      });
   }
 
   loadLignes() {
@@ -129,6 +154,7 @@ export class ProduitComponent implements OnInit, OnDestroy {
         nom: this.produitForm.get('nom')?.value,
         code: this.produitForm.get('code')?.value,
         type: this.produitForm.get('type')?.value,
+        user: { matricule: this.produitForm.get('userId')?.value },
         ligne: { idLigne: this.produitForm.get('ligneId')?.value }
       };
 
@@ -180,6 +206,7 @@ export class ProduitComponent implements OnInit, OnDestroy {
       nom: produit.nom,
       code: produit.code,
       type: produit.type,
+      userId: produit.user?.matricule,
       ligneId: produit.ligne?.idLigne
     });
   }

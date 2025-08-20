@@ -47,6 +47,22 @@
           Veuillez sélectionner un type de produit
         </div>
       </div>
+
+      <div class="form-group">
+        <label for="userId">Utilisateur:</label>
+        <select 
+          id="userId" 
+          formControlName="userId" 
+          class="form-control">
+          <option value="">Sélectionnez un utilisateur</option>
+          <option *ngFor="let user of users" [value]="user.matricule">
+            {{ user.username }} ({{ user.prenom }})
+          </option>
+        </select>
+        <div *ngIf="produitForm.get('userId')?.invalid && produitForm.get('userId')?.touched" class="error">
+          L'utilisateur est requis
+        </div>
+      </div>
       
       <div class="form-group">
         <label for="ligneId">Ligne de production:</label>
@@ -87,6 +103,7 @@
           <th>Nom</th>
           <th>Code</th>
           <th>Type</th>
+          <th>Utilisateur</th>
           <th>Ligne de production</th>
           <th>Actions</th>
         </tr>
@@ -97,6 +114,7 @@
           <td>{{ produit.nom }}</td>
            <td>{{ produit.code }}</td>
           <td>{{ produit.type }}</td>
+          <td>{{ produit.user?.username }} ({{ produit.user?.prenom }})</td>
           <td>{{ produit.ligne?.nom || 'N/A' }}</td>
           <td>
             <button (click)="editProduit(produit)" class="btn btn-edit">Modifier</button>

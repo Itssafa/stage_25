@@ -7,25 +7,19 @@ public class ProduitDTO {
     private Long idProduit;
     private String nom;
     private String code;
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
     private TypeProd type;
     private LigneProductionSimpleDTO ligne;
+    private UserSimpleDTO user;
 
     public ProduitDTO() {}
 
-    public ProduitDTO(Long idProduit, String nom, String code, TypeProd type, LigneProductionSimpleDTO ligne) {
+    public ProduitDTO(Long idProduit, String nom, String code, TypeProd type, LigneProductionSimpleDTO ligne, UserSimpleDTO user) {
         this.idProduit = idProduit;
         this.nom = nom;
         this.code = code;
         this.type = type;
         this.ligne = ligne;
+        this.user = user;
     }
 
     public static ProduitDTO fromEntity(Produit produit) {
@@ -40,6 +34,7 @@ public class ProduitDTO {
                 produit.getLigne().getNom()
             ));
         }
+        dto.setUser(UserSimpleDTO.fromEntity(produit.getUser()));
         return dto;
     }
 
@@ -74,5 +69,21 @@ public class ProduitDTO {
 
     public void setLigne(LigneProductionSimpleDTO ligne) {
         this.ligne = ligne;
+    }
+
+    public UserSimpleDTO getUser() {
+        return user;
+    }
+
+    public void setUser(UserSimpleDTO user) {
+        this.user = user;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 }

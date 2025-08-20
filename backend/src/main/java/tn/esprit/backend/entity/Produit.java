@@ -20,6 +20,11 @@ public class Produit {
     private TypeProd type;
 
     @ManyToOne
+    @JoinColumn(name = "user_id")
+    @JsonIgnoreProperties({"produits"})
+    private User user;
+
+    @ManyToOne
     @JoinColumn(name = "ligne_id")
     @JsonIgnoreProperties({"postes", "produits"})
     private LigneProduction ligne;
@@ -31,10 +36,11 @@ public class Produit {
     // Constructors
     public Produit() {}
 
-    public Produit(String nom, String code, TypeProd type, LigneProduction ligne) {
+    public Produit(String nom, String code, TypeProd type, User user, LigneProduction ligne) {
         this.nom = nom;
         this.code = code;
         this.type = type;
+        this.user = user;
         this.ligne = ligne;
     }
 
@@ -69,6 +75,14 @@ public class Produit {
 
     public void setType(TypeProd type) {
         this.type = type;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public LigneProduction getLigne() {

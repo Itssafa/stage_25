@@ -17,6 +17,22 @@
           Le nom est requis
         </div>
       </div>
+
+      <div class="form-group">
+        <label for="userId">Utilisateur:</label>
+        <select 
+          id="userId" 
+          formControlName="userId" 
+          class="form-control">
+          <option value="">Sélectionnez un utilisateur</option>
+          <option *ngFor="let user of users" [value]="user.matricule">
+            {{ user.username }} ({{ user.prenom }})
+          </option>
+        </select>
+        <div *ngIf="ligneForm.get('userId')?.invalid && ligneForm.get('userId')?.touched" class="error">
+          L'utilisateur est requis
+        </div>
+      </div>
       
       <div class="form-actions">
         <button type="submit" [disabled]="ligneForm.invalid" class="btn btn-primary">
@@ -40,6 +56,7 @@
         <tr>
           <th>ID</th>
           <th>Nom</th>
+          <th>Utilisateur</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -47,6 +64,7 @@
         <tr *ngFor="let ligne of lignes">
           <td>{{ ligne.idLigne }}</td>
           <td>{{ ligne.nom }}</td>
+          <td>{{ ligne.user?.username }} ({{ ligne.user?.prenom }})</td>
           <td>
             <button (click)="editLigne(ligne)" class="btn btn-edit">Modifier</button>
             <button (click)="deleteLigne(ligne.idLigne)" class="btn btn-delete">supprimer</button>

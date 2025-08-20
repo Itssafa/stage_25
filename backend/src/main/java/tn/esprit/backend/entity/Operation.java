@@ -10,15 +10,13 @@ public class Operation {
     
     private String nomOp;
     private String description;
-    private String parametre;
 
     // Constructors
     public Operation() {}
 
-    public Operation(String nomOp, String description, String parametre) {
+    public Operation(String nomOp, String description) {
         this.nomOp = nomOp;
         this.description = description;
-        this.parametre = parametre;
     }
 
     // Getters and Setters
@@ -46,12 +44,5 @@ public class Operation {
         this.description = description;
     }
 
-    public String getParametre() {
-        return parametre;
-    }
-
-    public void setParametre(String parametre) {
-        this.parametre = parametre;
-    }
 }
 

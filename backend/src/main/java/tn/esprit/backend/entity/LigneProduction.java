@@ -20,6 +20,11 @@ public class LigneProduction {
 
     private String nom;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @JsonIgnoreProperties({"lignesProduction"})
+    private User user;
+
     @OneToMany(mappedBy = "ligne", cascade = CascadeType.ALL)
     @JsonIgnoreProperties({"ligne", "operations", "affectations"})
     private List<Poste> postes;

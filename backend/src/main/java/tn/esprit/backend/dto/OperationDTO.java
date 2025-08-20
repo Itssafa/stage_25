@@ -6,15 +6,13 @@ public class OperationDTO {
     private Long id;
     private String description;
     private String nomOp;
-    private String parametre;
 
     public OperationDTO() {}
 
-    public OperationDTO(Long id, String nomOp, String description, String parametre) {
+    public OperationDTO(Long id, String nomOp, String description) {
         this.id = id;
         this.nomOp = nomOp;
         this.description = description;
-        this.parametre = parametre;
     }
 
     public static OperationDTO fromEntity(Operation operation) {
@@ -22,7 +20,6 @@ public class OperationDTO {
         dto.setId(operation.getId());
         dto.setNomOp(operation.getNomOp());
         dto.setDescription(operation.getDescription());
-        dto.setParametre(operation.getParametre());
         return dto;
     }
 
@@ -51,11 +48,4 @@ public class OperationDTO {
         this.description = description;
     }
 
-    public String getParametre() {
-        return parametre;
-    }
-
-    public void setParametre(String parametre) {
-        this.parametre = parametre;
-    }
 }

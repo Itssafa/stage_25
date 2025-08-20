@@ -30,18 +30,6 @@
         </div>
       </div>
       
-      <div class="form-group">
-        <label for="parametre">Paramètre:</label>
-        <input 
-          type="text" 
-          id="parametre" 
-          formControlName="parametre" 
-          class="form-control"
-          placeholder="Entrez le paramètre">
-        <div *ngIf="operationForm.get('parametre')?.invalid && operationForm.get('parametre')?.touched" class="error">
-          Le paramètre est requis
-        </div>
-      </div>
       
       <div class="form-actions">
         <button type="submit" [disabled]="operationForm.invalid" class="btn btn-primary">
@@ -65,7 +53,6 @@
           <th>ID</th>
           <th>Nom Opération</th>
           <th>Description</th>
-          <th>Paramètre</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -74,7 +61,6 @@
           <td>{{ operation.id }}</td>
           <td>{{ operation.nomOp }}</td>
           <td>{{ operation.description }}</td>
-          <td>{{ operation.parametre }}</td>
           <td>
             <button (click)="editOperation(operation)" class="btn btn-edit">Modifier</button>
             <button (click)="deleteOperation(operation.id!)" class="btn btn-delete">Supprimer</button>
