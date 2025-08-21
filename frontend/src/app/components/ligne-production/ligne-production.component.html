@@ -1,53 +1,13 @@
 <div class="ligne-production-container">
   <h2>Gestion des Lignes de Production</h2>
   
-  <!-- Formulaire d'ajout/modification -->
-  <div class="form-section">
-    <h3>{{ isEditing ? 'Modifier' : 'Ajouter' }} une ligne de production</h3>
-    <form [formGroup]="ligneForm" (ngSubmit)="onSubmit()">
-      <div class="form-group">
-        <label for="nom">Nom de la ligne:</label>
-        <input 
-          type="text" 
-          id="nom" 
-          formControlName="nom" 
-          class="form-control"
-          placeholder="Entrez le nom de la ligne">
-        <div *ngIf="ligneForm.get('nom')?.invalid && ligneForm.get('nom')?.touched" class="error">
-          Le nom est requis
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="userId">Utilisateur:</label>
-        <select 
-          id="userId" 
-          formControlName="userId" 
-          class="form-control">
-          <option value="">Sélectionnez un utilisateur</option>
-          <option *ngFor="let user of users" [value]="user.matricule">
-            {{ user.username }} ({{ user.prenom }})
-          </option>
-        </select>
-        <div *ngIf="ligneForm.get('userId')?.invalid && ligneForm.get('userId')?.touched" class="error">
-          L'utilisateur est requis
-        </div>
-      </div>
-      
-      <div class="form-actions">
-        <button type="submit" [disabled]="ligneForm.invalid" class="btn btn-primary">
-          {{ isEditing ? 'Mettre à jour' : 'Ajouter' }}
-        </button>
-        <button type="button" (click)="resetForm()" class="btn btn-secondary">
-          Annuler
-        </button>
-      </div>
-    </form>
-  </div>
-
   <!-- Liste des lignes -->
   <div class="list-section">
-    <h3>Liste des lignes de production</h3>
+    <div class="list-header">
+      <h3>Liste des lignes de production</h3>
+      <button (click)="openAddModal()" class="btn btn-add">+</button>
+    </div>
+    
     <div *ngIf="loading" class="loading">Chargement...</div>
     <div *ngIf="error" class="error">{{ error }}</div>
     
@@ -56,7 +16,7 @@
         <tr>
           <th>ID</th>
           <th>Nom</th>
-          <th>Utilisateur</th>
+          <th>Créé par</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -67,8 +27,7 @@
           <td>{{ ligne.user?.username }} ({{ ligne.user?.prenom }})</td>
           <td>
             <button (click)="editLigne(ligne)" class="btn btn-edit">Modifier</button>
-            <button (click)="deleteLigne(ligne.idLigne)" class="btn btn-delete">supprimer</button>
-           
+            <button (click)="deleteLigne(ligne.idLigne)" class="btn btn-delete">Supprimer</button>
           </td>
         </tr>
       </tbody>
@@ -76,6 +35,65 @@
     
     <div *ngIf="lignes.length === 0 && !loading" class="no-data">
       Aucune ligne de production trouvée
+    </div>
+  </div>
+</div>
+
+<!-- Modal pour formulaire d'ajout/modification -->
+<div *ngIf="showModal" class="modal-overlay" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ isEditing ? 'Modifier' : 'Ajouter' }} une ligne de production</h3>
+      <button class="close-btn" (click)="closeModal()">&times;</button>
+    </div>
+    
+    <div class="modal-body">
+      <form [formGroup]="ligneForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label for="nom">Nom de la ligne:</label>
+          <input 
+            type="text" 
+            id="nom" 
+            formControlName="nom" 
+            class="form-control"
+            placeholder="Entrez le nom de la ligne">
+          <div *ngIf="ligneForm.get('nom')?.invalid && ligneForm.get('nom')?.touched" class="error">
+            Le nom est requis
+          </div>
+        </div>
+
+        <div class="form-group" *ngIf="!isEditing">
+          <label>Créé par:</label>
+          <div class="created-by-info">
+            <span class="user-info">{{ currentUser?.username }} ({{ currentUser?.prenom }})</span>
+          </div>
+        </div>
+
+        <div class="form-group" *ngIf="isEditing">
+          <label for="userId">Utilisateur:</label>
+          <select 
+            id="userId" 
+            formControlName="userId" 
+            class="form-control">
+            <option value="">Sélectionnez un utilisateur</option>
+            <option *ngFor="let user of users" [value]="user.matricule">
+              {{ user.username }} ({{ user.prenom }})
+            </option>
+          </select>
+          <div *ngIf="ligneForm.get('userId')?.invalid && ligneForm.get('userId')?.touched" class="error">
+            L'utilisateur est requis
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="submit" [disabled]="ligneForm.invalid" class="btn btn-primary">
+            {{ isEditing ? 'Mettre à jour' : 'Ajouter' }}
+          </button>
+          <button type="button" (click)="closeModal()" class="btn btn-secondary">
+            Annuler
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </div>

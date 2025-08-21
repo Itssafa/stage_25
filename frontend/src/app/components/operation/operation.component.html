@@ -1,49 +1,13 @@
 <div class="operation-container">
   <h2>Gestion des Opérations</h2>
   
-  <div class="form-section">
-    <h3>{{ isEditing ? 'Modifier' : 'Ajouter' }} une opération</h3>
-    <form [formGroup]="operationForm" (ngSubmit)="onSubmit()">
-      <div class="form-group">
-        <label for="nomOp">Nom de l'opération:</label>
-        <input 
-          type="text" 
-          id="nomOp" 
-          formControlName="nomOp" 
-          class="form-control"
-          placeholder="Entrez le nom de l'opération">
-        <div *ngIf="operationForm.get('nomOp')?.invalid && operationForm.get('nomOp')?.touched" class="error">
-          Le nom de l'opération est requis (minimum 2 caractères)
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="description">Description de l'opération:</label>
-        <input 
-          type="text" 
-          id="description" 
-          formControlName="description" 
-          class="form-control"
-          placeholder="Entrez la description de l'opération">
-        <div *ngIf="operationForm.get('description')?.invalid && operationForm.get('description')?.touched" class="error">
-          La description est requise (minimum 2 caractères)
-        </div>
-      </div>
-      
-      
-      <div class="form-actions">
-        <button type="submit" [disabled]="operationForm.invalid" class="btn btn-primary">
-          {{ isEditing ? 'Mettre à jour' : 'Ajouter' }}
-        </button>
-        <button type="button" (click)="resetForm()" class="btn btn-secondary">
-          Annuler
-        </button>
-      </div>
-    </form>
-  </div>
-
+  <!-- Liste des opérations -->
   <div class="list-section">
-    <h3>Liste des opérations</h3>
+    <div class="list-header">
+      <h3>Liste des opérations</h3>
+      <button (click)="openAddModal()" class="btn btn-add">+</button>
+    </div>
+    
     <div *ngIf="loading" class="loading">Chargement...</div>
     <div *ngIf="error" class="error">{{ error }}</div>
     
@@ -71,6 +35,55 @@
     
     <div *ngIf="operations.length === 0 && !loading" class="no-data">
       Aucune opération trouvée
+    </div>
+  </div>
+</div>
+
+<!-- Modal pour formulaire d'ajout/modification -->
+<div *ngIf="showModal" class="modal-overlay" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ isEditing ? 'Modifier' : 'Ajouter' }} une opération</h3>
+      <button class="close-btn" (click)="closeModal()">&times;</button>
+    </div>
+    
+    <div class="modal-body">
+      <form [formGroup]="operationForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label for="nomOp">Nom de l'opération:</label>
+          <input 
+            type="text" 
+            id="nomOp" 
+            formControlName="nomOp" 
+            class="form-control"
+            placeholder="Entrez le nom de l'opération">
+          <div *ngIf="operationForm.get('nomOp')?.invalid && operationForm.get('nomOp')?.touched" class="error">
+            Le nom de l'opération est requis (minimum 2 caractères)
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="description">Description de l'opération:</label>
+          <input 
+            type="text" 
+            id="description" 
+            formControlName="description" 
+            class="form-control"
+            placeholder="Entrez la description de l'opération">
+          <div *ngIf="operationForm.get('description')?.invalid && operationForm.get('description')?.touched" class="error">
+            La description est requise (minimum 2 caractères)
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="submit" [disabled]="operationForm.invalid" class="btn btn-primary">
+            {{ isEditing ? 'Mettre à jour' : 'Ajouter' }}
+          </button>
+          <button type="button" (click)="closeModal()" class="btn btn-secondary">
+            Annuler
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </div>

@@ -41,6 +41,7 @@ export class ProduitComponent implements OnInit, OnDestroy {
   error = '';
   isEditing = false;
   editingId: number | null = null;
+  showModal = false;
   
   private destroy$ = new Subject<void>();
 
@@ -171,7 +172,7 @@ export class ProduitComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (newProduit) => {
           this.produits.push(newProduit);
-          this.resetForm();
+          this.closeModal();
           console.log('Produit créé avec succès');
         },
         error: (err) => {
@@ -189,7 +190,7 @@ export class ProduitComponent implements OnInit, OnDestroy {
           if (index !== -1) {
             this.produits[index] = updatedProduit;
           }
-          this.resetForm();
+          this.closeModal();
           console.log('Produit mis à jour avec succès');
         },
         error: (err) => {
@@ -199,9 +200,22 @@ export class ProduitComponent implements OnInit, OnDestroy {
       });
   }
 
+  openAddModal() {
+    this.showModal = true;
+    this.isEditing = false;
+    this.editingId = null;
+    this.resetForm();
+  }
+
+  closeModal() {
+    this.showModal = false;
+    this.resetForm();
+  }
+
   editProduit(produit: Produit) {
     this.isEditing = true;
     this.editingId = produit.idProduit || null;
+    this.showModal = true;
     this.produitForm.patchValue({
       nom: produit.nom,
       code: produit.code,

@@ -22,6 +22,7 @@ export class LigneProductionComponent implements OnInit {
   error = '';
   isEditing = false;
   editingId: number | null = null;
+  showModal = false;
   
   private apiUrl = 'http://localhost:8085/api/ligneproductions';
   private userApiUrl = 'http://localhost:8085/api/admin/user-management/active';
@@ -99,7 +100,7 @@ export class LigneProductionComponent implements OnInit {
       .subscribe({
         next: (newLigne) => {
           this.lignes.push(newLigne);
-          this.resetForm();
+          this.closeModal();
           console.log('Ligne créée avec succès');
         },
         error: (err) => {
@@ -117,7 +118,7 @@ export class LigneProductionComponent implements OnInit {
           if (index !== -1) {
             this.lignes[index] = updatedLigne;
           }
-          this.resetForm();
+          this.closeModal();
           console.log('Ligne mise à jour avec succès');
         },
         error: (err) => {
@@ -127,9 +128,22 @@ export class LigneProductionComponent implements OnInit {
       });
   }
 
+  openAddModal() {
+    this.showModal = true;
+    this.isEditing = false;
+    this.editingId = null;
+    this.resetForm();
+  }
+
+  closeModal() {
+    this.showModal = false;
+    this.resetForm();
+  }
+
   editLigne(ligne: LigneProduction) {
     this.isEditing = true;
     this.editingId = ligne.idLigne || null;
+    this.showModal = true;
     this.ligneForm.patchValue({
       nom: ligne.nom,
       userId: ligne.user?.matricule

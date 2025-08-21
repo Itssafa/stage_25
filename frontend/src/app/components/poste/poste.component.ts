@@ -36,6 +36,7 @@ export class PosteComponent implements OnInit, OnDestroy {
   isEditing = false;
   editingId: number | null = null;
   selectedPosteId: number | null = null;
+  showModal = false;
   
   private destroy$ = new Subject<void>();
   
@@ -158,7 +159,7 @@ export class PosteComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (newPoste) => {
           this.postes.push(newPoste);
-          this.resetForm();
+          this.closeModal();
           console.log('Poste créé avec succès');
         },
         error: (err) => {
@@ -176,7 +177,7 @@ export class PosteComponent implements OnInit, OnDestroy {
           if (index !== -1) {
             this.postes[index] = updatedPoste;
           }
-          this.resetForm();
+          this.closeModal();
           console.log('Poste mis à jour avec succès');
         },
         error: (err) => {
@@ -186,9 +187,22 @@ export class PosteComponent implements OnInit, OnDestroy {
       });
   }
 
+  openAddModal() {
+    this.showModal = true;
+    this.isEditing = false;
+    this.editingId = null;
+    this.resetForm();
+  }
+
+  closeModal() {
+    this.showModal = false;
+    this.resetForm();
+  }
+
   editPoste(poste: Poste) {
     this.isEditing = true;
     this.editingId = poste.idPoste || null;
+    this.showModal = true;
     this.posteForm.patchValue({
       nom: poste.nom,
       ligneId: poste.ligne?.idLigne

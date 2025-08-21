@@ -43,6 +43,7 @@ export class OrdreFabComponent implements OnInit {
   error = '';
   isEditing = false;
   editingId: number | null = null;
+  showModal = false;
   
   private apiUrl = 'http://localhost:8085/api/ordrefabs';
   private produitApiUrl = 'http://localhost:8085/api/produits';
@@ -158,7 +159,7 @@ export class OrdreFabComponent implements OnInit {
       .subscribe({
         next: (newOrdreFab) => {
           this.ordresFab.push(newOrdreFab);
-          this.resetForm();
+          this.closeModal();
           console.log('Ordre de fabrication créé avec succès');
         },
         error: (err) => {
@@ -176,7 +177,7 @@ export class OrdreFabComponent implements OnInit {
           if (index !== -1) {
             this.ordresFab[index] = updatedOrdreFab;
           }
-          this.resetForm();
+          this.closeModal();
           console.log('Ordre de fabrication mis à jour avec succès');
         },
         error: (err) => {
@@ -186,9 +187,22 @@ export class OrdreFabComponent implements OnInit {
       });
   }
 
+  openAddModal() {
+    this.showModal = true;
+    this.isEditing = false;
+    this.editingId = null;
+    this.resetForm();
+  }
+
+  closeModal() {
+    this.showModal = false;
+    this.resetForm();
+  }
+
   editOrdreFab(ordreFab: OrdreFab) {
     this.isEditing = true;
     this.editingId = ordreFab.id_orf || null;
+    this.showModal = true;
     this.ordreFabForm.patchValue({
       code_fab: ordreFab.code_fab,
       statuts: ordreFab.statuts,

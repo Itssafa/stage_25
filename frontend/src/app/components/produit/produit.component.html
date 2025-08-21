@@ -1,98 +1,13 @@
 <div class="produit-container">
   <h2>Gestion des Produits</h2>
   
-  <div class="form-section">
-    <h3>{{ isEditing ? 'Modifier' : 'Ajouter' }} un produit</h3>
-    <form [formGroup]="produitForm" (ngSubmit)="onSubmit()">
-      <div class="form-group">
-        <label for="nom">Nom du produit:</label>
-        <input 
-          type="text" 
-          id="nom" 
-          formControlName="nom" 
-          class="form-control"
-          placeholder="Entrez le nom du produit">
-        <div *ngIf="produitForm.get('nom')?.invalid && produitForm.get('nom')?.touched" class="error">
-          Le nom est requis (minimum 2 caractères)
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="nom">Code du produit:</label>
-        <input 
-          type="text" 
-          id="code" 
-          formControlName="code" 
-          class="form-control"
-          placeholder="Entrez le code du produit">
-        <div *ngIf="produitForm.get('code')?.invalid && produitForm.get('code')?.touched" class="error">
-          Le code est requis (minimum 3 caractères)
-        </div>
-      </div>
-      
-
-
-      <div class="form-group">
-        <label for="type">Type du produit:</label>
-        <select 
-          id="type" 
-          formControlName="type" 
-          class="form-control">
-          <option value="">Sélectionnez un type</option>
-          <option *ngFor="let type of typeOptions" [value]="type">
-            {{ type }}
-          </option>
-        </select>
-        <div *ngIf="produitForm.get('type')?.invalid && produitForm.get('type')?.touched" class="error">
-          Veuillez sélectionner un type de produit
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="userId">Utilisateur:</label>
-        <select 
-          id="userId" 
-          formControlName="userId" 
-          class="form-control">
-          <option value="">Sélectionnez un utilisateur</option>
-          <option *ngFor="let user of users" [value]="user.matricule">
-            {{ user.username }} ({{ user.prenom }})
-          </option>
-        </select>
-        <div *ngIf="produitForm.get('userId')?.invalid && produitForm.get('userId')?.touched" class="error">
-          L'utilisateur est requis
-        </div>
-      </div>
-      
-      <div class="form-group">
-        <label for="ligneId">Ligne de production:</label>
-        <select 
-          id="ligneId" 
-          formControlName="ligneId" 
-          class="form-control">
-          <option value="">Sélectionnez une ligne</option>
-          <option *ngFor="let ligne of lignes" [value]="ligne.idLigne">
-            {{ ligne.nom }}
-          </option>
-        </select>
-        <div *ngIf="produitForm.get('ligneId')?.invalid && produitForm.get('ligneId')?.touched" class="error">
-          Veuillez sélectionner une ligne de production
-        </div>
-      </div>
-      
-      <div class="form-actions">
-        <button type="submit" [disabled]="produitForm.invalid" class="btn btn-primary">
-          {{ isEditing ? 'Mettre à jour' : 'Ajouter' }}
-        </button>
-        <button type="button" (click)="resetForm()" class="btn btn-secondary">
-          Annuler
-        </button>
-      </div>
-    </form>
-  </div>
-
+  <!-- Liste des produits -->
   <div class="list-section">
-    <h3>Liste des produits</h3>
+    <div class="list-header">
+      <h3>Liste des produits</h3>
+      <button (click)="openAddModal()" class="btn btn-add">+</button>
+    </div>
+    
     <div *ngIf="loading" class="loading">Chargement...</div>
     <div *ngIf="error" class="error">{{ error }}</div>
     
@@ -112,7 +27,7 @@
         <tr *ngFor="let produit of produits">
           <td>{{ produit.idProduit }}</td>
           <td>{{ produit.nom }}</td>
-           <td>{{ produit.code }}</td>
+          <td>{{ produit.code }}</td>
           <td>{{ produit.type }}</td>
           <td>{{ produit.user?.username }} ({{ produit.user?.prenom }})</td>
           <td>{{ produit.ligne?.nom || 'N/A' }}</td>
@@ -126,6 +41,103 @@
     
     <div *ngIf="produits.length === 0 && !loading" class="no-data">
       Aucun produit trouvé
+    </div>
+  </div>
+</div>
+
+<!-- Modal pour formulaire d'ajout/modification -->
+<div *ngIf="showModal" class="modal-overlay" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ isEditing ? 'Modifier' : 'Ajouter' }} un produit</h3>
+      <button class="close-btn" (click)="closeModal()">&times;</button>
+    </div>
+    
+    <div class="modal-body">
+      <form [formGroup]="produitForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label for="nom">Nom du produit:</label>
+          <input 
+            type="text" 
+            id="nom" 
+            formControlName="nom" 
+            class="form-control"
+            placeholder="Entrez le nom du produit">
+          <div *ngIf="produitForm.get('nom')?.invalid && produitForm.get('nom')?.touched" class="error">
+            Le nom est requis (minimum 2 caractères)
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="code">Code du produit:</label>
+          <input 
+            type="text" 
+            id="code" 
+            formControlName="code" 
+            class="form-control"
+            placeholder="Entrez le code du produit">
+          <div *ngIf="produitForm.get('code')?.invalid && produitForm.get('code')?.touched" class="error">
+            Le code est requis
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="type">Type du produit:</label>
+          <select 
+            id="type" 
+            formControlName="type" 
+            class="form-control">
+            <option value="">Sélectionnez un type</option>
+            <option *ngFor="let type of typeOptions" [value]="type">
+              {{ type }}
+            </option>
+          </select>
+          <div *ngIf="produitForm.get('type')?.invalid && produitForm.get('type')?.touched" class="error">
+            Veuillez sélectionner un type de produit
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="userId">Utilisateur:</label>
+          <select 
+            id="userId" 
+            formControlName="userId" 
+            class="form-control">
+            <option value="">Sélectionnez un utilisateur</option>
+            <option *ngFor="let user of users" [value]="user.matricule">
+              {{ user.username }} ({{ user.prenom }})
+            </option>
+          </select>
+          <div *ngIf="produitForm.get('userId')?.invalid && produitForm.get('userId')?.touched" class="error">
+            L'utilisateur est requis
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="ligneId">Ligne de production:</label>
+          <select 
+            id="ligneId" 
+            formControlName="ligneId" 
+            class="form-control">
+            <option value="">Sélectionnez une ligne</option>
+            <option *ngFor="let ligne of lignes" [value]="ligne.idLigne">
+              {{ ligne.nom }}
+            </option>
+          </select>
+          <div *ngIf="produitForm.get('ligneId')?.invalid && produitForm.get('ligneId')?.touched" class="error">
+            Veuillez sélectionner une ligne de production
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="submit" [disabled]="produitForm.invalid" class="btn btn-primary">
+            {{ isEditing ? 'Mettre à jour' : 'Ajouter' }}
+          </button>
+          <button type="button" (click)="closeModal()" class="btn btn-secondary">
+            Annuler
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </div>

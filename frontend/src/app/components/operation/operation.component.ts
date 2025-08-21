@@ -20,6 +20,7 @@ export class OperationComponent implements OnInit {
   error = '';
   isEditing = false;
   editingId: number | null = null;
+  showModal = false;
   
   private apiUrl = 'http://localhost:8085/api/operations';
 
@@ -83,7 +84,7 @@ export class OperationComponent implements OnInit {
       .subscribe({
         next: (newOperation) => {
           this.operations.push(newOperation);
-          this.resetForm();
+          this.closeModal();
           console.log('Opération créée avec succès');
         },
         error: (err) => {
@@ -101,7 +102,7 @@ export class OperationComponent implements OnInit {
           if (index !== -1) {
             this.operations[index] = updatedOperation;
           }
-          this.resetForm();
+          this.closeModal();
           console.log('Opération mise à jour avec succès');
         },
         error: (err) => {
@@ -111,9 +112,22 @@ export class OperationComponent implements OnInit {
       });
   }
 
+  openAddModal() {
+    this.showModal = true;
+    this.isEditing = false;
+    this.editingId = null;
+    this.resetForm();
+  }
+
+  closeModal() {
+    this.showModal = false;
+    this.resetForm();
+  }
+
   editOperation(operation: Operation) {
     this.isEditing = true;
     this.editingId = operation.id || null;
+    this.showModal = true;
     this.operationForm.patchValue({
       nomOp: operation.nomOp,
       description: operation.description

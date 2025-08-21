@@ -1,51 +1,13 @@
 <div class="poste-container">
   <h2>Gestion des Postes</h2>
   
-  <div class="form-section">
-    <h3>{{ isEditing ? 'Modifier' : 'Ajouter' }} un poste</h3>
-    <form [formGroup]="posteForm" (ngSubmit)="onSubmit()">
-      <div class="form-group">
-        <label for="nom">Nom du poste:</label>
-        <input 
-          type="text" 
-          id="nom" 
-          formControlName="nom" 
-          class="form-control"
-          placeholder="Entrez le nom du poste">
-        <div *ngIf="posteForm.get('nom')?.invalid && posteForm.get('nom')?.touched" class="error">
-          Le nom est requis (minimum 2 caractères)
-        </div>
-      </div>
-      
-      <div class="form-group">
-        <label for="ligneId">Ligne de production:</label>
-        <select 
-          id="ligneId" 
-          formControlName="ligneId" 
-          class="form-control">
-          <option value="">Sélectionnez une ligne</option>
-          <option *ngFor="let ligne of lignes" [value]="ligne.idLigne">
-            {{ ligne.nom }}
-          </option>
-        </select>
-        <div *ngIf="posteForm.get('ligneId')?.invalid && posteForm.get('ligneId')?.touched" class="error">
-          Veuillez sélectionner une ligne de production
-        </div>
-      </div>
-      
-      <div class="form-actions">
-        <button type="submit" [disabled]="posteForm.invalid" class="btn btn-primary">
-          {{ isEditing ? 'Mettre à jour' : 'Ajouter' }}
-        </button>
-        <button type="button" (click)="resetForm()" class="btn btn-secondary">
-          Annuler
-        </button>
-      </div>
-    </form>
-  </div>
-
+  <!-- Liste des postes -->
   <div class="list-section">
-    <h3>Liste des postes</h3>
+    <div class="list-header">
+      <h3>Liste des postes</h3>
+      <button (click)="openAddModal()" class="btn btn-add">+</button>
+    </div>
+    
     <div *ngIf="loading" class="loading">Chargement...</div>
     <div *ngIf="error" class="error">{{ error }}</div>
     
@@ -96,6 +58,58 @@
     
     <div *ngIf="postes.length === 0 && !loading" class="no-data">
       Aucun poste trouvé
+    </div>
+  </div>
+</div>
+
+<!-- Modal pour formulaire d'ajout/modification -->
+<div *ngIf="showModal" class="modal-overlay" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ isEditing ? 'Modifier' : 'Ajouter' }} un poste</h3>
+      <button class="close-btn" (click)="closeModal()">&times;</button>
+    </div>
+    
+    <div class="modal-body">
+      <form [formGroup]="posteForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label for="nom">Nom du poste:</label>
+          <input 
+            type="text" 
+            id="nom" 
+            formControlName="nom" 
+            class="form-control"
+            placeholder="Entrez le nom du poste">
+          <div *ngIf="posteForm.get('nom')?.invalid && posteForm.get('nom')?.touched" class="error">
+            Le nom est requis (minimum 2 caractères)
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="ligneId">Ligne de production:</label>
+          <select 
+            id="ligneId" 
+            formControlName="ligneId" 
+            class="form-control">
+            <option value="">Sélectionnez une ligne</option>
+            <option *ngFor="let ligne of lignes" [value]="ligne.idLigne">
+              {{ ligne.nom }}
+            </option>
+          </select>
+          <div *ngIf="posteForm.get('ligneId')?.invalid && posteForm.get('ligneId')?.touched" class="error">
+            Veuillez sélectionner une ligne de production
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="submit" [disabled]="posteForm.invalid" class="btn btn-primary">
+            {{ isEditing ? 'Mettre à jour' : 'Ajouter' }}
+          </button>
+          <button type="button" (click)="closeModal()" class="btn btn-secondary">
+            Annuler
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </div>

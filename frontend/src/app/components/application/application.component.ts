@@ -30,6 +30,7 @@ export class ApplicationComponent implements OnInit {
   error = '';
   isEditing = false;
   editingId: number | null = null;
+  showModal = false;
   
   private apiUrl = 'http://localhost:8085/api/applications';
   private operationApiUrl = 'http://localhost:8085/api/operations';
@@ -114,7 +115,7 @@ export class ApplicationComponent implements OnInit {
       .subscribe({
         next: (newApplication) => {
           this.applications.push(newApplication);
-          this.resetForm();
+          this.closeModal();
           console.log('Application créée avec succès');
         },
         error: (err) => {
@@ -132,7 +133,7 @@ export class ApplicationComponent implements OnInit {
           if (index !== -1) {
             this.applications[index] = updatedApplication;
           }
-          this.resetForm();
+          this.closeModal();
           console.log('Application mise à jour avec succès');
         },
         error: (err) => {
@@ -142,9 +143,22 @@ export class ApplicationComponent implements OnInit {
       });
   }
 
+  openAddModal() {
+    this.showModal = true;
+    this.isEditing = false;
+    this.editingId = null;
+    this.resetForm();
+  }
+
+  closeModal() {
+    this.showModal = false;
+    this.resetForm();
+  }
+
   editApplication(application: Application) {
     this.isEditing = true;
     this.editingId = application.idApp || null;
+    this.showModal = true;
     this.applicationForm.patchValue({
       nomApp: application.nomApp,
       description: application.description,
