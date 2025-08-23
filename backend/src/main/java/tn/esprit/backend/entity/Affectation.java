@@ -2,6 +2,7 @@ package tn.esprit.backend.entity;
 
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.time.LocalDateTime;
 
 @Entity
 public class Affectation {
@@ -12,17 +13,26 @@ public class Affectation {
 
     @ManyToOne
     @JoinColumn(name = "poste_id")
-    @JsonIgnoreProperties({"affectations", "ligne"})
+    @JsonIgnoreProperties({"affectations", "ligne", "user"})
     private Poste poste;
 
     @ManyToOne
     @JoinColumn(name = "application_id")
-    @JsonIgnoreProperties({"affectations"})
+    @JsonIgnoreProperties({"affectations", "user"})
     private Application application;
 
     @OneToOne(mappedBy = "affectation", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnoreProperties({"affectation"})
     private Parametre parametre;
+
+    @Column(name = "date_debut")
+    private LocalDateTime dateDebut;
+
+    @Column(name = "date_fin")
+    private LocalDateTime dateFin;
+
+    @Column(name = "active")
+    private Boolean active;
 
     // Constructors
     public Affectation() {}
@@ -30,6 +40,8 @@ public class Affectation {
     public Affectation(Poste poste, Application application) {
         this.poste = poste;
         this.application = application;
+        this.dateDebut = LocalDateTime.now();
+        this.active = true;
     }
 
     // Getters and Setters
@@ -63,5 +75,29 @@ public class Affectation {
 
     public void setParametre(Parametre parametre) {
         this.parametre = parametre;
+    }
+
+    public LocalDateTime getDateDebut() {
+        return dateDebut;
+    }
+
+    public void setDateDebut(LocalDateTime dateDebut) {
+        this.dateDebut = dateDebut;
+    }
+
+    public LocalDateTime getDateFin() {
+        return dateFin;
+    }
+
+    public void setDateFin(LocalDateTime dateFin) {
+        this.dateFin = dateFin;
+    }
+
+    public Boolean isActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
     }
 }

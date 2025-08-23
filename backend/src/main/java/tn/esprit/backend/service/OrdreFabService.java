@@ -1,6 +1,7 @@
 package tn.esprit.backend.service;
 
 import tn.esprit.backend.entity.OrdreFab;
+import tn.esprit.backend.entity.StatutOrdre;
 import tn.esprit.backend.repository.OrdreFabRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,10 @@ public class OrdreFabService {
     }
 
     public OrdreFab create(OrdreFab obj) {
+        // S'assurer que le statut par défaut est EN_ATTENTE si non défini
+        if (obj.getStatuts() == null) {
+            obj.setStatuts(StatutOrdre.EN_ATTENTE);
+        }
         return repository.save(obj);
     }
 
@@ -34,7 +39,10 @@ public class OrdreFabService {
         existing.setQuantite(updated.getQuantite());
         existing.setDatedeb(updated.getDatedeb());
         existing.setDatefin(updated.getDatefin());
-        existing.setUser(updated.getUser());
+        // Ne pas modifier l'utilisateur lors des mises à jour pour préserver le créateur
+        if (updated.getUser() != null && existing.getUser() == null) {
+            existing.setUser(updated.getUser());
+        }
         existing.setProduit(updated.getProduit());
         
         return repository.save(existing);

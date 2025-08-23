@@ -6,9 +6,16 @@
 
   <!-- Liste des utilisateurs en attente d'activation -->
   <div class="users-section">
-    <h3>Utilisateurs en attente d'activation ({{ defaultUsers.length }})</h3>
+    <h3>Utilisateurs en attente d'activation ({{ filteredDefaultUsers.length }} / {{ defaultUsers.length }})</h3>
     
-    <table *ngIf="defaultUsers.length > 0" class="table">
+    <!-- Barre de recherche globale pour les utilisateurs en attente -->
+    <app-advanced-search
+      placeholder="Rechercher dans les utilisateurs en attente..."
+      (globalSearchChange)="onDefaultUsersSearchChange($event)"
+      (clearSearch)="onClearDefaultFilters()">
+    </app-advanced-search>
+    
+    <table *ngIf="filteredDefaultUsers.length > 0" class="table">
       <thead>
         <tr>
           <th>Matricule</th>
@@ -20,7 +27,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let user of defaultUsers">
+        <tr *ngFor="let user of filteredDefaultUsers">
           <td>{{ user.matricule }}</td>
           <td>{{ user.username }}</td>
           <td>{{ user.prenom }}</td>
@@ -34,6 +41,10 @@
       </tbody>
     </table>
     
+    <div *ngIf="filteredDefaultUsers.length === 0 && defaultUsers.length > 0 && !loading" class="no-data">
+      Aucun utilisateur trouvé avec les critères de recherche
+    </div>
+    
     <div *ngIf="defaultUsers.length === 0 && !loading" class="no-data">
       Aucun utilisateur en attente d'activation
     </div>
@@ -41,9 +52,16 @@
 
   <!-- Liste des utilisateurs activés -->
   <div class="users-section">
-    <h3>Utilisateurs activés ({{ activeUsers.length }})</h3>
+    <h3>Utilisateurs activés ({{ filteredActiveUsers.length }} / {{ activeUsers.length }})</h3>
     
-    <table *ngIf="activeUsers.length > 0" class="table">
+    <!-- Barre de recherche globale pour les utilisateurs activés -->
+    <app-advanced-search
+      placeholder="Rechercher dans les utilisateurs activés..."
+      (globalSearchChange)="onActiveUsersSearchChange($event)"
+      (clearSearch)="onClearActiveFilters()">
+    </app-advanced-search>
+    
+    <table *ngIf="filteredActiveUsers.length > 0" class="table">
       <thead>
         <tr>
           <th>Matricule</th>
@@ -56,7 +74,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let user of activeUsers">
+        <tr *ngFor="let user of filteredActiveUsers">
           <td>{{ user.matricule }}</td>
           <td>{{ user.username }}</td>
           <td>{{ user.prenom }}</td>
@@ -70,6 +88,10 @@
         </tr>
       </tbody>
     </table>
+    
+    <div *ngIf="filteredActiveUsers.length === 0 && activeUsers.length > 0 && !loading" class="no-data">
+      Aucun utilisateur trouvé avec les critères de recherche
+    </div>
     
     <div *ngIf="activeUsers.length === 0 && !loading" class="no-data">
       Aucun utilisateur activé

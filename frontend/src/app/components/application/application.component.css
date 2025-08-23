@@ -381,3 +381,110 @@ h3 {
   border-radius: 8px;
   border-left: 4px solid #dc3545;
 }
+
+/* Styles pour les boutons d'affectation */
+.btn-affect {
+  background-color: #17a2b8;
+  color: white;
+  padding: 5px 10px;
+  margin-right: 5px;
+}
+
+.btn-affect:hover {
+  background-color: #138496;
+}
+
+.btn-affect-disabled {
+  background-color: #e9ecef;
+  color: #6c757d;
+  padding: 5px 10px;
+  margin-right: 5px;
+  cursor: not-allowed;
+}
+
+.btn-unaffect {
+  background-color: #fd7e14;
+  color: white;
+  padding: 5px 10px;
+  margin-right: 5px;
+}
+
+.btn-unaffect:hover {
+  background-color: #e8650e;
+}
+
+.btn-disabled {
+  background-color: #e9ecef;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Styles pour les statuts d'affectation */
+.status-affected {
+  color: #155724;
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  display: inline-block;
+}
+
+.status-available {
+  color: #004085;
+  background-color: #cce5ff;
+  border: 1px solid #b8daff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  display: inline-block;
+}
+
+.status-configured {
+  color: #721c24;
+  background-color: #f8d7da;
+  border: 1px solid #f1aeb5;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  margin-left: 5px;
+}
+
+/* Styles pour le modal d'affectation */
+.postes-list {
+  max-height: 300px;
+  overflow-y: auto;
+  margin: 15px 0;
+}
+
+.poste-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  background: #f8f9fa;
+}
+
+.poste-item:hover {
+  background: #e9ecef;
+}
+
+.poste-info {
+  flex: 1;
+}
+
+.poste-info strong {
+  color: #2c3e50;
+}
+
+.modal-footer {
+  padding: 20px 30px;
+  background: #f8f9fa;
+  border-radius: 0 0 20px 20px;
+  border-top: 1px solid #e9ecef;
+  display: flex;
+  justify-content: flex-end;
+}

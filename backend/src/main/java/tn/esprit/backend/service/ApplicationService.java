@@ -32,6 +32,9 @@ public class ApplicationService {
     existing.setNomApp(updated.getNomApp());
     existing.setDescription(updated.getDescription());
     existing.setOperation(updated.getOperation());
+    if (updated.getUser() != null) {
+        existing.setUser(updated.getUser());
+    }
 
     return repository.save(existing);
 }

@@ -1,0 +1,22 @@
+<div class="advanced-search-container">
+  <!-- Global Search Bar -->
+  <div class="global-search-bar">
+    <div class="search-input-group">
+      <input 
+        type="text" 
+        [formControl]="globalSearchValue" 
+        [placeholder]="placeholder" 
+        class="search-input"
+      />
+      
+      <button 
+        *ngIf="globalSearchValue.value" 
+        (click)="onClearAll()" 
+        class="clear-btn"
+        title="Effacer la recherche"
+      >
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+</div>

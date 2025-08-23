@@ -19,8 +19,12 @@ public class Poste {
     private LigneProduction ligne;
 
     @OneToMany(mappedBy = "poste", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties("poste")
+    @JsonIgnoreProperties({"poste", "parametre"})
     private List<Affectation> affectations;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_matricule")
+    private User user;
 
     // Constructors
     public Poste() {}
@@ -61,5 +65,13 @@ public class Poste {
 
     public void setAffectations(List<Affectation> affectations) {
         this.affectations = affectations;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

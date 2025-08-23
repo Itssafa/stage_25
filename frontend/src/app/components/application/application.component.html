@@ -1,6 +1,13 @@
 <div class="application-container">
   <h2>Gestion des Applications</h2>
   
+  <!-- Barre de recherche globale -->
+  <app-advanced-search
+    placeholder="Rechercher une application..."
+    (globalSearchChange)="onSearchChange($event)"
+    (clearSearch)="onClearSearch()">
+  </app-advanced-search>
+
   <!-- Liste des applications -->
   <div class="list-section">
     <div class="list-header">
@@ -11,29 +18,69 @@
     <div *ngIf="loading" class="loading">Chargement...</div>
     <div *ngIf="error" class="error">{{ error }}</div>
     
-    <table *ngIf="applications.length > 0" class="table">
+    <table *ngIf="filteredApplications.length > 0" class="table">
       <thead>
         <tr>
           <th>ID</th>
           <th>Nom</th>
           <th>Description</th>
           <th>Opération</th>
+          <th>État</th>
+          <th>Créé par</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let application of applications">
+        <tr *ngFor="let application of filteredApplications">
           <td>{{ application.idApp }}</td>
           <td>{{ application.nomApp }}</td>
           <td>{{ application.description }}</td>
           <td>{{ application.operation?.nomOp || 'Aucune' }}</td>
           <td>
+            <span *ngIf="application.currentlyAffected" class="status-affected">
+              Affectée au poste: {{ application.currentPosteNom }}
+              <br><small>Depuis: {{ application.currentAffectationDate | date:'dd/MM/yyyy HH:mm' }}</small>
+            </span>
+            <span *ngIf="!application.currentlyAffected" class="status-available">
+              Disponible
+            </span>
+          </td>
+          <td>{{ application.user?.username }} ({{ application.user?.prenom }})</td>
+          <td>
             <button (click)="editApplication(application)" class="btn btn-edit">Modifier</button>
             <button (click)="deleteApplication(application.idApp!)" class="btn btn-delete">Supprimer</button>
+            
+            <!-- Bouton Affecter -->
+            <button 
+              *ngIf="isApplicationAffectable(application)" 
+              (click)="openAffectationModal(application.idApp!)" 
+              class="btn btn-affect">
+              Affecter
+            </button>
+            
+            <!-- Bouton Affecter (grisé) -->
+            <button 
+              *ngIf="!isApplicationAffectable(application)" 
+              disabled 
+              class="btn btn-affect-disabled">
+              Affecter
+            </button>
+            
+            <!-- Bouton Désaffecter -->
+            <button 
+              *ngIf="application.currentlyAffected" 
+              (click)="desaffecterApplication(application.idApp!)" 
+              class="btn btn-unaffect">
+              Désaffecter
+            </button>
           </td>
         </tr>
       </tbody>
     </table>
+    
+    <div *ngIf="filteredApplications.length === 0 && applications.length > 0 && !loading" class="no-data">
+      Aucune application ne correspond aux critères de recherche
+    </div>
     
     <div *ngIf="applications.length === 0 && !loading" class="no-data">
       Aucune application trouvée
@@ -99,6 +146,54 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal pour l'affectation d'application à un poste -->
+<div *ngIf="showAffectationModal" class="modal-overlay" (click)="closeAffectationModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Affecter l'application à un poste</h3>
+      <button class="close-btn" (click)="closeAffectationModal()">&times;</button>
+    </div>
+    
+    <div class="modal-body">
+      <div *ngIf="error" class="error">{{ error }}</div>
+      
+      <p>Sélectionnez un poste disponible :</p>
+      
+      <div class="postes-list">
+        <div *ngFor="let poste of postes" class="poste-item">
+          <div class="poste-info">
+            <strong>{{ poste.nom }}</strong> (ID: {{ poste.idPoste }})
+            <span *ngIf="poste.configured" class="status-configured">- Déjà configuré</span>
+            <span *ngIf="!poste.configured" class="status-available">- Disponible</span>
+          </div>
+          <button 
+            *ngIf="!poste.configured" 
+            (click)="affecterApplication(poste.idPoste)" 
+            class="btn btn-primary">
+            Sélectionner
+          </button>
+          <button 
+            *ngIf="poste.configured" 
+            disabled 
+            class="btn btn-disabled">
+            Indisponible
+          </button>
+        </div>
+      </div>
+      
+      <div *ngIf="getAvailablePostes().length === 0" class="no-data">
+        Aucun poste disponible pour l'affectation
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button type="button" (click)="closeAffectationModal()" class="btn btn-secondary">
+        Annuler
+      </button>
     </div>
   </div>
 </div>

@@ -1,6 +1,13 @@
 <div class="operation-container">
   <h2>Gestion des Opérations</h2>
   
+  <!-- Barre de recherche globale -->
+  <app-advanced-search
+    placeholder="Rechercher une opération..."
+    (globalSearchChange)="onSearchChange($event)"
+    (clearSearch)="onClearSearch()">
+  </app-advanced-search>
+
   <!-- Liste des opérations -->
   <div class="list-section">
     <div class="list-header">
@@ -11,20 +18,22 @@
     <div *ngIf="loading" class="loading">Chargement...</div>
     <div *ngIf="error" class="error">{{ error }}</div>
     
-    <table *ngIf="operations.length > 0" class="table">
+    <table *ngIf="filteredOperations.length > 0" class="table">
       <thead>
         <tr>
           <th>ID</th>
           <th>Nom Opération</th>
           <th>Description</th>
+          <th>Créé par</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let operation of operations">
+        <tr *ngFor="let operation of filteredOperations">
           <td>{{ operation.id }}</td>
           <td>{{ operation.nomOp }}</td>
           <td>{{ operation.description }}</td>
+          <td>{{ operation.user?.username }} ({{ operation.user?.prenom }})</td>
           <td>
             <button (click)="editOperation(operation)" class="btn btn-edit">Modifier</button>
             <button (click)="deleteOperation(operation.id!)" class="btn btn-delete">Supprimer</button>
@@ -32,6 +41,10 @@
         </tr>
       </tbody>
     </table>
+    
+    <div *ngIf="filteredOperations.length === 0 && operations.length > 0 && !loading" class="no-data">
+      Aucune opération ne correspond aux critères de recherche
+    </div>
     
     <div *ngIf="operations.length === 0 && !loading" class="no-data">
       Aucune opération trouvée

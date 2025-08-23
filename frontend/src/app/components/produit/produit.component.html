@@ -1,6 +1,13 @@
 <div class="produit-container">
   <h2>Gestion des Produits</h2>
   
+  <!-- Barre de recherche globale -->
+  <app-advanced-search
+    placeholder="Rechercher un produit..."
+    (globalSearchChange)="onSearchChange($event)"
+    (clearSearch)="onClearSearch()">
+  </app-advanced-search>
+
   <!-- Liste des produits -->
   <div class="list-section">
     <div class="list-header">
@@ -11,20 +18,20 @@
     <div *ngIf="loading" class="loading">Chargement...</div>
     <div *ngIf="error" class="error">{{ error }}</div>
     
-    <table *ngIf="produits.length > 0" class="table">
+    <table *ngIf="filteredProduits.length > 0" class="table">
       <thead>
         <tr>
           <th>ID</th>
           <th>Nom</th>
           <th>Code</th>
           <th>Type</th>
-          <th>Utilisateur</th>
+          <th>Créé par</th>
           <th>Ligne de production</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let produit of produits">
+        <tr *ngFor="let produit of filteredProduits">
           <td>{{ produit.idProduit }}</td>
           <td>{{ produit.nom }}</td>
           <td>{{ produit.code }}</td>
@@ -38,6 +45,10 @@
         </tr>
       </tbody>
     </table>
+    
+    <div *ngIf="filteredProduits.length === 0 && produits.length > 0 && !loading" class="no-data">
+      Aucun produit ne correspond aux critères de recherche
+    </div>
     
     <div *ngIf="produits.length === 0 && !loading" class="no-data">
       Aucun produit trouvé
@@ -97,21 +108,6 @@
           </div>
         </div>
 
-        <div class="form-group">
-          <label for="userId">Utilisateur:</label>
-          <select 
-            id="userId" 
-            formControlName="userId" 
-            class="form-control">
-            <option value="">Sélectionnez un utilisateur</option>
-            <option *ngFor="let user of users" [value]="user.matricule">
-              {{ user.username }} ({{ user.prenom }})
-            </option>
-          </select>
-          <div *ngIf="produitForm.get('userId')?.invalid && produitForm.get('userId')?.touched" class="error">
-            L'utilisateur est requis
-          </div>
-        </div>
         
         <div class="form-group">
           <label for="ligneId">Ligne de production:</label>

@@ -1,6 +1,13 @@
 <div class="poste-container">
   <h2>Gestion des Postes</h2>
   
+  <!-- Barre de recherche globale -->
+  <app-advanced-search
+    placeholder="Rechercher un poste..."
+    (globalSearchChange)="onSearchChange($event)"
+    (clearSearch)="onClearSearch()">
+  </app-advanced-search>
+
   <!-- Liste des postes -->
   <div class="list-section">
     <div class="list-header">
@@ -11,22 +18,24 @@
     <div *ngIf="loading" class="loading">Chargement...</div>
     <div *ngIf="error" class="error">{{ error }}</div>
     
-    <table *ngIf="postes.length > 0" class="table">
+    <table *ngIf="filteredPostes.length > 0" class="table">
       <thead>
         <tr>
           <th>ID</th>
           <th>Nom</th>
           <th>Ligne de production</th>
+          <th>Créé par</th>
           <th>Applications</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        <ng-container *ngFor="let poste of postes">
+        <ng-container *ngFor="let poste of filteredPostes">
           <tr>
             <td>{{ poste.idPoste }}</td>
             <td>{{ poste.nom }}</td>
             <td>{{ poste.ligne?.nom || 'N/A' }}</td>
+            <td>{{ poste.user?.username }} ({{ poste.user?.prenom }})</td>
             <td>
               <button (click)="toggleApplications(poste.idPoste!)" class="btn btn-info">
                 {{ selectedPosteId === poste.idPoste ? 'Masquer' : 'Voir' }} Applications
@@ -38,7 +47,7 @@
             </td>
           </tr>
           <tr *ngIf="selectedPosteId === poste.idPoste && applications[poste.idPoste!]">
-            <td colspan="5">
+            <td colspan="6">
               <div class="applications-list">
                 <h4>Applications affectées au poste "{{ poste.nom }}":</h4>
                 <div *ngIf="applications[poste.idPoste!] && applications[poste.idPoste!].length === 0" class="no-applications">
@@ -55,6 +64,10 @@
         </ng-container>
       </tbody>
     </table>
+    
+    <div *ngIf="filteredPostes.length === 0 && postes.length > 0 && !loading" class="no-data">
+      Aucun poste ne correspond aux critères de recherche
+    </div>
     
     <div *ngIf="postes.length === 0 && !loading" class="no-data">
       Aucun poste trouvé

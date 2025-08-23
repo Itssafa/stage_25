@@ -1,11 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { User } from '../../models/user.model';
+import { SearchFilterService } from '../../services/search-filter.service';
 
 interface Operation {
   id?: number;
   nomOp: string;
   description: string;
+  user?: User;
 }
 
 @Component({
@@ -16,17 +19,23 @@ interface Operation {
 export class OperationComponent implements OnInit {
   operationForm: FormGroup;
   operations: Operation[] = [];
+  filteredOperations: Operation[] = [];
+  currentUser: User | null = null;
   loading = false;
   error = '';
   isEditing = false;
   editingId: number | null = null;
   showModal = false;
+  searchFields: string[] = [];
+  activeFilters: { [field: string]: any } = {};
   
   private apiUrl = 'http://localhost:8085/api/operations';
+  private currentUserApiUrl = 'http://localhost:8085/api/user/me';
 
   constructor(
     private fb: FormBuilder,
-    private http: HttpClient
+    private http: HttpClient,
+    private searchFilterService: SearchFilterService
   ) {
     this.operationForm = this.fb.group({
       nomOp: ['', [Validators.required, Validators.minLength(2)]],
@@ -35,7 +44,15 @@ export class OperationComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.initializeSearchFields();
+    this.loadCurrentUser();
     this.loadOperations();
+  }
+
+  initializeSearchFields() {
+    this.searchFields = [
+      'id', 'nomOp', 'description', 'user.username', 'user.prenom'
+    ];
   }
 
   private getHeaders(): HttpHeaders {
@@ -46,6 +63,18 @@ export class OperationComponent implements OnInit {
     });
   }
 
+  loadCurrentUser() {
+    this.http.get<any>(this.currentUserApiUrl, { headers: this.getHeaders() })
+      .subscribe({
+        next: (response) => {
+          this.currentUser = response.user;
+        },
+        error: (err) => {
+          console.error('Erreur lors du chargement de l\'utilisateur actuel:', err);
+        }
+      });
+  }
+
   loadOperations() {
     this.loading = true;
     this.error = '';
@@ -54,6 +83,7 @@ export class OperationComponent implements OnInit {
       .subscribe({
         next: (data) => {
           this.operations = data;
+          this.filteredOperations = [...data];
           this.loading = false;
         },
         error: (err) => {
@@ -66,10 +96,20 @@ export class OperationComponent implements OnInit {
 
   onSubmit() {
     if (this.operationForm.valid) {
-      const operationData = {
+      if (!this.currentUser) {
+        this.error = 'Erreur: utilisateur connecté non trouvé';
+        return;
+      }
+      
+      const operationData: any = {
         nomOp: this.operationForm.get('nomOp')?.value,
         description: this.operationForm.get('description')?.value
       };
+      
+      // Ajouter l'utilisateur seulement lors de la création
+      if (!this.isEditing) {
+        operationData.user = { matricule: this.currentUser.matricule };
+      }
       
       if (this.isEditing && this.editingId) {
         this.updateOperation(this.editingId, operationData);
@@ -83,7 +123,12 @@ export class OperationComponent implements OnInit {
     this.http.post<Operation>(this.apiUrl, operation, { headers: this.getHeaders() })
       .subscribe({
         next: (newOperation) => {
+          // Assigner les détails de l'utilisateur actuel à la nouvelle opération
+          if (this.currentUser && newOperation) {
+            newOperation.user = this.currentUser;
+          }
           this.operations.push(newOperation);
+          this.applyCurrentFilters();
           this.closeModal();
           console.log('Opération créée avec succès');
         },
@@ -100,8 +145,14 @@ export class OperationComponent implements OnInit {
         next: (updatedOperation) => {
           const index = this.operations.findIndex(o => o.id === id);
           if (index !== -1) {
+            // Préserver l'utilisateur créateur original
+            const originalUser = this.operations[index].user;
+            if (updatedOperation && originalUser) {
+              updatedOperation.user = originalUser;
+            }
             this.operations[index] = updatedOperation;
           }
+          this.applyCurrentFilters();
           this.closeModal();
           console.log('Opération mise à jour avec succès');
         },
@@ -140,6 +191,7 @@ export class OperationComponent implements OnInit {
         .subscribe({
           next: () => {
             this.operations = this.operations.filter(o => o.id !== id);
+            this.applyCurrentFilters();
             console.log('Opération supprimée avec succès');
           },
           error: (err) => {
@@ -155,5 +207,24 @@ export class OperationComponent implements OnInit {
     this.isEditing = false;
     this.editingId = null;
     this.error = '';
+  }
+
+  onSearchChange(searchValue: string) {
+    this.filteredOperations = this.searchFilterService.globalSearch(
+      this.operations,
+      searchValue,
+      this.searchFields
+    );
+  }
+
+  onClearSearch() {
+    this.filteredOperations = [...this.operations];
+  }
+
+  private applyCurrentFilters() {
+    this.filteredOperations = this.searchFilterService.applyMultipleFilters(
+      this.operations, 
+      this.activeFilters
+    );
   }
 }

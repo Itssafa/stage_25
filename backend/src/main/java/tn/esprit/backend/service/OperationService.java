@@ -31,6 +31,9 @@ public class OperationService {
         
         existing.setNomOp(updated.getNomOp());
         existing.setDescription(updated.getDescription());
+        if (updated.getUser() != null) {
+            existing.setUser(updated.getUser());
+        }
         
         return repository.save(existing);
     }

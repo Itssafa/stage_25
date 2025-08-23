@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/affectations")
@@ -38,8 +39,8 @@ public class AffectationController {
         return obj != null ? ResponseEntity.ok(obj) : ResponseEntity.notFound().build();
     }
 
-    // Création explicite d'une affectation entre un poste et une application
-    @PostMapping
+    // Création explicite d'une affectation entre un poste et une application (ancienne méthode)
+    @PostMapping("/create")
     public ResponseEntity<Affectation> create(@RequestParam Long posteId, @RequestParam Long appId) {
         Poste poste = posteService.getById(posteId);
         Application app = applicationService.getById(appId);
@@ -62,5 +63,89 @@ public class AffectationController {
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         affectationService.delete(id);
+    }
+    
+    // Nouveaux endpoints pour la gestion des affectations
+    
+    /**
+     * Affecter une application à un poste
+     */
+    @PostMapping("/affecter")
+    public ResponseEntity<String> affecterApplication(@RequestParam Long applicationId, @RequestParam Long posteId) {
+        Affectation affectation = affectationService.affecterApplication(applicationId, posteId);
+        
+        if (affectation == null) {
+            return ResponseEntity.badRequest().body("Impossible d'affecter: Application déjà affectée ou poste déjà configuré");
+        }
+        
+        return ResponseEntity.ok("Application affectée avec succès au poste");
+    }
+    
+    /**
+     * Désaffecter une application
+     */
+    @PostMapping("/desaffecter/{applicationId}")
+    public ResponseEntity<String> desaffecterApplication(@PathVariable Long applicationId) {
+        boolean success = affectationService.desaffecterApplication(applicationId);
+        
+        if (!success) {
+            return ResponseEntity.badRequest().body("Application non affectée actuellement");
+        }
+        
+        return ResponseEntity.ok("Application désaffectée avec succès");
+    }
+    
+    /**
+     * Vérifier si une application est affectée
+     */
+    @GetMapping("/application/{applicationId}/affected")
+    public ResponseEntity<Boolean> isApplicationAffected(@PathVariable Long applicationId) {
+        boolean affected = affectationService.isApplicationAffected(applicationId);
+        return ResponseEntity.ok(affected);
+    }
+    
+    /**
+     * Vérifier si un poste est configuré
+     */
+    @GetMapping("/poste/{posteId}/configured")
+    public ResponseEntity<Boolean> isPosteConfigured(@PathVariable Long posteId) {
+        boolean configured = affectationService.isPosteConfigured(posteId);
+        return ResponseEntity.ok(configured);
+    }
+    
+    /**
+     * Obtenir l'affectation active d'une application
+     */
+    @GetMapping("/application/{applicationId}/active")
+    public ResponseEntity<Affectation> getActiveAffectationForApplication(@PathVariable Long applicationId) {
+        Optional<Affectation> affectation = affectationService.getActiveAffectationForApplication(applicationId);
+        return affectation.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    }
+    
+    /**
+     * Obtenir l'affectation active d'un poste
+     */
+    @GetMapping("/poste/{posteId}/active")
+    public ResponseEntity<Affectation> getActiveAffectationForPoste(@PathVariable Long posteId) {
+        Optional<Affectation> affectation = affectationService.getActiveAffectationForPoste(posteId);
+        return affectation.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    }
+    
+    /**
+     * Obtenir l'historique des affectations d'une application
+     */
+    @GetMapping("/application/{applicationId}/historique")
+    public ResponseEntity<List<Affectation>> getHistoriqueApplication(@PathVariable Long applicationId) {
+        List<Affectation> historique = affectationService.getHistoriqueApplication(applicationId);
+        return ResponseEntity.ok(historique);
+    }
+    
+    /**
+     * Obtenir l'historique des affectations d'un poste
+     */
+    @GetMapping("/poste/{posteId}/historique")
+    public ResponseEntity<List<Affectation>> getHistoriquePoste(@PathVariable Long posteId) {
+        List<Affectation> historique = affectationService.getHistoriquePoste(posteId);
+        return ResponseEntity.ok(historique);
     }
 }

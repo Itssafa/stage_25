@@ -1,6 +1,13 @@
 <div class="ordre-fab-container">
   <h2>Gestion des Ordres de Fabrication</h2>
   
+  <!-- Barre de recherche globale -->
+  <app-advanced-search
+    placeholder="Rechercher un ordre de fabrication..."
+    (globalSearchChange)="onSearchChange($event)"
+    (clearSearch)="onClearSearch()">
+  </app-advanced-search>
+
   <!-- Liste des ordres de fabrication -->
   <div class="list-section">
     <div class="list-header">
@@ -11,7 +18,7 @@
     <div *ngIf="loading" class="loading">Chargement...</div>
     <div *ngIf="error" class="error">{{ error }}</div>
     
-    <table *ngIf="ordresFab.length > 0" class="table">
+    <table *ngIf="filteredOrdresFab.length > 0" class="table">
       <thead>
         <tr>
           <th>ID</th>
@@ -20,20 +27,20 @@
           <th>Quantité</th>
           <th>Date début</th>
           <th>Date fin</th>
-          <th>Utilisateur</th>
+          <th>Créé par</th>
           <th>Produit</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let ordreFab of ordresFab">
+        <tr *ngFor="let ordreFab of filteredOrdresFab">
           <td>{{ ordreFab.id_orf }}</td>
           <td>{{ ordreFab.code_fab }}</td>
-          <td>{{ ordreFab.statuts?.replace('_', ' ') }}</td>
+          <td>{{ ordreFab.statuts.replace('_', ' ') }}</td>
           <td>{{ ordreFab.quantite }}</td>
           <td>{{ ordreFab.datedeb | date:'dd/MM/yyyy' }}</td>
           <td>{{ ordreFab.datefin | date:'dd/MM/yyyy' }}</td>
-          <td>{{ ordreFab.user?.username || 'N/A' }}</td>
+          <td>{{ ordreFab.user?.username }} ({{ ordreFab.user?.prenom }})</td>
           <td>{{ ordreFab.produit?.nom || 'N/A' }}</td>
           <td>
             <button (click)="editOrdreFab(ordreFab)" class="btn btn-edit">Modifier</button>
@@ -42,6 +49,10 @@
         </tr>
       </tbody>
     </table>
+    
+    <div *ngIf="filteredOrdresFab.length === 0 && ordresFab.length > 0 && !loading" class="no-data">
+      Aucun ordre de fabrication ne correspond aux critères de recherche
+    </div>
     
     <div *ngIf="ordresFab.length === 0 && !loading" class="no-data">
       Aucun ordre de fabrication trouvé
@@ -72,13 +83,13 @@
           </div>
         </div>
 
-        <div class="form-group">
+        <!-- Champ statut uniquement visible lors de la modification -->
+        <div class="form-group" *ngIf="isEditing">
           <label for="statuts">Statut:</label>
           <select 
             id="statuts" 
             formControlName="statuts" 
             class="form-control">
-            <option value="">Sélectionnez un statut</option>
             <option *ngFor="let statut of statuts" [value]="statut">
               {{ statut.replace('_', ' ') }}
             </option>
@@ -86,6 +97,11 @@
           <div *ngIf="ordreFabForm.get('statuts')?.invalid && ordreFabForm.get('statuts')?.touched" class="error">
             Veuillez sélectionner un statut
           </div>
+        </div>
+        
+        <!-- Message informatif lors de la création -->
+        <div *ngIf="!isEditing" class="info-message">
+          📋 Le statut sera automatiquement défini à "EN ATTENTE" lors de la création
         </div>
         
         <div class="form-group">
@@ -110,7 +126,12 @@
             formControlName="datedeb" 
             class="form-control">
           <div *ngIf="ordreFabForm.get('datedeb')?.invalid && ordreFabForm.get('datedeb')?.touched" class="error">
-            La date de début est requise
+            <div *ngIf="ordreFabForm.get('datedeb')?.errors?.['required']">
+              La date de début est requise
+            </div>
+            <div *ngIf="ordreFabForm.get('datedeb')?.errors?.['dateDebutInvalide']">
+              {{ ordreFabForm.get('datedeb')?.errors?.['dateDebutInvalide'].message }}
+            </div>
           </div>
         </div>
         
@@ -122,25 +143,19 @@
             formControlName="datefin" 
             class="form-control">
           <div *ngIf="ordreFabForm.get('datefin')?.invalid && ordreFabForm.get('datefin')?.touched" class="error">
-            La date de fin est requise
+            <div *ngIf="ordreFabForm.get('datefin')?.errors?.['required']">
+              La date de fin est requise
+            </div>
+            <div *ngIf="ordreFabForm.get('datefin')?.errors?.['dateFinInvalide']">
+              {{ ordreFabForm.get('datefin')?.errors?.['dateFinInvalide'].message }}
+            </div>
+          </div>
+          <!-- Message d'erreur pour la validation de plage de dates -->
+          <div *ngIf="ordreFabForm.errors?.['dateRangeInvalide'] && ordreFabForm.get('datefin')?.touched" class="error">
+            {{ ordreFabForm.errors?.['dateRangeInvalide'].message }}
           </div>
         </div>
 
-        <div class="form-group">
-          <label for="userId">Utilisateur (ADMIN/PARAMETREUR):</label>
-          <select 
-            id="userId" 
-            formControlName="userId" 
-            class="form-control">
-            <option value="">Sélectionnez un utilisateur</option>
-            <option *ngFor="let user of users" [value]="user.matricule">
-              {{ user.username }} - {{ user.prenom }} ({{ user.role }})
-            </option>
-          </select>
-          <div *ngIf="ordreFabForm.get('userId')?.invalid && ordreFabForm.get('userId')?.touched" class="error">
-            Veuillez sélectionner un utilisateur
-          </div>
-        </div>
         
         <div class="form-group">
           <label for="produitId">Produit:</label>

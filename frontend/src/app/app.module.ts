@@ -30,6 +30,7 @@ import { OrdreFabComponent } from './components/ordre-fab/ordre-fab.component';
 import { AffectationComponent } from './components/affectation/affectation.component';
 import { ParametreComponent } from './components/parametre/parametre.component';
 import { UserManagementComponent } from './components/user-management/user-management.component';
+import { AdvancedSearchComponent } from './components/shared/advanced-search/advanced-search.component';
 
 
 
@@ -51,7 +52,8 @@ import { UserManagementComponent } from './components/user-management/user-manag
     OrdreFabComponent,
     AffectationComponent,
     ParametreComponent,
-    UserManagementComponent
+    UserManagementComponent,
+    AdvancedSearchComponent
     
   ],
   imports: [

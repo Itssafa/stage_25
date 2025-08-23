@@ -3,6 +3,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { User } from '../../models/user.model';
+import { SearchFilterService } from '../../services/search-filter.service';
 
 interface LigneProduction {
   idLigne: number;
@@ -19,6 +21,7 @@ interface Poste {
   idPoste?: number;
   nom: string;
   ligne?: LigneProduction;
+  user?: User;
 }
 
 @Component({
@@ -29,23 +32,29 @@ interface Poste {
 export class PosteComponent implements OnInit, OnDestroy {
   posteForm: FormGroup;
   postes: Poste[] = [];
+  filteredPostes: Poste[] = [];
   lignes: LigneProduction[] = [];
   applications: { [key: number]: Application[] } = {};
+  currentUser: User | null = null;
   loading = false;
   error = '';
   isEditing = false;
   editingId: number | null = null;
   selectedPosteId: number | null = null;
   showModal = false;
+  searchFields: string[] = [];
+  activeFilters: { [field: string]: any } = {};
   
   private destroy$ = new Subject<void>();
   
   private apiUrl = 'http://localhost:8085/api/postes';
   private ligneApiUrl = 'http://localhost:8085/api/ligneproductions';
+  private currentUserApiUrl = 'http://localhost:8085/api/user/me';
 
   constructor(
     private fb: FormBuilder,
-    private http: HttpClient
+    private http: HttpClient,
+    private searchFilterService: SearchFilterService
   ) {
     this.posteForm = this.fb.group({
       nom: ['', [Validators.required, Validators.minLength(2)]],
@@ -54,8 +63,17 @@ export class PosteComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.initializeSearchFields();
+    this.loadCurrentUser();
     this.loadPostes();
     this.loadLignes();
+  }
+
+  initializeSearchFields() {
+    this.searchFields = [
+      'idPoste', 'nom', 'ligne.nom', 'ligne.idLigne',
+      'user.username', 'user.prenom'
+    ];
   }
 
   ngOnDestroy() {
@@ -69,6 +87,18 @@ export class PosteComponent implements OnInit, OnDestroy {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     });
+  }
+
+  loadCurrentUser() {
+    this.http.get<any>(this.currentUserApiUrl, { headers: this.getHeaders() })
+      .subscribe({
+        next: (response) => {
+          this.currentUser = response.user;
+        },
+        error: (err) => {
+          console.error('Erreur lors du chargement de l\'utilisateur actuel:', err);
+        }
+      });
   }
 
   loadLignes() {
@@ -118,6 +148,7 @@ export class PosteComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (data) => {
           this.postes = data || [];
+          this.filteredPostes = [...this.postes];
           this.loading = false;
         },
         error: (err) => {
@@ -141,10 +172,20 @@ export class PosteComponent implements OnInit, OnDestroy {
 
   onSubmit() {
     if (this.posteForm.valid) {
-      const posteData = {
+      if (!this.currentUser) {
+        this.error = 'Erreur: utilisateur connecté non trouvé';
+        return;
+      }
+      
+      const posteData: any = {
         nom: this.posteForm.get('nom')?.value,
         ligne: { idLigne: this.posteForm.get('ligneId')?.value }
       };
+      
+      // Ajouter l'utilisateur seulement lors de la création
+      if (!this.isEditing) {
+        posteData.user = { matricule: this.currentUser.matricule };
+      }
       
       if (this.isEditing && this.editingId) {
         this.updatePoste(this.editingId, posteData);
@@ -158,7 +199,12 @@ export class PosteComponent implements OnInit, OnDestroy {
     this.http.post<Poste>(this.apiUrl, poste, { headers: this.getHeaders() })
       .subscribe({
         next: (newPoste) => {
+          // Assigner les détails de l'utilisateur actuel au nouveau poste
+          if (this.currentUser && newPoste) {
+            newPoste.user = this.currentUser;
+          }
           this.postes.push(newPoste);
+          this.applyCurrentFilters();
           this.closeModal();
           console.log('Poste créé avec succès');
         },
@@ -175,8 +221,14 @@ export class PosteComponent implements OnInit, OnDestroy {
         next: (updatedPoste) => {
           const index = this.postes.findIndex(p => p.idPoste === id);
           if (index !== -1) {
+            // Préserver l'utilisateur créateur original
+            const originalUser = this.postes[index].user;
+            if (updatedPoste && originalUser) {
+              updatedPoste.user = originalUser;
+            }
             this.postes[index] = updatedPoste;
           }
+          this.applyCurrentFilters();
           this.closeModal();
           console.log('Poste mis à jour avec succès');
         },
@@ -215,6 +267,7 @@ export class PosteComponent implements OnInit, OnDestroy {
         .subscribe({
           next: () => {
             this.postes = this.postes.filter(p => p.idPoste !== id);
+            this.applyCurrentFilters();
             console.log('Poste supprimé avec succès');
           },
           error: (err) => {
@@ -255,5 +308,24 @@ export class PosteComponent implements OnInit, OnDestroy {
     this.isEditing = false;
     this.editingId = null;
     this.error = '';
+  }
+
+  onSearchChange(searchValue: string) {
+    this.filteredPostes = this.searchFilterService.globalSearch(
+      this.postes,
+      searchValue,
+      this.searchFields
+    );
+  }
+
+  onClearSearch() {
+    this.filteredPostes = [...this.postes];
+  }
+
+  private applyCurrentFilters() {
+    this.filteredPostes = this.searchFilterService.applyMultipleFilters(
+      this.postes, 
+      this.activeFilters
+    );
   }
 }

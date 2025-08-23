@@ -1,6 +1,13 @@
 <div class="ligne-production-container">
   <h2>Gestion des Lignes de Production</h2>
   
+  <!-- Barre de recherche globale -->
+  <app-advanced-search
+    placeholder="Rechercher une ligne de production..."
+    (globalSearchChange)="onSearchChange($event)"
+    (clearSearch)="onClearSearch()">
+  </app-advanced-search>
+
   <!-- Liste des lignes -->
   <div class="list-section">
     <div class="list-header">
@@ -11,7 +18,7 @@
     <div *ngIf="loading" class="loading">Chargement...</div>
     <div *ngIf="error" class="error">{{ error }}</div>
     
-    <table *ngIf="lignes.length > 0" class="table">
+    <table *ngIf="filteredLignes.length > 0" class="table">
       <thead>
         <tr>
           <th>ID</th>
@@ -21,7 +28,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let ligne of lignes">
+        <tr *ngFor="let ligne of filteredLignes">
           <td>{{ ligne.idLigne }}</td>
           <td>{{ ligne.nom }}</td>
           <td>{{ ligne.user?.username }} ({{ ligne.user?.prenom }})</td>
@@ -32,6 +39,10 @@
         </tr>
       </tbody>
     </table>
+    
+    <div *ngIf="filteredLignes.length === 0 && lignes.length > 0 && !loading" class="no-data">
+      Aucune ligne de production ne correspond aux critères de recherche
+    </div>
     
     <div *ngIf="lignes.length === 0 && !loading" class="no-data">
       Aucune ligne de production trouvée
@@ -62,28 +73,6 @@
           </div>
         </div>
 
-        <div class="form-group" *ngIf="!isEditing">
-          <label>Créé par:</label>
-          <div class="created-by-info">
-            <span class="user-info">{{ currentUser?.username }} ({{ currentUser?.prenom }})</span>
-          </div>
-        </div>
-
-        <div class="form-group" *ngIf="isEditing">
-          <label for="userId">Utilisateur:</label>
-          <select 
-            id="userId" 
-            formControlName="userId" 
-            class="form-control">
-            <option value="">Sélectionnez un utilisateur</option>
-            <option *ngFor="let user of users" [value]="user.matricule">
-              {{ user.username }} ({{ user.prenom }})
-            </option>
-          </select>
-          <div *ngIf="ligneForm.get('userId')?.invalid && ligneForm.get('userId')?.touched" class="error">
-            L'utilisateur est requis
-          </div>
-        </div>
         
         <div class="form-actions">
           <button type="submit" [disabled]="ligneForm.invalid" class="btn btn-primary">

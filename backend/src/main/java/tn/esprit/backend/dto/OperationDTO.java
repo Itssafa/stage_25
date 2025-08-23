@@ -6,6 +6,7 @@ public class OperationDTO {
     private Long id;
     private String description;
     private String nomOp;
+    private UserSimpleDTO user;
 
     public OperationDTO() {}
 
@@ -20,6 +21,9 @@ public class OperationDTO {
         dto.setId(operation.getId());
         dto.setNomOp(operation.getNomOp());
         dto.setDescription(operation.getDescription());
+        if (operation.getUser() != null) {
+            dto.setUser(UserSimpleDTO.fromEntity(operation.getUser()));
+        }
         return dto;
     }
 
@@ -46,6 +50,14 @@ public class OperationDTO {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public UserSimpleDTO getUser() {
+        return user;
+    }
+
+    public void setUser(UserSimpleDTO user) {
+        this.user = user;
     }
 
 }

@@ -10,6 +10,10 @@ public class Operation {
     
     private String nomOp;
     private String description;
+    
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_matricule")
+    private User user;
 
     // Constructors
     public Operation() {}
@@ -42,6 +46,14 @@ public class Operation {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
 }

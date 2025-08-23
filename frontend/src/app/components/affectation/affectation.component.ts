@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { SearchFilterService } from '../../services/search-filter.service';
 
 interface Poste {
   idPoste: number;
@@ -30,12 +31,15 @@ interface Affectation {
 export class AffectationComponent implements OnInit {
   affectationForm: FormGroup;
   affectations: Affectation[] = [];
+  filteredAffectations: Affectation[] = [];
   postes: Poste[] = [];
   applications: Application[] = [];
   loading = false;
   error = '';
   isEditing = false;
   editingId: number | null = null;
+  searchFields: string[] = [];
+  activeFilters: { [field: string]: any } = {};
   
   private apiUrl = 'http://localhost:8085/api/affectations';
   private posteApiUrl = 'http://localhost:8085/api/postes';
@@ -43,7 +47,8 @@ export class AffectationComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private http: HttpClient
+    private http: HttpClient,
+    private searchFilterService: SearchFilterService
   ) {
     this.affectationForm = this.fb.group({
       posteId: ['', [Validators.required]],

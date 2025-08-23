@@ -3,7 +3,11 @@
     "allow": [
       "Bash(mvn clean:*)",
       "Bash(npm install)",
-      "Bash(mvn compile:*)"
+      "Bash(mvn compile:*)",
+      "Bash(./mvnw clean compile)",
+      "Bash(./mvnw spring-boot:*)",
+      "Bash(ng build:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []

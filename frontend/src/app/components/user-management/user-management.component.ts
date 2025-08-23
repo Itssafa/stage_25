@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { SearchFilterService } from '../../services/search-filter.service';
 
 interface User {
   matricule?: number;
@@ -24,8 +25,14 @@ interface User {
 export class UserManagementComponent implements OnInit {
   defaultUsers: User[] = [];
   activeUsers: User[] = [];
+  filteredDefaultUsers: User[] = [];
+  filteredActiveUsers: User[] = [];
   loading = false;
   error = '';
+
+  // Search configuration
+  defaultUsersSearchFields: string[] = [];
+  activeUsersSearchFields: string[] = [];
   
   // Forms
   editForm: FormGroup;
@@ -39,7 +46,8 @@ export class UserManagementComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private http: HttpClient
+    private http: HttpClient,
+    private searchFilterService: SearchFilterService
   ) {
     this.editForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
@@ -53,6 +61,7 @@ export class UserManagementComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.initializeSearchFields();
     this.loadUsers();
   }
 
@@ -73,6 +82,7 @@ export class UserManagementComponent implements OnInit {
       .subscribe({
         next: (data) => {
           this.defaultUsers = data;
+          this.filteredDefaultUsers = [...data];
         },
         error: (err) => {
           this.error = 'Erreur lors du chargement des utilisateurs par défaut';
@@ -85,6 +95,7 @@ export class UserManagementComponent implements OnInit {
       .subscribe({
         next: (data) => {
           this.activeUsers = data;
+          this.filteredActiveUsers = [...data];
           this.loading = false;
         },
         error: (err) => {
@@ -121,11 +132,13 @@ export class UserManagementComponent implements OnInit {
               const index = this.defaultUsers.findIndex(u => u.matricule === updatedUser.matricule);
               if (index !== -1) {
                 this.defaultUsers[index] = updatedUser;
+                this.applyFilters('default');
               }
             } else {
               const index = this.activeUsers.findIndex(u => u.matricule === updatedUser.matricule);
               if (index !== -1) {
                 this.activeUsers[index] = updatedUser;
+                this.applyFilters('active');
               }
             }
             this.cancelEdit();
@@ -169,6 +182,8 @@ export class UserManagementComponent implements OnInit {
             this.defaultUsers = this.defaultUsers.filter(u => u.matricule !== activatedUser.matricule);
             // Ajouter à la liste active
             this.activeUsers.push(activatedUser);
+            this.applyFilters('default');
+            this.applyFilters('active');
             this.closeActivationModal();
           },
           error: (err) => {
@@ -188,6 +203,8 @@ export class UserManagementComponent implements OnInit {
             this.activeUsers = this.activeUsers.filter(u => u.matricule !== deactivatedUser.matricule);
             // Ajouter à la liste DEFAULT
             this.defaultUsers.push(deactivatedUser);
+            this.applyFilters('active');
+            this.applyFilters('default');
           },
           error: (err) => {
             this.error = 'Erreur lors de la désactivation de l\'utilisateur';
@@ -205,5 +222,44 @@ export class UserManagementComponent implements OnInit {
   getDurationText(durationDays: number | null): string {
     if (!durationDays) return 'Indéterminée';
     return `${durationDays} jour(s)`;
+  }
+
+  private initializeSearchFields() {
+    // Define search fields for global search
+    this.defaultUsersSearchFields = ['matricule', 'username', 'prenom', 'adresseMail'];
+    this.activeUsersSearchFields = ['matricule', 'username', 'prenom', 'adresseMail'];
+  }
+
+  onDefaultUsersSearchChange(searchValue: string) {
+    this.filteredDefaultUsers = this.searchFilterService.globalSearch(
+      this.defaultUsers,
+      searchValue,
+      this.defaultUsersSearchFields
+    );
+  }
+
+  onActiveUsersSearchChange(searchValue: string) {
+    this.filteredActiveUsers = this.searchFilterService.globalSearch(
+      this.activeUsers,
+      searchValue,
+      this.activeUsersSearchFields
+    );
+  }
+
+  onClearDefaultFilters() {
+    this.filteredDefaultUsers = [...this.defaultUsers];
+  }
+
+  onClearActiveFilters() {
+    this.filteredActiveUsers = [...this.activeUsers];
+  }
+
+  private applyFilters(type: 'default' | 'active') {
+    // Re-apply current search if any
+    if (type === 'default') {
+      this.filteredDefaultUsers = [...this.defaultUsers];
+    } else {
+      this.filteredActiveUsers = [...this.activeUsers];
+    }
   }
 }

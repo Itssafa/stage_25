@@ -19,8 +19,12 @@ public class Application {
     private Operation operation;
 
     @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties("application")
+    @JsonIgnoreProperties({"application", "parametre"})
     private List<Affectation> affectations;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_matricule")
+    private User user;
 
     // Constructors
     public Application() {}
@@ -75,5 +79,13 @@ public class Application {
 
     public void setOperation(Operation operation) {
         this.operation = operation;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

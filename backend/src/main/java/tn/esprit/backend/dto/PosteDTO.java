@@ -1,11 +1,19 @@
 package tn.esprit.backend.dto;
 
 import tn.esprit.backend.entity.Poste;
+import java.time.LocalDateTime;
 
 public class PosteDTO {
     private Long idPoste;
     private String nom;
     private LigneProductionSimpleDTO ligne;
+    private UserSimpleDTO user;
+    
+    // Informations sur l'application actuellement affectée
+    private boolean configured;
+    private Long currentApplicationId;
+    private String currentApplicationNom;
+    private LocalDateTime currentAffectationDate;
 
     public PosteDTO() {}
 
@@ -13,6 +21,7 @@ public class PosteDTO {
         this.idPoste = idPoste;
         this.nom = nom;
         this.ligne = ligne;
+        this.configured = false;
     }
 
     public static PosteDTO fromEntity(Poste poste) {
@@ -24,6 +33,9 @@ public class PosteDTO {
                 poste.getLigne().getIdLigne(),
                 poste.getLigne().getNom()
             ));
+        }
+        if (poste.getUser() != null) {
+            dto.setUser(UserSimpleDTO.fromEntity(poste.getUser()));
         }
         return dto;
     }
@@ -51,5 +63,45 @@ public class PosteDTO {
 
     public void setLigne(LigneProductionSimpleDTO ligne) {
         this.ligne = ligne;
+    }
+
+    public UserSimpleDTO getUser() {
+        return user;
+    }
+
+    public void setUser(UserSimpleDTO user) {
+        this.user = user;
+    }
+
+    public boolean isConfigured() {
+        return configured;
+    }
+
+    public void setConfigured(boolean configured) {
+        this.configured = configured;
+    }
+
+    public Long getCurrentApplicationId() {
+        return currentApplicationId;
+    }
+
+    public void setCurrentApplicationId(Long currentApplicationId) {
+        this.currentApplicationId = currentApplicationId;
+    }
+
+    public String getCurrentApplicationNom() {
+        return currentApplicationNom;
+    }
+
+    public void setCurrentApplicationNom(String currentApplicationNom) {
+        this.currentApplicationNom = currentApplicationNom;
+    }
+
+    public LocalDateTime getCurrentAffectationDate() {
+        return currentAffectationDate;
+    }
+
+    public void setCurrentAffectationDate(LocalDateTime currentAffectationDate) {
+        this.currentAffectationDate = currentAffectationDate;
     }
 }

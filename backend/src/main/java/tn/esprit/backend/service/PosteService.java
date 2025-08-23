@@ -31,6 +31,9 @@ public class PosteService {
         
         existing.setNom(updated.getNom());
         existing.setLigne(updated.getLigne());
+        if (updated.getUser() != null) {
+            existing.setUser(updated.getUser());
+        }
         
         return repository.save(existing);
     }
