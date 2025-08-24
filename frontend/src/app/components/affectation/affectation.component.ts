@@ -130,6 +130,7 @@ export class AffectationComponent implements OnInit {
       .subscribe({
         next: (newAffectation) => {
           this.affectations.push(newAffectation);
+          this.updatePosteEtat(posteId);
           this.resetForm();
           console.log('Affectation créée avec succès');
         },
@@ -181,6 +182,18 @@ export class AffectationComponent implements OnInit {
           }
         });
     }
+  }
+
+  updatePosteEtat(posteId: number) {
+    this.http.put(`${this.posteApiUrl}/${posteId}/etat`, { etat: 'configuré' }, { headers: this.getHeaders() })
+      .subscribe({
+        next: () => {
+          console.log('État du poste mis à jour vers "configuré"');
+        },
+        error: (err) => {
+          console.error('Erreur lors de la mise à jour de l\'état du poste:', err);
+        }
+      });
   }
 
   resetForm() {

@@ -7,14 +7,7 @@
     <div class="nav-links" *ngIf="currentUser">
       <a routerLink="/dashboard" routerLinkActive="active">Accueil</a>
       
-      <a *ngIf="isParametreur()" routerLink="/parametreur" routerLinkActive="active">
-        Paramètreur
-      </a>
-      
-      <a *ngIf="isAdmin()" routerLink="/admin" routerLinkActive="active">
-        Administration
-      </a>
-      
+   
       <div class="user-menu">
         <button class="user-button" (click)="toggleMenu()">
           <span class="user-avatar"></span>

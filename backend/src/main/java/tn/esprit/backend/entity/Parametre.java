@@ -11,18 +11,20 @@ public class Parametre {
 
     private String nom;
     private String description;
+    private String valeur;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "affectation_id")
-    @JsonIgnoreProperties({"parametre"})
+    @JsonIgnoreProperties({"parametres"})
     private Affectation affectation;
 
     // Constructors
     public Parametre() {}
 
-    public Parametre(String nom, String description, Affectation affectation) {
+    public Parametre(String nom, String description, String valeur, Affectation affectation) {
         this.nom = nom;
         this.description = description;
+        this.valeur = valeur;
         this.affectation = affectation;
     }
 
@@ -57,6 +59,14 @@ public class Parametre {
 
     public void setAffectation(Affectation affectation) {
         this.affectation = affectation;
+    }
+
+    public String getValeur() {
+        return valeur;
+    }
+
+    public void setValeur(String valeur) {
+        this.valeur = valeur;
     }
 }
 

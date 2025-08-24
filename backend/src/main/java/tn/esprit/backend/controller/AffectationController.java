@@ -39,19 +39,16 @@ public class AffectationController {
         return obj != null ? ResponseEntity.ok(obj) : ResponseEntity.notFound().build();
     }
 
-    // Création explicite d'une affectation entre un poste et une application (ancienne méthode)
-    @PostMapping("/create")
+    // Création explicite d'une affectation entre un poste et une application  
+    @PostMapping
     public ResponseEntity<Affectation> create(@RequestParam Long posteId, @RequestParam Long appId) {
-        Poste poste = posteService.getById(posteId);
-        Application app = applicationService.getById(appId);
-
-        if (poste == null || app == null) {
+        Affectation affectation = affectationService.affecterApplication(appId, posteId);
+        
+        if (affectation == null) {
             return ResponseEntity.badRequest().build();
         }
-
-        Affectation affectation = new Affectation(poste, app);
-        Affectation created = affectationService.create(affectation);
-        return ResponseEntity.ok(created);
+        
+        return ResponseEntity.ok(affectation);
     }
 
     @PutMapping("/{id}")

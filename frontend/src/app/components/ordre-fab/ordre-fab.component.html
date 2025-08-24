@@ -43,8 +43,21 @@
           <td>{{ ordreFab.user?.username }} ({{ ordreFab.user?.prenom }})</td>
           <td>{{ ordreFab.produit?.nom || 'N/A' }}</td>
           <td>
-            <button (click)="editOrdreFab(ordreFab)" class="btn btn-edit">Modifier</button>
-            <button (click)="deleteOrdreFab(ordreFab.id_orf!)" class="btn btn-delete">Supprimer</button>
+            <button 
+              *ngIf="ordreFab.statuts !== 'TERMINEE' && ordreFab.statuts !== 'ANNULEE'"
+              (click)="editOrdreFab(ordreFab)" 
+              class="btn btn-edit"
+              title="Modifier cet ordre">
+              Modifier
+            </button>
+            <button 
+              (click)="deleteOrdreFab(ordreFab.id_orf!)" 
+              class="btn btn-delete"
+              [disabled]="ordreFab.statuts === 'TERMINEE'"
+              [class.disabled-final]="ordreFab.statuts === 'TERMINEE'"
+              [title]="ordreFab.statuts === 'TERMINEE' ? 'Ordre terminé, suppression impossible' : 'Supprimer cet ordre'">
+              Supprimer
+            </button>
           </td>
         </tr>
       </tbody>
@@ -68,15 +81,17 @@
       <button class="close-btn" (click)="closeModal()">&times;</button>
     </div>
     
+    
     <div class="modal-body">
       <form [formGroup]="ordreFabForm" (ngSubmit)="onSubmit()">
-        <div class="form-group">
+        <div class="form-group" *ngIf="!isEditing || ordreFabForm.get('statuts')?.value === 'EN_ATTENTE'">
           <label for="code_fab">Code de fabrication:</label>
           <input 
             type="text" 
             id="code_fab" 
             formControlName="code_fab" 
             class="form-control"
+            [class.disabled-field]="ordreFabForm.get('code_fab')?.disabled"
             placeholder="Entrez le code de fabrication">
           <div *ngIf="ordreFabForm.get('code_fab')?.invalid && ordreFabForm.get('code_fab')?.touched" class="error">
             Le code de fabrication est requis (minimum 3 caractères)
@@ -89,7 +104,8 @@
           <select 
             id="statuts" 
             formControlName="statuts" 
-            class="form-control">
+            class="form-control"
+            [class.disabled-field]="ordreFabForm.get('statuts')?.disabled">
             <option *ngFor="let statut of statuts" [value]="statut">
               {{ statut.replace('_', ' ') }}
             </option>
@@ -118,13 +134,14 @@
           </div>
         </div>
         
-        <div class="form-group">
+        <div class="form-group" *ngIf="!isEditing || ordreFabForm.get('statuts')?.value === 'EN_ATTENTE'">
           <label for="datedeb">Date de début:</label>
           <input 
             type="date" 
             id="datedeb" 
             formControlName="datedeb" 
-            class="form-control">
+            class="form-control"
+            [class.disabled-field]="ordreFabForm.get('datedeb')?.disabled">
           <div *ngIf="ordreFabForm.get('datedeb')?.invalid && ordreFabForm.get('datedeb')?.touched" class="error">
             <div *ngIf="ordreFabForm.get('datedeb')?.errors?.['required']">
               La date de début est requise
@@ -157,12 +174,13 @@
         </div>
 
         
-        <div class="form-group">
+        <div class="form-group" *ngIf="!isEditing || ordreFabForm.get('statuts')?.value === 'EN_ATTENTE'">
           <label for="produitId">Produit:</label>
           <select 
             id="produitId" 
             formControlName="produitId" 
-            class="form-control">
+            class="form-control"
+            [class.disabled-field]="ordreFabForm.get('produitId')?.disabled">
             <option value="">Sélectionnez un produit</option>
             <option *ngFor="let produit of produits" [value]="produit.idProduit">
               {{ produit.nom }} ({{ produit.type }})
@@ -174,12 +192,21 @@
         </div>
         
         <div class="form-actions">
-          <button type="submit" [disabled]="ordreFabForm.invalid" class="btn btn-primary">
+          <button 
+            type="submit" 
+            [disabled]="ordreFabForm.invalid || (isEditing && (ordreFabForm.get('statuts')?.value === 'FINI' || ordreFabForm.get('statuts')?.value === 'ANNULE'))" 
+            class="btn btn-primary"
+            [class.disabled-final-status]="isEditing && (ordreFabForm.get('statuts')?.value === 'FINI' || ordreFabForm.get('statuts')?.value === 'ANNULE')">
             {{ isEditing ? 'Mettre à jour' : 'Ajouter' }}
           </button>
           <button type="button" (click)="closeModal()" class="btn btn-secondary">
             Annuler
           </button>
+        </div>
+        
+        <!-- Message explicatif pour les états finaux -->
+        <div *ngIf="isEditing && (ordreFabForm.get('statuts')?.value === 'FINI' || ordreFabForm.get('statuts')?.value === 'ANNULE')" class="final-status-message">
+          🚫 <strong>Ordre figé :</strong> Cet ordre a été finalisé et ne peut plus être modifié.
         </div>
       </form>
     </div>

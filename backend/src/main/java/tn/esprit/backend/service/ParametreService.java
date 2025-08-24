@@ -31,6 +31,7 @@ public class ParametreService {
         
         existing.setNom(updated.getNom());
         existing.setDescription(updated.getDescription());
+        existing.setValeur(updated.getValeur());
         existing.setAffectation(updated.getAffectation());
         
         return repository.save(existing);
@@ -38,5 +39,9 @@ public class ParametreService {
 
     public void delete(Long id) {
         repository.deleteById(id);
+    }
+
+    public List<Parametre> getByAffectationId(Long affectationId) {
+        return repository.findByAffectationIdAffectation(affectationId);
     }
 }

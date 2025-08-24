@@ -5,6 +5,10 @@
         <a routerLink="/dashboard" routerLinkActive="active">🏠 Accueil</a>
       </li>
 
+       <li *ngIf="isAdmin()">
+        <a routerLink="/admin/users" routerLinkActive="active">👤 Gérer les utilisateurs</a>
+      </li>
+
       <li *ngIf="isParametreur()">
         <a routerLink="/lignes" routerLinkActive="active">🛠️ Lignes de production</a>
       </li>
@@ -23,27 +27,10 @@
       <li *ngIf="isParametreur()">
         <a routerLink="/ordres" routerLinkActive="active">📋 Ordres de fabrication</a>
       </li>
-      <li *ngIf="isParametreur()">
-        <a routerLink="/affectations" routerLinkActive="active">🔗 Affectations</a>
-      </li>
-      <li *ngIf="isParametreur()">
-        <a routerLink="/parametres" routerLinkActive="active">⚙️ Paramètres</a>
-      </li>
 
-      <li *ngIf="isAdmin()">
-        <a routerLink="/admin/users" routerLinkActive="active">👤 Gérer les utilisateurs</a>
-      </li>
+     
 
 
-      <li>
-        <a (click)="navigateToProfile()">👤 Mon compte</a>
-      </li>
-
-       
-
-      <li>
-        <a (click)="logout()">🚪 Déconnexion</a>
-      </li>
     </ul>
   </nav>
 </aside>

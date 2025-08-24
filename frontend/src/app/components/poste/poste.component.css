@@ -417,3 +417,218 @@ h3 {
   color: #6c757d;
   font-style: italic;
 }
+
+.status-configured {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.status-not-configured {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.btn-parameters {
+  background-color: #6f42c1;
+  color: white;
+  padding: 5px 10px;
+  margin-left: 5px;
+}
+
+.btn-parameters:hover {
+  background-color: #5a32a3;
+}
+
+.btn-configure {
+  background-color: #17a2b8;
+  color: white;
+  padding: 5px 10px;
+  margin-left: 5px;
+}
+
+.btn-configure:hover {
+  background-color: #138496;
+}
+
+/* Styles pour le modal des paramètres */
+.parameters-modal {
+  max-width: 900px;
+  max-height: 90vh;
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+
+.parameters-list {
+  margin-top: 30px;
+}
+
+.parameters-list h4 {
+  color: #333;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #17a2b8;
+  padding-bottom: 5px;
+}
+
+.no-parameters {
+  text-align: center;
+  color: #6c757d;
+  font-style: italic;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.parameters-table {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.parameter-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #17a2b8;
+}
+
+.parameter-info {
+  flex: 1;
+}
+
+.parameter-name {
+  font-weight: 600;
+  color: #333;
+  font-size: 16px;
+}
+
+.parameter-value {
+  color: #17a2b8;
+  font-weight: 500;
+  margin: 5px 0;
+}
+
+.parameter-description {
+  color: #6c757d;
+  font-size: 14px;
+  font-style: italic;
+}
+
+.parameter-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-edit-param {
+  background-color: #ffc107;
+  color: #212529;
+  padding: 5px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-edit-param:hover {
+  background-color: #e0a800;
+}
+
+.btn-delete-param {
+  background-color: #dc3545;
+  color: white;
+  padding: 5px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-delete-param:hover {
+  background-color: #c82333;
+}
+
+.form-section h4 {
+  color: #333;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #6f42c1;
+  padding-bottom: 5px;
+}
+
+/* Styles pour l'affichage des paramètres dans les détails */
+.parameters-details {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #dee2e6;
+}
+
+.parameters-details h4 {
+  color: #6f42c1;
+  margin-bottom: 15px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.parameters-list-details {
+  background: #f8f9fa;
+  border-radius: 6px;
+  padding: 15px;
+}
+
+.parameter-detail-item {
+  margin-bottom: 12px;
+  padding: 10px;
+  background: white;
+  border-radius: 4px;
+  border-left: 3px solid #6f42c1;
+}
+
+.parameter-detail-item:last-child {
+  margin-bottom: 0;
+}
+
+.param-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.param-name {
+  color: #333;
+  font-weight: 600;
+}
+
+.param-value {
+  color: #6f42c1;
+  font-weight: 500;
+  background: #f8f9fa;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.param-description {
+  flex-basis: 100%;
+  color: #6c757d;
+  font-size: 13px;
+  font-style: italic;
+  margin-top: 5px;
+}

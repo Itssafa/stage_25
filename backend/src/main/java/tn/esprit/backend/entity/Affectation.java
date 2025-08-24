@@ -3,6 +3,7 @@ package tn.esprit.backend.entity;
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 public class Affectation {
@@ -21,9 +22,9 @@ public class Affectation {
     @JsonIgnoreProperties({"affectations", "user"})
     private Application application;
 
-    @OneToOne(mappedBy = "affectation", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "affectation", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnoreProperties({"affectation"})
-    private Parametre parametre;
+    private List<Parametre> parametres;
 
     @Column(name = "date_debut")
     private LocalDateTime dateDebut;
@@ -69,12 +70,12 @@ public class Affectation {
         this.application = application;
     }
 
-    public Parametre getParametre() {
-        return parametre;
+    public List<Parametre> getParametres() {
+        return parametres;
     }
 
-    public void setParametre(Parametre parametre) {
-        this.parametre = parametre;
+    public void setParametres(List<Parametre> parametres) {
+        this.parametres = parametres;
     }
 
     public LocalDateTime getDateDebut() {

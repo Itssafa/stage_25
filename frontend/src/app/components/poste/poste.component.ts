@@ -17,11 +17,22 @@ interface Application {
   description: string;
 }
 
+interface Parametre {
+  idParam?: number;
+  nom: string;
+  description?: string;
+  valeur?: string;
+  affectation?: {
+    idAffectation: number;
+  };
+}
+
 interface Poste {
   idPoste?: number;
   nom: string;
   ligne?: LigneProduction;
   user?: User;
+  etat?: 'CONFIGURE' | 'NON_CONFIGURE';
 }
 
 @Component({
@@ -35,6 +46,7 @@ export class PosteComponent implements OnInit, OnDestroy {
   filteredPostes: Poste[] = [];
   lignes: LigneProduction[] = [];
   applications: { [key: number]: Application[] } = {};
+  parametres: { [key: number]: Parametre[] } = {};
   currentUser: User | null = null;
   loading = false;
   error = '';
@@ -42,6 +54,9 @@ export class PosteComponent implements OnInit, OnDestroy {
   editingId: number | null = null;
   selectedPosteId: number | null = null;
   showModal = false;
+  showParametersModal = false;
+  selectedPosteForParameters: Poste | null = null;
+  parametreForm: FormGroup;
   searchFields: string[] = [];
   activeFilters: { [field: string]: any } = {};
   
@@ -50,6 +65,8 @@ export class PosteComponent implements OnInit, OnDestroy {
   private apiUrl = 'http://localhost:8085/api/postes';
   private ligneApiUrl = 'http://localhost:8085/api/ligneproductions';
   private currentUserApiUrl = 'http://localhost:8085/api/user/me';
+  private parametreApiUrl = 'http://localhost:8085/api/parametres';
+  private affectationApiUrl = 'http://localhost:8085/api/affectations';
 
   constructor(
     private fb: FormBuilder,
@@ -59,6 +76,12 @@ export class PosteComponent implements OnInit, OnDestroy {
     this.posteForm = this.fb.group({
       nom: ['', [Validators.required, Validators.minLength(2)]],
       ligneId: ['', [Validators.required]]
+    });
+    
+    this.parametreForm = this.fb.group({
+      nom: ['', [Validators.required, Validators.minLength(2)]],
+      description: [''],
+      valeur: ['', [Validators.required]]
     });
   }
 
@@ -72,7 +95,7 @@ export class PosteComponent implements OnInit, OnDestroy {
   initializeSearchFields() {
     this.searchFields = [
       'idPoste', 'nom', 'ligne.nom', 'ligne.idLigne',
-      'user.username', 'user.prenom'
+      'user.username', 'user.prenom', 'etat'
     ];
   }
 
@@ -196,12 +219,15 @@ export class PosteComponent implements OnInit, OnDestroy {
   }
 
   createPoste(poste: any) {
+    poste.etat = 'NON_CONFIGURE';
+    
     this.http.post<Poste>(this.apiUrl, poste, { headers: this.getHeaders() })
       .subscribe({
         next: (newPoste) => {
           // Assigner les détails de l'utilisateur actuel au nouveau poste
           if (this.currentUser && newPoste) {
             newPoste.user = this.currentUser;
+            newPoste.etat = 'NON_CONFIGURE';
           }
           this.postes.push(newPoste);
           this.applyCurrentFilters();
@@ -300,6 +326,11 @@ export class PosteComponent implements OnInit, OnDestroy {
       if (!this.applications[posteId]) {
         this.loadApplicationsByPoste(posteId);
       }
+      // Charger aussi les paramètres du poste s'il est configuré
+      const poste = this.postes.find(p => p.idPoste === posteId);
+      if (poste && poste.etat === 'CONFIGURE' && !this.parametres[posteId]) {
+        this.loadParametresByPoste(posteId);
+      }
     }
   }
 
@@ -320,6 +351,122 @@ export class PosteComponent implements OnInit, OnDestroy {
 
   onClearSearch() {
     this.filteredPostes = [...this.postes];
+  }
+
+
+  voirParametres(poste: Poste) {
+    this.selectedPosteForParameters = poste;
+    this.showParametersModal = true;
+    this.loadParametresByPoste(poste.idPoste!);
+  }
+
+  loadParametresByPoste(posteId: number) {
+    // D'abord, récupérer l'affectation active du poste
+    this.http.get<any>(`${this.affectationApiUrl}/poste/${posteId}/active`, { headers: this.getHeaders() })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (affectation) => {
+          if (affectation && affectation.idAffectation) {
+            // Ensuite, récupérer les paramètres de cette affectation
+            this.http.get<Parametre[]>(`${this.parametreApiUrl}?affectationId=${affectation.idAffectation}`, { headers: this.getHeaders() })
+              .pipe(takeUntil(this.destroy$))
+              .subscribe({
+                next: (parametres) => {
+                  this.parametres[posteId] = parametres || [];
+                },
+                error: (err) => {
+                  console.error('Erreur lors du chargement des paramètres:', err);
+                  this.parametres[posteId] = [];
+                }
+              });
+          } else {
+            this.parametres[posteId] = [];
+          }
+        },
+        error: (err) => {
+          console.error('Erreur lors du chargement de l\'affectation:', err);
+          this.parametres[posteId] = [];
+        }
+      });
+  }
+
+  closeParametersModal() {
+    this.showParametersModal = false;
+    this.selectedPosteForParameters = null;
+    this.resetParametreForm();
+  }
+
+  onParametreSubmit() {
+    if (this.parametreForm.valid && this.selectedPosteForParameters) {
+      // D'abord, récupérer l'affectation active du poste
+      this.http.get<any>(`${this.affectationApiUrl}/poste/${this.selectedPosteForParameters.idPoste}/active`, { headers: this.getHeaders() })
+        .subscribe({
+          next: (affectation) => {
+            if (affectation && affectation.idAffectation) {
+              const parametreData = {
+                nom: this.parametreForm.get('nom')?.value,
+                description: this.parametreForm.get('description')?.value,
+                valeur: this.parametreForm.get('valeur')?.value,
+                affectation: { idAffectation: affectation.idAffectation }
+              };
+              
+              this.createParametre(parametreData);
+            }
+          },
+          error: (err) => {
+            console.error('Erreur lors de la récupération de l\'affectation:', err);
+          }
+        });
+    }
+  }
+
+  createParametre(parametre: any) {
+    this.http.post<Parametre>(this.parametreApiUrl, parametre, { headers: this.getHeaders() })
+      .subscribe({
+        next: (newParametre) => {
+          if (this.selectedPosteForParameters) {
+            if (!this.parametres[this.selectedPosteForParameters.idPoste!]) {
+              this.parametres[this.selectedPosteForParameters.idPoste!] = [];
+            }
+            this.parametres[this.selectedPosteForParameters.idPoste!].push(newParametre);
+          }
+          this.resetParametreForm();
+          console.log('Paramètre créé avec succès');
+        },
+        error: (err) => {
+          console.error('Erreur lors de la création du paramètre:', err);
+        }
+      });
+  }
+
+  editParametre(parametre: Parametre) {
+    this.parametreForm.patchValue({
+      nom: parametre.nom,
+      description: parametre.description || '',
+      valeur: parametre.valeur || ''
+    });
+  }
+
+  deleteParametre(parametreId: number) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer ce paramètre ?')) {
+      this.http.delete(`${this.parametreApiUrl}/${parametreId}`, { headers: this.getHeaders() })
+        .subscribe({
+          next: () => {
+            if (this.selectedPosteForParameters) {
+              const posteId = this.selectedPosteForParameters.idPoste!;
+              this.parametres[posteId] = this.parametres[posteId].filter(p => p.idParam !== parametreId);
+            }
+            console.log('Paramètre supprimé avec succès');
+          },
+          error: (err) => {
+            console.error('Erreur lors de la suppression du paramètre:', err);
+          }
+        });
+    }
+  }
+
+  resetParametreForm() {
+    this.parametreForm.reset();
   }
 
   private applyCurrentFilters() {

@@ -25,6 +25,7 @@
           <th>Nom</th>
           <th>Ligne de production</th>
           <th>Créé par</th>
+          <th>État</th>
           <th>Applications</th>
           <th>Actions</th>
         </tr>
@@ -37,6 +38,11 @@
             <td>{{ poste.ligne?.nom || 'N/A' }}</td>
             <td>{{ poste.user?.username }} ({{ poste.user?.prenom }})</td>
             <td>
+              <span [class]="'status-' + (poste.etat === 'CONFIGURE' ? 'configured' : 'not-configured')">
+                {{ poste.etat === 'CONFIGURE' ? 'configuré' : 'non configuré' }}
+              </span>
+            </td>
+            <td>
               <button (click)="toggleApplications(poste.idPoste!)" class="btn btn-info">
                 {{ selectedPosteId === poste.idPoste ? 'Masquer' : 'Voir' }} Applications
               </button>
@@ -44,10 +50,17 @@
             <td>
               <button (click)="editPoste(poste)" class="btn btn-edit">Modifier</button>
               <button (click)="deletePoste(poste.idPoste!)" class="btn btn-delete">Supprimer</button>
+              <button 
+                *ngIf="poste.etat === 'CONFIGURE'" 
+                (click)="voirParametres(poste)"
+                class="btn btn-parameters"
+                title="Gérer les paramètres du poste">
+                Paramètres
+              </button>
             </td>
           </tr>
           <tr *ngIf="selectedPosteId === poste.idPoste && applications[poste.idPoste!]">
-            <td colspan="6">
+            <td colspan="7">
               <div class="applications-list">
                 <h4>Applications affectées au poste "{{ poste.nom }}":</h4>
                 <div *ngIf="applications[poste.idPoste!] && applications[poste.idPoste!].length === 0" class="no-applications">
@@ -58,6 +71,23 @@
                     <strong>{{ app.nomApp }}</strong> - {{ app.description }}
                   </li>
                 </ul>
+              </div>
+              
+              <!-- Affichage des paramètres du poste -->
+              <div *ngIf="poste.etat === 'CONFIGURE'" class="parameters-details">
+                <h4>Paramètres du poste:</h4>
+                <div *ngIf="!parametres[poste.idPoste!] || parametres[poste.idPoste!].length === 0" class="no-parameters">
+                  Aucun paramètre configuré
+                </div>
+                <div *ngIf="parametres[poste.idPoste!] && parametres[poste.idPoste!].length > 0" class="parameters-list-details">
+                  <div *ngFor="let param of parametres[poste.idPoste!]" class="parameter-detail-item">
+                    <div class="param-info">
+                      <span class="param-name"><strong>{{ param.nom }}</strong>:</span>
+                      <span class="param-value">{{ param.valeur }}</span>
+                      <div *ngIf="param.description" class="param-description">{{ param.description }}</div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </td>
           </tr>
@@ -123,6 +153,92 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal pour les paramètres du poste -->
+<div *ngIf="showParametersModal" class="modal-overlay" (click)="closeParametersModal()">
+  <div class="modal-content parameters-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Paramètres du poste "{{ selectedPosteForParameters?.nom }}"</h3>
+      <button class="close-btn" (click)="closeParametersModal()">&times;</button>
+    </div>
+    
+    <div class="modal-body">
+      <!-- Formulaire d'ajout de paramètre -->
+      <div class="form-section">
+        <h4>Ajouter un paramètre</h4>
+        <form [formGroup]="parametreForm" (ngSubmit)="onParametreSubmit()">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="paramNom">Nom:</label>
+              <input 
+                type="text" 
+                id="paramNom" 
+                formControlName="nom" 
+                class="form-control"
+                placeholder="Nom du paramètre">
+              <div *ngIf="parametreForm.get('nom')?.invalid && parametreForm.get('nom')?.touched" class="error">
+                Le nom est requis
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="paramValeur">Valeur:</label>
+              <input 
+                type="text" 
+                id="paramValeur" 
+                formControlName="valeur" 
+                class="form-control"
+                placeholder="Valeur du paramètre">
+              <div *ngIf="parametreForm.get('valeur')?.invalid && parametreForm.get('valeur')?.touched" class="error">
+                La valeur est requise
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="paramDescription">Description (optionnel):</label>
+            <textarea 
+              id="paramDescription" 
+              formControlName="description" 
+              class="form-control"
+              rows="2"
+              placeholder="Description du paramètre"></textarea>
+          </div>
+          
+          <div class="form-actions">
+            <button type="submit" [disabled]="parametreForm.invalid" class="btn btn-primary">
+              Ajouter paramètre
+            </button>
+            <button type="button" (click)="resetParametreForm()" class="btn btn-secondary">
+              Effacer
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Liste des paramètres existants -->
+      <div class="parameters-list">
+        <h4>Paramètres existants</h4>
+        <div *ngIf="selectedPosteForParameters && (!parametres[selectedPosteForParameters.idPoste!] || parametres[selectedPosteForParameters.idPoste!].length === 0)" class="no-parameters">
+          Aucun paramètre configuré pour ce poste
+        </div>
+        <div *ngIf="selectedPosteForParameters && parametres[selectedPosteForParameters.idPoste!] && parametres[selectedPosteForParameters.idPoste!].length > 0" class="parameters-table">
+          <div *ngFor="let parametre of parametres[selectedPosteForParameters.idPoste!]" class="parameter-item">
+            <div class="parameter-info">
+              <div class="parameter-name">{{ parametre.nom }}</div>
+              <div class="parameter-value">{{ parametre.valeur }}</div>
+              <div class="parameter-description" *ngIf="parametre.description">{{ parametre.description }}</div>
+            </div>
+            <div class="parameter-actions">
+              <button (click)="editParametre(parametre)" class="btn btn-edit-param">Modifier</button>
+              <button (click)="deleteParametre(parametre.idParam!)" class="btn btn-delete-param">Supprimer</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

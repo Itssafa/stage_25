@@ -22,7 +22,10 @@ public class ParametreController {
     private AffectationService affectationService;
 
     @GetMapping
-    public List<Parametre> getAll() {
+    public List<Parametre> getAll(@RequestParam(required = false) Long affectationId) {
+        if (affectationId != null) {
+            return service.getByAffectationId(affectationId);
+        }
         return service.getAll();
     }
 

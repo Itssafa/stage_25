@@ -2,6 +2,7 @@ package tn.esprit.backend.controller;
 
 import tn.esprit.backend.entity.Poste;
 import tn.esprit.backend.entity.Application;
+import tn.esprit.backend.entity.EtatPoste;
 import tn.esprit.backend.service.PosteService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,5 +61,35 @@ public class PosteController {
                                              .collect(Collectors.toList());
 
         return ResponseEntity.ok(applications);
+    }
+
+    // 🔥 Nouveau endpoint : mettre à jour l'état d'un poste
+    @PutMapping("/{id}/etat")
+    public ResponseEntity<Poste> updateEtat(@PathVariable Long id, @RequestBody EtatRequest etatRequest) {
+        Poste poste = service.getById(id);
+        if (poste == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        EtatPoste nouvelEtat = "configuré".equals(etatRequest.getEtat()) ? 
+            EtatPoste.CONFIGURE : EtatPoste.NON_CONFIGURE;
+        
+        poste.setEtat(nouvelEtat);
+        Poste updated = service.update(id, poste);
+        
+        return ResponseEntity.ok(updated);
+    }
+
+    // Classe interne pour la requête d'état
+    public static class EtatRequest {
+        private String etat;
+
+        public String getEtat() {
+            return etat;
+        }
+
+        public void setEtat(String etat) {
+            this.etat = etat;
+        }
     }
 }

@@ -1,6 +1,7 @@
 package tn.esprit.backend.dto;
 
 import tn.esprit.backend.entity.Poste;
+import tn.esprit.backend.entity.EtatPoste;
 import java.time.LocalDateTime;
 
 public class PosteDTO {
@@ -8,6 +9,7 @@ public class PosteDTO {
     private String nom;
     private LigneProductionSimpleDTO ligne;
     private UserSimpleDTO user;
+    private String etat;
     
     // Informations sur l'application actuellement affectée
     private boolean configured;
@@ -37,6 +39,7 @@ public class PosteDTO {
         if (poste.getUser() != null) {
             dto.setUser(UserSimpleDTO.fromEntity(poste.getUser()));
         }
+        dto.setEtat(poste.getEtat() != null ? poste.getEtat().getLibelle() : EtatPoste.NON_CONFIGURE.getLibelle());
         return dto;
     }
 
@@ -103,5 +106,13 @@ public class PosteDTO {
 
     public void setCurrentAffectationDate(LocalDateTime currentAffectationDate) {
         this.currentAffectationDate = currentAffectationDate;
+    }
+
+    public String getEtat() {
+        return etat;
+    }
+
+    public void setEtat(String etat) {
+        this.etat = etat;
     }
 }

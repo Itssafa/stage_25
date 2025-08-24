@@ -7,7 +7,8 @@
       "Bash(./mvnw clean compile)",
       "Bash(./mvnw spring-boot:*)",
       "Bash(ng build:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(npx tsc:*)"
     ],
     "deny": [],
     "ask": []

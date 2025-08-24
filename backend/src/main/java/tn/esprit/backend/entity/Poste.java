@@ -26,6 +26,10 @@ public class Poste {
     @JoinColumn(name = "user_matricule")
     private User user;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "etat")
+    private EtatPoste etat = EtatPoste.NON_CONFIGURE;
+
     // Constructors
     public Poste() {}
 
@@ -73,5 +77,13 @@ public class Poste {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public EtatPoste getEtat() {
+        return etat;
+    }
+
+    public void setEtat(EtatPoste etat) {
+        this.etat = etat;
     }
 }

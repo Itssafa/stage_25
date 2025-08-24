@@ -70,6 +70,11 @@ export class OrdreFabComponent implements OnInit {
     this.loadProduits();
     this.loadUsers();
     this.loadStatuts();
+    
+    // Vérification périodique des statuts (toutes les 5 minutes)
+    setInterval(() => {
+      this.checkAndUpdateStatusesPeriodically();
+    }, 5 * 60 * 1000); // 5 minutes
   }
 
   initializeSearchFields() {
@@ -143,7 +148,11 @@ export class OrdreFabComponent implements OnInit {
       .subscribe({
         next: (data) => {
           this.ordresFab = data;
-          this.filteredOrdresFab = [...data];
+          
+          // Vérifier et mettre à jour automatiquement les statuts
+          this.checkAndUpdateStatuses(data);
+          
+          this.filteredOrdresFab = [...this.ordresFab];
           this.loading = false;
         },
         error: (err) => {
@@ -237,6 +246,9 @@ export class OrdreFabComponent implements OnInit {
     this.ordreFabForm.get('statuts')?.clearValidators();
     this.ordreFabForm.get('statuts')?.updateValueAndValidity();
     
+    // S'assurer que tous les champs sont activés pour la création
+    this.enableAllFields();
+    
     // S'assurer que le statut par défaut est défini
     this.ordreFabForm.patchValue({ statuts: 'EN_ATTENTE' });
   }
@@ -254,6 +266,9 @@ export class OrdreFabComponent implements OnInit {
     // Lors de la modification, ajouter la validation requise pour le statut
     this.ordreFabForm.get('statuts')?.setValidators([Validators.required]);
     this.ordreFabForm.get('statuts')?.updateValueAndValidity();
+    
+    // Appliquer les restrictions selon le statut
+    this.applyStatusBasedRestrictions(ordreFab.statuts);
     
     this.ordreFabForm.patchValue({
       code_fab: ordreFab.code_fab,
@@ -328,6 +343,10 @@ export class OrdreFabComponent implements OnInit {
 
   resetForm() {
     this.ordreFabForm.reset();
+    
+    // Réactiver tous les champs (au cas où ils auraient été désactivés)
+    this.enableAllFields();
+    
     // Réinitialiser le statut par défaut
     this.ordreFabForm.patchValue({ statuts: 'EN_ATTENTE' });
     this.isEditing = false;
@@ -345,6 +364,149 @@ export class OrdreFabComponent implements OnInit {
 
   onClearSearch() {
     this.filteredOrdresFab = [...this.ordresFab];
+  }
+
+  /**
+   * Vérifie et met à jour automatiquement les statuts des ordres de fabrication
+   * selon leurs dates de début et de fin
+   */
+  private checkAndUpdateStatuses(ordresFab: OrdreFab[]) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Normaliser à 00:00 pour comparer uniquement les dates
+    
+    const ordersToStartUpdate: { ordre: OrdreFab, newStatus: string }[] = [];
+    const ordersToFinishUpdate: { ordre: OrdreFab, newStatus: string }[] = [];
+    
+    ordresFab.forEach(ordre => {
+      // Changement de EN_ATTENTE vers EN_COURS quand la date de début est atteinte
+      if (ordre.statuts === 'EN_ATTENTE' && ordre.datedeb) {
+        const dateDebut = new Date(ordre.datedeb);
+        dateDebut.setHours(0, 0, 0, 0);
+        
+        if (dateDebut <= today) {
+          ordersToStartUpdate.push({ ordre, newStatus: 'EN_COURS' });
+        }
+      }
+      
+      // Changement de EN_COURS vers TERMINEE quand la date de fin est atteinte
+      if (ordre.statuts === 'EN_COURS' && ordre.datefin) {
+        const dateFin = new Date(ordre.datefin);
+        dateFin.setHours(0, 0, 0, 0);
+        
+        if (dateFin <= today) {
+          ordersToFinishUpdate.push({ ordre, newStatus: 'TERMINEE' });
+        }
+      }
+    });
+    
+    // Mettre à jour les ordres qui doivent commencer
+    ordersToStartUpdate.forEach(({ ordre, newStatus }) => {
+      this.updateOrderStatus(ordre.id_orf!, newStatus);
+    });
+    
+    // Mettre à jour les ordres qui doivent se terminer
+    ordersToFinishUpdate.forEach(({ ordre, newStatus }) => {
+      this.updateOrderStatus(ordre.id_orf!, newStatus);
+    });
+  }
+
+  /**
+   * Met à jour le statut d'un ordre de fabrication
+   */
+  private updateOrderStatus(orderId: number, newStatus: string) {
+    const updateData = { statuts: newStatus };
+    
+    this.http.put<OrdreFab>(`${this.apiUrl}/${orderId}`, updateData, { headers: this.getHeaders() })
+      .subscribe({
+        next: (updatedOrder) => {
+          // Mettre à jour l'ordre dans la liste locale
+          const index = this.ordresFab.findIndex(o => o.id_orf === orderId);
+          if (index !== -1) {
+            this.ordresFab[index] = updatedOrder;
+            this.filteredOrdresFab = [...this.ordresFab];
+          }
+          console.log(`Ordre ${orderId} automatiquement mis à jour vers ${newStatus}`);
+        },
+        error: (err) => {
+          console.error(`Erreur lors de la mise à jour automatique du statut pour l'ordre ${orderId}:`, err);
+        }
+      });
+  }
+
+  /**
+   * Applique les restrictions sur les champs selon le statut de l'ordre
+   * - EN_ATTENTE : tous les champs sont modifiables
+   * - EN_COURS : seuls quantité et date fin sont modifiables
+   * - FINI/ANNULE : AUCUN champ n'est modifiable (ordre figé)
+   */
+  private applyStatusBasedRestrictions(statuts: string) {
+    const codeField = this.ordreFabForm.get('code_fab');
+    const datedebutField = this.ordreFabForm.get('datedeb');
+    const produitField = this.ordreFabForm.get('produitId');
+    const quantiteField = this.ordreFabForm.get('quantite');
+    const datefinField = this.ordreFabForm.get('datefin');
+    const statutField = this.ordreFabForm.get('statuts');
+    
+    if (statuts === 'EN_ATTENTE') {
+      // Tous les champs sont modifiables
+      codeField?.enable();
+      datedebutField?.enable();
+      produitField?.enable();
+      quantiteField?.enable();
+      datefinField?.enable();
+      statutField?.enable();
+    } else if (statuts === 'EN_COURS') {
+      // Seuls quantité et date fin sont modifiables
+      codeField?.disable();
+      datedebutField?.disable();
+      produitField?.disable();
+      quantiteField?.enable();
+      datefinField?.enable();
+      statutField?.enable();
+    } else {
+      // FINI ou ANNULE : AUCUN champ n'est modifiable (ordre complètement figé)
+      codeField?.disable();
+      datedebutField?.disable();
+      produitField?.disable();
+      quantiteField?.disable();
+      datefinField?.disable();
+      statutField?.disable();
+    }
+  }
+
+  /**
+   * Retourne si un champ est modifiable selon le statut actuel
+   */
+  isFieldEditable(fieldName: string, statuts: string): boolean {
+    if (statuts === 'EN_ATTENTE') {
+      return true; // Tous les champs sont modifiables
+    } else if (statuts === 'EN_COURS') {
+      return fieldName === 'quantite' || fieldName === 'datefin' || fieldName === 'statuts';
+    } else {
+      return false; // AUCUN champ n'est modifiable pour FINI/ANNULE (ordre figé)
+    }
+  }
+
+  /**
+   * Active tous les champs du formulaire
+   */
+  private enableAllFields() {
+    this.ordreFabForm.get('code_fab')?.enable();
+    this.ordreFabForm.get('datedeb')?.enable();
+    this.ordreFabForm.get('produitId')?.enable();
+    this.ordreFabForm.get('quantite')?.enable();
+    this.ordreFabForm.get('datefin')?.enable();
+    this.ordreFabForm.get('statuts')?.enable();
+  }
+
+  /**
+   * Vérification périodique des statuts (version simplifiée)
+   * Ne fait que recharger les données pour éviter les conflits
+   */
+  private checkAndUpdateStatusesPeriodically() {
+    if (!this.showModal && !this.loading) {
+      this.loadOrdresFab();
+    }
   }
 
   private applyCurrentFilters() {

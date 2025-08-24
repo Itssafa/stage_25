@@ -9,11 +9,11 @@ import java.util.Optional;
 
 public interface AffectationRepository extends JpaRepository<Affectation, Long> {
     
-    // Trouver l'affectation active d'une application
-    Optional<Affectation> findByApplicationIdAppAndActiveTrue(Long applicationId);
+    // Trouver l'affectation active d'une application (prend la première si plusieurs)
+    Optional<Affectation> findFirstByApplicationIdAppAndActiveTrueOrderByDateDebutDesc(Long applicationId);
     
-    // Trouver l'affectation active d'un poste
-    Optional<Affectation> findByPosteIdPosteAndActiveTrue(Long posteId);
+    // Trouver l'affectation active d'un poste (prend la première si plusieurs)
+    Optional<Affectation> findFirstByPosteIdPosteAndActiveTrueOrderByDateDebutDesc(Long posteId);
     
     // Trouver toutes les affectations actives
     List<Affectation> findByActiveTrue();
@@ -23,4 +23,10 @@ public interface AffectationRepository extends JpaRepository<Affectation, Long> 
     
     // Trouver l'historique des affectations d'un poste
     List<Affectation> findByPosteIdPosteOrderByDateDebutDesc(Long posteId);
+    
+    // Trouver toutes les affectations actives pour une application (pour nettoyer les doublons)
+    List<Affectation> findByApplicationIdAppAndActiveTrue(Long applicationId);
+    
+    // Trouver toutes les affectations actives pour un poste (pour nettoyer les doublons)
+    List<Affectation> findByPosteIdPosteAndActiveTrue(Long posteId);
 }
