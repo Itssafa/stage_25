@@ -22,6 +22,7 @@
           <th>Nom d'utilisateur</th>
           <th>Prénom</th>
           <th>Email</th>
+          <th>Rôle</th>
           <th>Date de création</th>
           <th>Actions</th>
         </tr>
@@ -32,6 +33,15 @@
           <td>{{ user.username }}</td>
           <td>{{ user.prenom }}</td>
           <td>{{ user.adresseMail }}</td>
+          <td>
+            <span [ngClass]="{
+              'role-default': user.role === 'DEFAULT',
+              'role-admin': user.role === 'ADMIN',
+              'role-parametreur': user.role === 'PARAMETREUR'
+            }">
+              {{ user.role }}
+            </span>
+          </td>
           <td>{{ formatDate(user.createdAt) }}</td>
           <td>
             <button (click)="editUser(user)" class="btn btn-edit">Modifier</button>
@@ -68,6 +78,7 @@
           <th>Nom d'utilisateur</th>
           <th>Prénom</th>
           <th>Email</th>
+          <th>Rôle</th>
           <th>Date d'activation</th>
           <th>Durée</th>
           <th>Actions</th>
@@ -79,6 +90,15 @@
           <td>{{ user.username }}</td>
           <td>{{ user.prenom }}</td>
           <td>{{ user.adresseMail }}</td>
+          <td>
+            <span [ngClass]="{
+              'role-default': user.role === 'DEFAULT',
+              'role-admin': user.role === 'ADMIN',
+              'role-parametreur': user.role === 'PARAMETREUR'
+            }">
+              {{ user.role }}
+            </span>
+          </td>
           <td>{{ formatDate(user.activationDate!) }}</td>
           <td>{{ getDurationText(user.activationDurationDays!) }}</td>
           <td>

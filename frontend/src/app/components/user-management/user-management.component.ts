@@ -77,29 +77,21 @@ export class UserManagementComponent implements OnInit {
     this.loading = true;
     this.error = '';
     
-    // Charger les utilisateurs DEFAULT
-    this.http.get<User[]>(`${this.apiUrl}/default`, { headers: this.getHeaders() })
+    // Charger tous les utilisateurs
+    this.http.get<User[]>(`${this.apiUrl}/all`, { headers: this.getHeaders() })
       .subscribe({
-        next: (data) => {
-          this.defaultUsers = data;
-          this.filteredDefaultUsers = [...data];
-        },
-        error: (err) => {
-          this.error = 'Erreur lors du chargement des utilisateurs par défaut';
-          console.error('Erreur:', err);
-        }
-      });
-
-    // Charger les utilisateurs actifs (PARAMETREUR)
-    this.http.get<User[]>(`${this.apiUrl}/active`, { headers: this.getHeaders() })
-      .subscribe({
-        next: (data) => {
-          this.activeUsers = data;
-          this.filteredActiveUsers = [...data];
+        next: (allUsers) => {
+          // Liste des utilisateurs en attente d'activation : rôle DEFAULT
+          this.defaultUsers = allUsers.filter(user => user.role === 'DEFAULT');
+          // Liste des utilisateurs actifs : rôles ADMIN ou PARAMETREUR
+          this.activeUsers = allUsers.filter(user => user.role === 'ADMIN' || user.role === 'PARAMETREUR');
+          
+          this.filteredDefaultUsers = [...this.defaultUsers];
+          this.filteredActiveUsers = [...this.activeUsers];
           this.loading = false;
         },
         error: (err) => {
-          this.error = 'Erreur lors du chargement des utilisateurs actifs';
+          this.error = 'Erreur lors du chargement des utilisateurs';
           this.loading = false;
           console.error('Erreur:', err);
         }
@@ -226,8 +218,8 @@ export class UserManagementComponent implements OnInit {
 
   private initializeSearchFields() {
     // Define search fields for global search
-    this.defaultUsersSearchFields = ['matricule', 'username', 'prenom', 'adresseMail'];
-    this.activeUsersSearchFields = ['matricule', 'username', 'prenom', 'adresseMail'];
+    this.defaultUsersSearchFields = ['matricule', 'username', 'prenom', 'adresseMail', 'role'];
+    this.activeUsersSearchFields = ['matricule', 'username', 'prenom', 'adresseMail', 'role'];
   }
 
   onDefaultUsersSearchChange(searchValue: string) {

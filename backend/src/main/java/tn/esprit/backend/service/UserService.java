@@ -172,7 +172,7 @@ public class UserService implements UserDetailsService {
 
     public UserDTO deactivateUser(Long userId) {
         User user = userRepository.findById(userId).orElse(null);
-        if (user == null || user.getRole() != Role.PARAMETREUR) {
+        if (user == null || (user.getRole() != Role.PARAMETREUR && user.getRole() != Role.ADMIN)) {
             return null;
         }
 

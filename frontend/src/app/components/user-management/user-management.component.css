@@ -203,3 +203,34 @@ h3 {
   margin-top: 5px;
   display: block;
 }
+
+/* Styles pour les rôles */
+.role-default {
+  background-color: #ffc0cb;
+  color: #d63384;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.role-admin {
+  background-color: #e0f7ff;
+  color: #0284c7;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.role-parametreur {
+  background-color: #dcfce7;
+  color: #16a34a;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
