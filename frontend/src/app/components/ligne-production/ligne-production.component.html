@@ -24,6 +24,7 @@
           <th>ID</th>
           <th>Nom</th>
           <th>Créé par</th>
+          <th>Postes constituants</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -32,6 +33,17 @@
           <td>{{ ligne.idLigne }}</td>
           <td>{{ ligne.nom }}</td>
           <td>{{ ligne.user?.username }} ({{ ligne.user?.prenom }})</td>
+          <td>
+            <span *ngIf="ligne.postesConstituants && ligne.postesConstituants.length > 0" 
+                  class="postes-list">
+              <span *ngFor="let poste of ligne.postesConstituants; let last = last" 
+                    class="poste-tag">
+                {{ poste.nom }}<span *ngIf="!last">, </span>
+              </span>
+            </span>
+            <span *ngIf="!ligne.postesConstituants || ligne.postesConstituants.length === 0" 
+                  class="no-postes">Aucun poste assigné</span>
+          </td>
           <td>
             <button (click)="editLigne(ligne)" class="btn btn-edit">Modifier</button>
             <button (click)="deleteLigne(ligne.idLigne)" class="btn btn-delete">Supprimer</button>
@@ -70,6 +82,24 @@
             placeholder="Entrez le nom de la ligne">
           <div *ngIf="ligneForm.get('nom')?.invalid && ligneForm.get('nom')?.touched" class="error">
             Le nom est requis
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Postes constituants:</label>
+          <div class="postes-selection">
+            <div *ngFor="let poste of postes" class="poste-checkbox">
+              <input 
+                type="checkbox" 
+                [id]="'poste-' + poste.idPoste"
+                [value]="poste.idPoste"
+                (change)="onPosteSelectionChange($event, poste.idPoste)"
+                [checked]="ligneForm.get('posteIds')?.value?.includes(poste.idPoste)">
+              <label [for]="'poste-' + poste.idPoste">{{ poste.nom }}</label>
+            </div>
+          </div>
+          <div *ngIf="postes.length === 0" class="no-postes-available">
+            Aucun poste disponible
           </div>
         </div>
 

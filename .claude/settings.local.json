@@ -8,7 +8,8 @@
       "Bash(./mvnw spring-boot:*)",
       "Bash(ng build:*)",
       "Bash(npm run build:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(./mvnw:*)"
     ],
     "deny": [],
     "ask": []

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Data
@@ -25,7 +26,14 @@ public class LigneProduction {
     @JsonIgnoreProperties({"lignesProduction"})
     private User user;
 
-
+    @ManyToMany
+    @JoinTable(
+        name = "ligne_production_postes",
+        joinColumns = @JoinColumn(name = "ligne_id"),
+        inverseJoinColumns = @JoinColumn(name = "poste_id")
+    )
+    @JsonIgnoreProperties({"affectations", "user"})
+    private Set<Poste> postesConstituants;
 
     @OneToMany(mappedBy = "ligne", cascade = CascadeType.ALL)
     @JsonIgnoreProperties({"ligne", "ordres"})

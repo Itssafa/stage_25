@@ -4,10 +4,17 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { User } from '../../models/user.model';
 import { SearchFilterService } from '../../services/search-filter.service';
 
+interface PosteDTO {
+  idPoste: number;
+  nom: string;
+  etat?: string;
+}
+
 interface LigneProduction {
   idLigne?: number;
   nom: string;
   user?: User;
+  postesConstituants?: PosteDTO[];
 }
 
 @Component({
@@ -20,6 +27,7 @@ export class LigneProductionComponent implements OnInit {
   lignes: LigneProduction[] = [];
   filteredLignes: LigneProduction[] = [];
   users: User[] = [];
+  postes: PosteDTO[] = [];
   currentUser: User | null = null;
   loading = false;
   error = '';
@@ -32,6 +40,7 @@ export class LigneProductionComponent implements OnInit {
   private apiUrl = 'http://localhost:8085/api/ligneproductions';
   private userApiUrl = 'http://localhost:8085/api/admin/user-management/active';
   private currentUserApiUrl = 'http://localhost:8085/api/user/me';
+  private posteApiUrl = 'http://localhost:8085/api/postes';
 
   constructor(
     private fb: FormBuilder,
@@ -39,7 +48,8 @@ export class LigneProductionComponent implements OnInit {
     private searchFilterService: SearchFilterService
   ) {
     this.ligneForm = this.fb.group({
-      nom: ['', [Validators.required, Validators.minLength(2)]]
+      nom: ['', [Validators.required, Validators.minLength(2)]],
+      posteIds: [[]]
     });
   }
 
@@ -48,11 +58,12 @@ export class LigneProductionComponent implements OnInit {
     this.loadCurrentUser();
     this.loadLignes();
     this.loadUsers();
+    this.loadPostes();
   }
 
   initializeSearchFields() {
     this.searchFields = [
-      'idLigne', 'nom', 'user.username', 'user.prenom'
+      'idLigne', 'nom', 'user.username', 'user.prenom', 'postesConstituants.nom'
     ];
   }
 
@@ -107,6 +118,18 @@ export class LigneProductionComponent implements OnInit {
       });
   }
 
+  loadPostes() {
+    this.http.get<PosteDTO[]>(this.posteApiUrl, { headers: this.getHeaders() })
+      .subscribe({
+        next: (data) => {
+          this.postes = data || [];
+        },
+        error: (err) => {
+          console.error('Erreur lors du chargement des postes:', err);
+        }
+      });
+  }
+
   onSubmit() {
     if (this.ligneForm.valid) {
       if (!this.currentUser) {
@@ -115,7 +138,8 @@ export class LigneProductionComponent implements OnInit {
       }
       
       const ligneData: any = {
-        nom: this.ligneForm.get('nom')?.value
+        nom: this.ligneForm.get('nom')?.value,
+        posteIds: this.ligneForm.get('posteIds')?.value || []
       };
       
       // Ajouter l'utilisateur seulement lors de la création
@@ -191,8 +215,12 @@ export class LigneProductionComponent implements OnInit {
     this.isEditing = true;
     this.editingId = ligne.idLigne || null;
     this.showModal = true;
+    
+    const selectedPosteIds = ligne.postesConstituants?.map(p => p.idPoste) || [];
+    
     this.ligneForm.patchValue({
-      nom: ligne.nom
+      nom: ligne.nom,
+      posteIds: selectedPosteIds
     });
   }
 
@@ -215,6 +243,7 @@ export class LigneProductionComponent implements OnInit {
 
   resetForm() {
     this.ligneForm.reset();
+    this.ligneForm.patchValue({ posteIds: [] });
     this.isEditing = false;
     this.editingId = null;
     this.error = '';
@@ -230,6 +259,21 @@ export class LigneProductionComponent implements OnInit {
 
   onClearSearch() {
     this.filteredLignes = [...this.lignes];
+  }
+
+  onPosteSelectionChange(event: any, posteId: number) {
+    const currentSelection = this.ligneForm.get('posteIds')?.value || [];
+    if (event.target.checked) {
+      if (!currentSelection.includes(posteId)) {
+        currentSelection.push(posteId);
+      }
+    } else {
+      const index = currentSelection.indexOf(posteId);
+      if (index > -1) {
+        currentSelection.splice(index, 1);
+      }
+    }
+    this.ligneForm.patchValue({ posteIds: currentSelection });
   }
 
   private applyCurrentFilters() {
