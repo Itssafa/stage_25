@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.List;
+import java.util.Set;
 
 @Entity
 public class Poste {
@@ -25,6 +26,10 @@ public class Poste {
     @Enumerated(EnumType.STRING)
     @Column(name = "etat")
     private EtatPoste etat = EtatPoste.NON_CONFIGURE;
+
+    @ManyToMany(mappedBy = "postesConstituants")
+    @JsonIgnoreProperties({"postesConstituants", "produits"})
+    private Set<LigneProduction> lignesProduction;
 
     // Constructors
     public Poste() {}
@@ -73,5 +78,13 @@ public class Poste {
 
     public void setEtat(EtatPoste etat) {
         this.etat = etat;
+    }
+
+    public Set<LigneProduction> getLignesProduction() {
+        return lignesProduction;
+    }
+
+    public void setLignesProduction(Set<LigneProduction> lignesProduction) {
+        this.lignesProduction = lignesProduction;
     }
 }

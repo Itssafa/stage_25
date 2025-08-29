@@ -23,11 +23,17 @@ interface Parametre {
   };
 }
 
+interface LigneProductionSimple {
+  idLigne: number;
+  nom: string;
+}
+
 interface Poste {
   idPoste?: number;
   nom: string;
   user?: User;
   etat?: 'CONFIGURE' | 'NON_CONFIGURE';
+  lignesProduction?: LigneProductionSimple[];
 }
 
 @Component({
@@ -86,7 +92,7 @@ export class PosteComponent implements OnInit, OnDestroy {
   initializeSearchFields() {
     this.searchFields = [
       'idPoste', 'nom',
-      'user.username', 'user.prenom', 'etat'
+      'user.username', 'user.prenom', 'etat', 'lignesProduction.nom'
     ];
   }
 

@@ -25,6 +25,7 @@
           <th>Nom</th>
           <th>Créé par</th>
           <th>État</th>
+          <th>Ligne de production</th>
           <th>Applications</th>
           <th>Actions</th>
         </tr>
@@ -39,6 +40,17 @@
               <span [class]="'status-' + (poste.etat === 'CONFIGURE' ? 'configured' : 'not-configured')">
                 {{ poste.etat === 'CONFIGURE' ? 'configuré' : 'non configuré' }}
               </span>
+            </td>
+            <td>
+              <span *ngIf="poste.lignesProduction && poste.lignesProduction.length > 0" 
+                    class="lignes-list">
+                <span *ngFor="let ligne of poste.lignesProduction; let last = last" 
+                      class="ligne-tag">
+                  {{ ligne.nom }}<span *ngIf="!last">, </span>
+                </span>
+              </span>
+              <span *ngIf="!poste.lignesProduction || poste.lignesProduction.length === 0" 
+                    class="no-lignes">Aucune ligne</span>
             </td>
             <td>
               <button (click)="toggleApplications(poste.idPoste!)" class="btn btn-info">
@@ -58,7 +70,7 @@
             </td>
           </tr>
           <tr *ngIf="selectedPosteId === poste.idPoste && applications[poste.idPoste!]">
-            <td colspan="7">
+            <td colspan="8">
               <div class="applications-list">
                 <h4>Applications affectées au poste "{{ poste.nom }}":</h4>
                 <div *ngIf="applications[poste.idPoste!] && applications[poste.idPoste!].length === 0" class="no-applications">

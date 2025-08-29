@@ -1,5 +1,7 @@
 package tn.esprit.backend.dto;
 
+import tn.esprit.backend.entity.LigneProduction;
+
 public class LigneProductionSimpleDTO {
     private Long idLigne;
     private String nom;
@@ -9,6 +11,11 @@ public class LigneProductionSimpleDTO {
     public LigneProductionSimpleDTO(Long idLigne, String nom) {
         this.idLigne = idLigne;
         this.nom = nom;
+    }
+
+    public static LigneProductionSimpleDTO fromEntity(LigneProduction ligne) {
+        if (ligne == null) return null;
+        return new LigneProductionSimpleDTO(ligne.getIdLigne(), ligne.getNom());
     }
 
     // Getters and Setters

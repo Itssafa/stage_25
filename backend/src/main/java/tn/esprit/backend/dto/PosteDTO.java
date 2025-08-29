@@ -3,12 +3,15 @@ package tn.esprit.backend.dto;
 import tn.esprit.backend.entity.Poste;
 import tn.esprit.backend.entity.EtatPoste;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class PosteDTO {
     private Long idPoste;
     private String nom;
     private UserSimpleDTO user;
     private String etat;
+    private List<LigneProductionSimpleDTO> lignesProduction;
     
     // Informations sur l'application actuellement affectée
     private boolean configured;
@@ -32,6 +35,16 @@ public class PosteDTO {
             dto.setUser(UserSimpleDTO.fromEntity(poste.getUser()));
         }
         dto.setEtat(poste.getEtat() != null ? poste.getEtat().getLibelle() : EtatPoste.NON_CONFIGURE.getLibelle());
+        
+        // Ajouter les lignes de production
+        if (poste.getLignesProduction() != null) {
+            dto.setLignesProduction(
+                poste.getLignesProduction().stream()
+                    .map(LigneProductionSimpleDTO::fromEntity)
+                    .collect(Collectors.toList())
+            );
+        }
+        
         return dto;
     }
 
@@ -99,5 +112,13 @@ public class PosteDTO {
 
     public void setEtat(String etat) {
         this.etat = etat;
+    }
+
+    public List<LigneProductionSimpleDTO> getLignesProduction() {
+        return lignesProduction;
+    }
+
+    public void setLignesProduction(List<LigneProductionSimpleDTO> lignesProduction) {
+        this.lignesProduction = lignesProduction;
     }
 }
