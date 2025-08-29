@@ -113,7 +113,7 @@ public class UserService implements UserDetailsService {
         return user != null && user.getRole().canManageEntities();
     }
 
-    // Methodes pour la gestion des utilisateurs par ADMIN
+    // Méthodes pour la gestion des utilisateurs par ADMIN
     public List<UserDTO> getDefaultUsers() {
         List<User> defaultUsers = userRepository.findByRole(Role.DEFAULT);
         return defaultUsers.stream()
@@ -122,15 +122,22 @@ public class UserService implements UserDetailsService {
     }
 
     public List<UserDTO> getActiveUsers() {
-        List<User> activeUsers = userRepository.findByRoleAndIsActive(Role.PARAMETREUR, true);
-        return activeUsers.stream()
+        // CORRECTION: Récupérer TOUS les utilisateurs avec rôle ADMIN ou PARAMETREUR qui sont actifs
+        List<User> adminUsers = userRepository.findByRole(Role.ADMIN);
+        List<User> parametreurUsers = userRepository.findByRoleAndIsActive(Role.PARAMETREUR, Boolean.TRUE);
+        
+        List<User> allActiveUsers = new java.util.ArrayList<>();
+        allActiveUsers.addAll(adminUsers); // Les admins sont toujours considérés comme actifs
+        allActiveUsers.addAll(parametreurUsers);
+        
+        return allActiveUsers.stream()
                 .map(UserDTO::fromEntity)
                 .toList();
     }
 
     public List<UserDTO> getActiveAdminAndParametreurUsers() {
         List<User> adminUsers = userRepository.findByRole(Role.ADMIN);
-        List<User> parametreurUsers = userRepository.findByRoleAndIsActive(Role.PARAMETREUR, true);
+        List<User> parametreurUsers = userRepository.findByRoleAndIsActive(Role.PARAMETREUR, Boolean.TRUE);
         
         List<User> allUsers = new java.util.ArrayList<>();
         allUsers.addAll(adminUsers);
@@ -171,33 +178,70 @@ public class UserService implements UserDetailsService {
     }
 
     public UserDTO deactivateUser(Long userId) {
-        User user = userRepository.findById(userId).orElse(null);
-        if (user == null || (user.getRole() != Role.PARAMETREUR && user.getRole() != Role.ADMIN)) {
-            return null;
+        try {
+            User user = userRepository.findById(userId).orElse(null);
+            if (user == null) {
+                return null;
+            }
+            
+            // Vérifier que l'utilisateur est bien activable (pas déjà DEFAULT)
+            if (user.getRole() != Role.PARAMETREUR && user.getRole() != Role.ADMIN) {
+                return null; // Déjà désactivé ou rôle invalide
+            }
+            
+            // Ne pas permettre de désactiver le dernier administrateur
+            if (user.getRole() == Role.ADMIN) {
+                long adminCount = userRepository.countByRole(Role.ADMIN);
+                if (adminCount <= 1) {
+                    throw new RuntimeException("Impossible de désactiver le dernier administrateur");
+                }
+            }
+
+            // Désactiver l'utilisateur
+            user.setRole(Role.DEFAULT);
+            user.setIsActive(false);
+            user.setDeactivationDate(LocalDateTime.now());
+            user.setActivationDate(null);
+            user.setActivationDurationDays(null);
+
+            User savedUser = userRepository.save(user);
+            return UserDTO.fromEntity(savedUser);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Erreur lors de la désactivation de l'utilisateur: " + e.getMessage(), e);
         }
-
-        user.setRole(Role.DEFAULT);
-        user.setIsActive(false);
-        user.setDeactivationDate(LocalDateTime.now());
-        user.setActivationDate(null);
-        user.setActivationDurationDays(null);
-
-        User savedUser = userRepository.save(user);
-        return UserDTO.fromEntity(savedUser);
     }
 
     public UserDTO updateUser(Long userId, UserDTO userDTO) {
-        User user = userRepository.findById(userId).orElse(null);
-        if (user == null) {
-            return null;
+        try {
+            User user = userRepository.findById(userId).orElse(null);
+            if (user == null) {
+                return null;
+            }
+
+            // Validation des données
+            if (userDTO.getUsername() == null || userDTO.getUsername().trim().isEmpty() ||
+                userDTO.getPrenom() == null || userDTO.getPrenom().trim().isEmpty() ||
+                userDTO.getAdresseMail() == null || userDTO.getAdresseMail().trim().isEmpty()) {
+                throw new RuntimeException("Tous les champs sont obligatoires");
+            }
+
+            // Vérifier l'unicité du nom d'utilisateur (sauf pour l'utilisateur courant)
+            User existingUser = userRepository.findByUsername(userDTO.getUsername());
+            if (existingUser != null && !existingUser.getMatricule().equals(userId)) {
+                throw new RuntimeException("Ce nom d'utilisateur est déjà utilisé");
+            }
+
+            user.setUsername(userDTO.getUsername());
+            user.setPrenom(userDTO.getPrenom());
+            user.setAdresseMail(userDTO.getAdresseMail());
+
+            User savedUser = userRepository.save(user);
+            return UserDTO.fromEntity(savedUser);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Erreur lors de la mise à jour de l'utilisateur: " + e.getMessage(), e);
         }
-
-        user.setUsername(userDTO.getUsername());
-        user.setPrenom(userDTO.getPrenom());
-        user.setAdresseMail(userDTO.getAdresseMail());
-
-        User savedUser = userRepository.save(user);
-        return UserDTO.fromEntity(savedUser);
     }
 
     public List<UserDTO> getAllUsersForStats() {
