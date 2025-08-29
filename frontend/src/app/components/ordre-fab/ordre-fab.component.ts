@@ -495,7 +495,7 @@ export class OrdreFabComponent implements OnInit {
       ligneField?.disable();
       quantiteField?.enable();
       datefinField?.enable();
-      statutField?.enable();
+      statutField?.disable();
     } else {
       // FINI ou ANNULE : AUCUN champ n'est modifiable (ordre complètement figé)
       codeField?.disable();
@@ -515,7 +515,7 @@ export class OrdreFabComponent implements OnInit {
     if (statuts === 'EN_ATTENTE') {
       return true; // Tous les champs sont modifiables
     } else if (statuts === 'EN_COURS') {
-      return fieldName === 'quantite' || fieldName === 'datefin' || fieldName === 'statuts';
+      return fieldName === 'quantite' || fieldName === 'datefin';
     } else {
       return false; // AUCUN champ n'est modifiable pour FINI/ANNULE (ordre figé)
     }
