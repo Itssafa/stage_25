@@ -30,7 +30,7 @@ public class PosteService {
         if (existing == null) return null;
         
         existing.setNom(updated.getNom());
-        existing.setLigne(updated.getLigne());
+    
         if (updated.getUser() != null) {
             existing.setUser(updated.getUser());
         }

@@ -13,10 +13,6 @@ public class Poste {
 
     private String nom;
 
-    @ManyToOne
-    @JoinColumn(name = "ligne_id")
-    @JsonIgnoreProperties({"postes", "produits"})
-    private LigneProduction ligne;
 
     @OneToMany(mappedBy = "poste", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnoreProperties({"poste", "parametre"})
@@ -33,9 +29,8 @@ public class Poste {
     // Constructors
     public Poste() {}
 
-    public Poste(String nom, LigneProduction ligne) {
+    public Poste(String nom) {
         this.nom = nom;
-        this.ligne = ligne;
     }
 
     // Getters and Setters
@@ -55,13 +50,6 @@ public class Poste {
         this.nom = nom;
     }
 
-    public LigneProduction getLigne() {
-        return ligne;
-    }
-
-    public void setLigne(LigneProduction ligne) {
-        this.ligne = ligne;
-    }
 
     public List<Affectation> getAffectations() {
         return affectations;

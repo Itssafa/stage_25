@@ -23,7 +23,6 @@
         <tr>
           <th>ID</th>
           <th>Nom</th>
-          <th>Ligne de production</th>
           <th>Créé par</th>
           <th>État</th>
           <th>Applications</th>
@@ -35,7 +34,6 @@
           <tr>
             <td>{{ poste.idPoste }}</td>
             <td>{{ poste.nom }}</td>
-            <td>{{ poste.ligne?.nom || 'N/A' }}</td>
             <td>{{ poste.user?.username }} ({{ poste.user?.prenom }})</td>
             <td>
               <span [class]="'status-' + (poste.etat === 'CONFIGURE' ? 'configured' : 'not-configured')">
@@ -128,21 +126,6 @@
           </div>
         </div>
         
-        <div class="form-group">
-          <label for="ligneId">Ligne de production:</label>
-          <select 
-            id="ligneId" 
-            formControlName="ligneId" 
-            class="form-control">
-            <option value="">Sélectionnez une ligne</option>
-            <option *ngFor="let ligne of lignes" [value]="ligne.idLigne">
-              {{ ligne.nom }}
-            </option>
-          </select>
-          <div *ngIf="posteForm.get('ligneId')?.invalid && posteForm.get('ligneId')?.touched" class="error">
-            Veuillez sélectionner une ligne de production
-          </div>
-        </div>
         
         <div class="form-actions">
           <button type="submit" [disabled]="posteForm.invalid" class="btn btn-primary">

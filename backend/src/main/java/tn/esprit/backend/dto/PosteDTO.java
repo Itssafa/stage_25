@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 public class PosteDTO {
     private Long idPoste;
     private String nom;
-    private LigneProductionSimpleDTO ligne;
     private UserSimpleDTO user;
     private String etat;
     
@@ -19,10 +18,9 @@ public class PosteDTO {
 
     public PosteDTO() {}
 
-    public PosteDTO(Long idPoste, String nom, LigneProductionSimpleDTO ligne) {
+    public PosteDTO(Long idPoste, String nom) {
         this.idPoste = idPoste;
         this.nom = nom;
-        this.ligne = ligne;
         this.configured = false;
     }
 
@@ -30,12 +28,6 @@ public class PosteDTO {
         PosteDTO dto = new PosteDTO();
         dto.setIdPoste(poste.getIdPoste());
         dto.setNom(poste.getNom());
-        if (poste.getLigne() != null) {
-            dto.setLigne(new LigneProductionSimpleDTO(
-                poste.getLigne().getIdLigne(),
-                poste.getLigne().getNom()
-            ));
-        }
         if (poste.getUser() != null) {
             dto.setUser(UserSimpleDTO.fromEntity(poste.getUser()));
         }
@@ -60,13 +52,6 @@ public class PosteDTO {
         this.nom = nom;
     }
 
-    public LigneProductionSimpleDTO getLigne() {
-        return ligne;
-    }
-
-    public void setLigne(LigneProductionSimpleDTO ligne) {
-        this.ligne = ligne;
-    }
 
     public UserSimpleDTO getUser() {
         return user;

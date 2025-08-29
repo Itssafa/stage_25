@@ -6,10 +6,6 @@ import { takeUntil } from 'rxjs/operators';
 import { User } from '../../models/user.model';
 import { SearchFilterService } from '../../services/search-filter.service';
 
-interface LigneProduction {
-  idLigne: number;
-  nom: string;
-}
 
 interface Application {
   idApp: number;
@@ -30,7 +26,6 @@ interface Parametre {
 interface Poste {
   idPoste?: number;
   nom: string;
-  ligne?: LigneProduction;
   user?: User;
   etat?: 'CONFIGURE' | 'NON_CONFIGURE';
 }
@@ -44,7 +39,6 @@ export class PosteComponent implements OnInit, OnDestroy {
   posteForm: FormGroup;
   postes: Poste[] = [];
   filteredPostes: Poste[] = [];
-  lignes: LigneProduction[] = [];
   applications: { [key: number]: Application[] } = {};
   parametres: { [key: number]: Parametre[] } = {};
   currentUser: User | null = null;
@@ -63,7 +57,6 @@ export class PosteComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   
   private apiUrl = 'http://localhost:8085/api/postes';
-  private ligneApiUrl = 'http://localhost:8085/api/ligneproductions';
   private currentUserApiUrl = 'http://localhost:8085/api/user/me';
   private parametreApiUrl = 'http://localhost:8085/api/parametres';
   private affectationApiUrl = 'http://localhost:8085/api/affectations';
@@ -74,8 +67,7 @@ export class PosteComponent implements OnInit, OnDestroy {
     private searchFilterService: SearchFilterService
   ) {
     this.posteForm = this.fb.group({
-      nom: ['', [Validators.required, Validators.minLength(2)]],
-      ligneId: ['', [Validators.required]]
+      nom: ['', [Validators.required, Validators.minLength(2)]]
     });
     
     this.parametreForm = this.fb.group({
@@ -89,12 +81,11 @@ export class PosteComponent implements OnInit, OnDestroy {
     this.initializeSearchFields();
     this.loadCurrentUser();
     this.loadPostes();
-    this.loadLignes();
   }
 
   initializeSearchFields() {
     this.searchFields = [
-      'idPoste', 'nom', 'ligne.nom', 'ligne.idLigne',
+      'idPoste', 'nom',
       'user.username', 'user.prenom', 'etat'
     ];
   }
@@ -124,36 +115,6 @@ export class PosteComponent implements OnInit, OnDestroy {
       });
   }
 
-  loadLignes() {
-    const headers = this.getHeaders();
-    if (!headers.get('Authorization') || headers.get('Authorization') === 'Bearer null') {
-      console.error('Token manquant ou invalide');
-      return;
-    }
-    
-    this.http.get<LigneProduction[]>(this.ligneApiUrl, { headers })
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (data) => {
-          this.lignes = data || [];
-        },
-        error: (err) => {
-          console.error('Erreur lors du chargement des lignes:', err);
-          console.error('Error details:', {
-            status: err.status,
-            statusText: err.statusText,
-            url: err.url,
-            message: err.message,
-            error: err.error
-          });
-          console.error('Full error object:', err);
-          if (err.error && err.error.text) {
-            console.error('Response text that failed to parse:', err.error.text.substring(0, 1000));
-          }
-          this.error = 'Erreur lors du chargement des lignes de production';
-        }
-      });
-  }
 
   loadPostes() {
     this.loading = true;
@@ -201,8 +162,7 @@ export class PosteComponent implements OnInit, OnDestroy {
       }
       
       const posteData: any = {
-        nom: this.posteForm.get('nom')?.value,
-        ligne: { idLigne: this.posteForm.get('ligneId')?.value }
+        nom: this.posteForm.get('nom')?.value
       };
       
       // Ajouter l'utilisateur seulement lors de la création
@@ -282,8 +242,7 @@ export class PosteComponent implements OnInit, OnDestroy {
     this.editingId = poste.idPoste || null;
     this.showModal = true;
     this.posteForm.patchValue({
-      nom: poste.nom,
-      ligneId: poste.ligne?.idLigne
+      nom: poste.nom
     });
   }
 

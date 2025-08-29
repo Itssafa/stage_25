@@ -25,9 +25,7 @@ public class LigneProduction {
     @JsonIgnoreProperties({"lignesProduction"})
     private User user;
 
-    @OneToMany(mappedBy = "ligne", cascade = CascadeType.ALL)
-    @JsonIgnoreProperties({"ligne", "operations", "affectations"})
-    private List<Poste> postes;
+
 
     @OneToMany(mappedBy = "ligne", cascade = CascadeType.ALL)
     @JsonIgnoreProperties({"ligne", "ordres"})
