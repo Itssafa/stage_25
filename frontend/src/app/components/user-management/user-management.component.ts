@@ -52,7 +52,8 @@ export class UserManagementComponent implements OnInit {
     this.editForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
       prenom: ['', [Validators.required, Validators.minLength(2)]],
-      adresseMail: ['', [Validators.required, Validators.email]]
+      adresseMail: ['', [Validators.required, Validators.email]],
+      role: ['', [Validators.required]]
     });
 
     this.activationForm = this.fb.group({
@@ -104,7 +105,8 @@ export class UserManagementComponent implements OnInit {
     this.editForm.patchValue({
       username: user.username,
       prenom: user.prenom,
-      adresseMail: user.adresseMail
+      adresseMail: user.adresseMail,
+      role: user.role
     });
   }
 
@@ -116,31 +118,62 @@ export class UserManagementComponent implements OnInit {
         adresseMail: this.editForm.get('adresseMail')?.value
       };
 
-      this.http.put<User>(`${this.apiUrl}/${this.editingUser.matricule}`, userData, { headers: this.getHeaders() })
-        .subscribe({
-          next: (updatedUser) => {
-            // Mettre à jour la liste appropriée
-            if (this.editingUser!.role === 'DEFAULT') {
-              const index = this.defaultUsers.findIndex(u => u.matricule === updatedUser.matricule);
-              if (index !== -1) {
-                this.defaultUsers[index] = updatedUser;
-                this.applyFilters('default');
-              }
-            } else {
-              const index = this.activeUsers.findIndex(u => u.matricule === updatedUser.matricule);
-              if (index !== -1) {
-                this.activeUsers[index] = updatedUser;
-                this.applyFilters('active');
-              }
+      const newRole = this.editForm.get('role')?.value;
+      const oldRole = this.editingUser.role;
+
+      // Si le rôle a changé, utiliser l'endpoint spécialisé
+      if (newRole !== oldRole) {
+        const updateData = {
+          user: userData,
+          role: newRole
+        };
+
+        this.http.put<User>(`${this.apiUrl}/${this.editingUser.matricule}/role`, updateData, { headers: this.getHeaders() })
+          .subscribe({
+            next: (updatedUser) => {
+              this.handleUserUpdate(updatedUser, oldRole);
+            },
+            error: (err) => {
+              this.error = 'Erreur lors de la mise à jour du rôle de l\'utilisateur';
+              console.error('Erreur:', err);
             }
-            this.cancelEdit();
-          },
-          error: (err) => {
-            this.error = 'Erreur lors de la mise à jour de l\'utilisateur';
-            console.error('Erreur:', err);
-          }
-        });
+          });
+      } else {
+        // Pas de changement de rôle, mise à jour normale
+        this.http.put<User>(`${this.apiUrl}/${this.editingUser.matricule}`, userData, { headers: this.getHeaders() })
+          .subscribe({
+            next: (updatedUser) => {
+              this.handleUserUpdate(updatedUser, oldRole);
+            },
+            error: (err) => {
+              this.error = 'Erreur lors de la mise à jour de l\'utilisateur';
+              console.error('Erreur:', err);
+            }
+          });
+      }
     }
+  }
+
+  private handleUserUpdate(updatedUser: User, oldRole: string) {
+    // Supprimer de l'ancienne liste
+    if (oldRole === 'DEFAULT') {
+      this.defaultUsers = this.defaultUsers.filter(u => u.matricule !== updatedUser.matricule);
+      this.applyFilters('default');
+    } else {
+      this.activeUsers = this.activeUsers.filter(u => u.matricule !== updatedUser.matricule);
+      this.applyFilters('active');
+    }
+
+    // Ajouter à la nouvelle liste selon le nouveau rôle/statut
+    if (updatedUser.role === 'DEFAULT') {
+      this.defaultUsers.push(updatedUser);
+      this.applyFilters('default');
+    } else {
+      this.activeUsers.push(updatedUser);
+      this.applyFilters('active');
+    }
+
+    this.cancelEdit();
   }
 
   cancelEdit() {

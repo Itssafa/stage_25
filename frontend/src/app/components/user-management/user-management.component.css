@@ -199,6 +199,13 @@ h3 {
 
 .help-text {
   color: #6c757d;
+  font-size: 12px;
+  margin-top: 5px;
+  font-style: italic;
+}
+
+.help-text {
+  color: #6c757d;
   font-size: 11px;
   margin-top: 5px;
   display: block;

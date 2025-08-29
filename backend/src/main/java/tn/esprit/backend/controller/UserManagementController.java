@@ -6,6 +6,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.backend.dto.UserDTO;
 import tn.esprit.backend.service.UserService;
+import tn.esprit.backend.enums.Role;
 
 import java.util.List;
 
@@ -80,6 +81,23 @@ public class UserManagementController {
         return ResponseEntity.ok(updatedUser);
     }
 
+    @PutMapping("/{userId}/role")
+    public ResponseEntity<UserDTO> updateUserWithRole(@PathVariable Long userId, @RequestBody UpdateUserRoleRequest request) {
+        try {
+            Role newRole = Role.valueOf(request.getRole().toUpperCase());
+            UserDTO updatedUser = userService.updateUserWithRole(userId, request.getUser(), newRole);
+            if (updatedUser == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(updatedUser);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
     // Classe interne pour la requête d'activation
     public static class ActivationRequest {
         private Integer durationDays;
@@ -92,6 +110,30 @@ public class UserManagementController {
 
         public void setDurationDays(Integer durationDays) {
             this.durationDays = durationDays;
+        }
+    }
+
+    // Classe interne pour la requête de mise à jour avec rôle
+    public static class UpdateUserRoleRequest {
+        private UserDTO user;
+        private String role;
+
+        public UpdateUserRoleRequest() {}
+
+        public UserDTO getUser() {
+            return user;
+        }
+
+        public void setUser(UserDTO user) {
+            this.user = user;
+        }
+
+        public String getRole() {
+            return role;
+        }
+
+        public void setRole(String role) {
+            this.role = role;
         }
     }
 }

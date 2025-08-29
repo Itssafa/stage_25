@@ -244,6 +244,76 @@ public class UserService implements UserDetailsService {
         }
     }
 
+    public UserDTO updateUserWithRole(Long userId, UserDTO userDTO, Role newRole) {
+        try {
+            User user = userRepository.findById(userId).orElse(null);
+            if (user == null) {
+                return null;
+            }
+
+            // Validation des données
+            if (userDTO.getUsername() == null || userDTO.getUsername().trim().isEmpty() ||
+                userDTO.getPrenom() == null || userDTO.getPrenom().trim().isEmpty() ||
+                userDTO.getAdresseMail() == null || userDTO.getAdresseMail().trim().isEmpty()) {
+                throw new RuntimeException("Tous les champs sont obligatoires");
+            }
+
+            // Vérifier l'unicité du nom d'utilisateur (sauf pour l'utilisateur courant)
+            User existingUser = userRepository.findByUsername(userDTO.getUsername());
+            if (existingUser != null && !existingUser.getMatricule().equals(userId)) {
+                throw new RuntimeException("Ce nom d'utilisateur est déjà utilisé");
+            }
+
+            // Vérifier qu'on ne désactive pas le dernier admin
+            if (user.getRole() == Role.ADMIN && newRole != Role.ADMIN) {
+                long adminCount = userRepository.countByRole(Role.ADMIN);
+                if (adminCount <= 1) {
+                    throw new RuntimeException("Impossible de changer le rôle du dernier administrateur");
+                }
+            }
+
+            Role oldRole = user.getRole();
+
+            // Mettre à jour les informations de base
+            user.setUsername(userDTO.getUsername());
+            user.setPrenom(userDTO.getPrenom());
+            user.setAdresseMail(userDTO.getAdresseMail());
+
+            // Appliquer la logique de changement de rôle
+            applyRoleChangeLogic(user, oldRole, newRole);
+
+            User savedUser = userRepository.save(user);
+            return UserDTO.fromEntity(savedUser);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Erreur lors de la mise à jour de l'utilisateur: " + e.getMessage(), e);
+        }
+    }
+
+    private void applyRoleChangeLogic(User user, Role oldRole, Role newRole) {
+        if (oldRole.equals(newRole)) {
+            return; // Pas de changement de rôle
+        }
+
+        user.setRole(newRole);
+
+        // Logique d'activation/désactivation selon le nouveau rôle
+        if (newRole == Role.ADMIN || newRole == Role.PARAMETREUR) {
+            // DEFAULT → ADMIN/PARAMETREUR ou changement entre rôles actifs
+            user.setIsActive(true);
+            if (user.getActivationDate() == null) {
+                user.setActivationDate(LocalDateTime.now());
+            }
+            user.setDeactivationDate(null);
+        } else if (newRole == Role.DEFAULT) {
+            // ADMIN/PARAMETREUR → DEFAULT
+            user.setIsActive(false);
+            user.setDeactivationDate(LocalDateTime.now());
+            user.setActivationDate(null);
+            user.setActivationDurationDays(null);
+        }
+    }
+
     public List<UserDTO> getAllUsersForStats() {
         List<User> allUsers = userRepository.findAll();
         return allUsers.stream()
