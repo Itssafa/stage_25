@@ -10,6 +10,11 @@ interface Produit {
   type: string;
 }
 
+interface LigneProduction {
+  idLigne: number;
+  nom: string;
+}
+
 interface OrdreFab {
   id_orf?: number;
   code_fab: string;
@@ -19,6 +24,7 @@ interface OrdreFab {
   datefin: string;
   user?: User;
   produit?: Produit;
+  ligneProduction?: LigneProduction;
 }
 
 @Component({
@@ -31,21 +37,28 @@ export class OrdreFabComponent implements OnInit {
   ordresFab: OrdreFab[] = [];
   filteredOrdresFab: OrdreFab[] = [];
   produits: Produit[] = [];
+  lignesProduction: LigneProduction[] = [];
   users: User[] = [];
   currentUser: User | null = null;
   statuts: string[] = [];
+  availabilityCheckResult: any = null;
   loading = false;
   error = '';
   isEditing = false;
   editingId: number | null = null;
   showModal = false;
+  showDateConfirmModal = false;
+  proposedStartDate: string | null = null;
+  pendingOrderId: number | null = null;
   searchFields: string[] = [];
   activeFilters: { [field: string]: any } = {};
   
   private apiUrl = 'http://localhost:8085/api/ordrefabs';
   private produitApiUrl = 'http://localhost:8085/api/produits';
+  private ligneProductionApiUrl = 'http://localhost:8085/api/ligneproductions';
   private userApiUrl = 'http://localhost:8085/api/admin/user-management/active-admin-param';
   private statutApiUrl = 'http://localhost:8085/api/ordrefabs/statuts';
+  private availabilityApiUrl = 'http://localhost:8085/api/ordrefabs/check-availability';
   private currentUserApiUrl = 'http://localhost:8085/api/user/me';
 
   constructor(
@@ -59,7 +72,8 @@ export class OrdreFabComponent implements OnInit {
       quantite: ['', [Validators.required, Validators.min(1)]],
       datedeb: ['', [Validators.required, this.dateDebutValidator]],
       datefin: ['', [Validators.required, this.dateFinValidator]],
-      produitId: ['', [Validators.required]]
+      produitId: ['', [Validators.required]],
+      ligneProductionId: ['', [Validators.required]]
     }, { validators: this.dateRangeValidator });
   }
 
@@ -68,8 +82,10 @@ export class OrdreFabComponent implements OnInit {
     this.loadCurrentUser();
     this.loadOrdresFab();
     this.loadProduits();
+    this.loadLignesProduction();
     this.loadUsers();
     this.loadStatuts();
+    this.setupAvailabilityValidation();
     
     // Vérification périodique des statuts (toutes les 5 minutes)
     setInterval(() => {
@@ -80,7 +96,7 @@ export class OrdreFabComponent implements OnInit {
   initializeSearchFields() {
     this.searchFields = [
       'id_orf', 'code_fab', 'statuts', 'quantite', 'produit.nom',
-      'user.username', 'user.prenom'
+      'user.username', 'user.prenom', 'datedeb', 'datefin', 'ligneProduction.nom'
     ];
   }
 
@@ -140,6 +156,18 @@ export class OrdreFabComponent implements OnInit {
       });
   }
 
+  loadLignesProduction() {
+    this.http.get<LigneProduction[]>(this.ligneProductionApiUrl, { headers: this.getHeaders() })
+      .subscribe({
+        next: (data) => {
+          this.lignesProduction = data;
+        },
+        error: (err) => {
+          console.error('Erreur lors du chargement des lignes de production:', err);
+        }
+      });
+  }
+
   loadOrdresFab() {
     this.loading = true;
     this.error = '';
@@ -176,7 +204,8 @@ export class OrdreFabComponent implements OnInit {
         quantite: this.ordreFabForm.get('quantite')?.value,
         datedeb: this.ordreFabForm.get('datedeb')?.value,
         datefin: this.ordreFabForm.get('datefin')?.value,
-        produit: { idProduit: this.ordreFabForm.get('produitId')?.value }
+        produit: { idProduit: this.ordreFabForm.get('produitId')?.value },
+        ligneProduction: { idLigne: this.ordreFabForm.get('ligneProductionId')?.value }
       };
       
       // Ajouter l'utilisateur seulement lors de la création
@@ -276,7 +305,8 @@ export class OrdreFabComponent implements OnInit {
       quantite: ordreFab.quantite,
       datedeb: ordreFab.datedeb,
       datefin: ordreFab.datefin,
-      produitId: ordreFab.produit?.idProduit
+      produitId: ordreFab.produit?.idProduit,
+      ligneProductionId: ordreFab.ligneProduction?.idLigne
     });
   }
 
@@ -443,6 +473,7 @@ export class OrdreFabComponent implements OnInit {
     const codeField = this.ordreFabForm.get('code_fab');
     const datedebutField = this.ordreFabForm.get('datedeb');
     const produitField = this.ordreFabForm.get('produitId');
+    const ligneField = this.ordreFabForm.get('ligneProductionId');
     const quantiteField = this.ordreFabForm.get('quantite');
     const datefinField = this.ordreFabForm.get('datefin');
     const statutField = this.ordreFabForm.get('statuts');
@@ -452,6 +483,7 @@ export class OrdreFabComponent implements OnInit {
       codeField?.enable();
       datedebutField?.enable();
       produitField?.enable();
+      ligneField?.enable();
       quantiteField?.enable();
       datefinField?.enable();
       statutField?.enable();
@@ -460,6 +492,7 @@ export class OrdreFabComponent implements OnInit {
       codeField?.disable();
       datedebutField?.disable();
       produitField?.disable();
+      ligneField?.disable();
       quantiteField?.enable();
       datefinField?.enable();
       statutField?.enable();
@@ -468,6 +501,7 @@ export class OrdreFabComponent implements OnInit {
       codeField?.disable();
       datedebutField?.disable();
       produitField?.disable();
+      ligneField?.disable();
       quantiteField?.disable();
       datefinField?.disable();
       statutField?.disable();
@@ -494,6 +528,7 @@ export class OrdreFabComponent implements OnInit {
     this.ordreFabForm.get('code_fab')?.enable();
     this.ordreFabForm.get('datedeb')?.enable();
     this.ordreFabForm.get('produitId')?.enable();
+    this.ordreFabForm.get('ligneProductionId')?.enable();
     this.ordreFabForm.get('quantite')?.enable();
     this.ordreFabForm.get('datefin')?.enable();
     this.ordreFabForm.get('statuts')?.enable();
@@ -514,5 +549,176 @@ export class OrdreFabComponent implements OnInit {
       this.ordresFab, 
       this.activeFilters
     );
+  }
+
+  setupAvailabilityValidation() {
+    const ligneField = this.ordreFabForm.get('ligneProductionId');
+    const dateDebutField = this.ordreFabForm.get('datedeb');
+    const dateFinField = this.ordreFabForm.get('datefin');
+
+    // Vérifier la disponibilité quand les champs changent
+    [ligneField, dateDebutField, dateFinField].forEach(field => {
+      field?.valueChanges.subscribe(() => {
+        this.checkAvailability();
+      });
+    });
+  }
+
+  checkAvailability() {
+    const ligneId = this.ordreFabForm.get('ligneProductionId')?.value;
+    const dateDebut = this.ordreFabForm.get('datedeb')?.value;
+    const dateFin = this.ordreFabForm.get('datefin')?.value;
+
+    if (ligneId && dateDebut && dateFin) {
+      const params = {
+        ligneId: ligneId,
+        dateDebut: dateDebut,
+        dateFin: dateFin,
+        ...(this.isEditing && this.editingId ? { excludeOrderId: this.editingId } : {})
+      };
+
+      this.http.get<any>(this.availabilityApiUrl, { 
+        headers: this.getHeaders(),
+        params: params
+      }).subscribe({
+        next: (result) => {
+          this.availabilityCheckResult = result;
+          
+          if (!result.available) {
+            this.ordreFabForm.get('ligneProductionId')?.setErrors({ 
+              ligneNotAvailable: { 
+                message: 'Cette ligne de production n\'est pas disponible pour cette période',
+                conflictingOrders: result.conflictingOrders
+              }
+            });
+          } else {
+            // Supprimer l'erreur de disponibilité si elle existe
+            const currentErrors = this.ordreFabForm.get('ligneProductionId')?.errors;
+            if (currentErrors && currentErrors['ligneNotAvailable']) {
+              delete currentErrors['ligneNotAvailable'];
+              const hasOtherErrors = Object.keys(currentErrors).length > 0;
+              this.ordreFabForm.get('ligneProductionId')?.setErrors(hasOtherErrors ? currentErrors : null);
+            }
+          }
+        },
+        error: (err) => {
+          console.error('Erreur lors de la vérification de disponibilité:', err);
+        }
+      });
+    } else {
+      this.availabilityCheckResult = null;
+    }
+  }
+
+  getConflictingOrdersMessage(): string {
+    if (!this.availabilityCheckResult || this.availabilityCheckResult.available) {
+      return '';
+    }
+    
+    const orders = this.availabilityCheckResult.conflictingOrders || [];
+    if (orders.length === 0) {
+      return 'Ligne non disponible pour cette période';
+    }
+    
+    const ordersList = orders.map((order: any) => 
+      `${order.code_fab} (${order.datedeb} - ${order.datefin})`
+    ).join(', ');
+    
+    return `Conflit avec: ${ordersList}`;
+  }
+
+  cancelOrder(orderId: number) {
+    if (confirm('Êtes-vous sûr de vouloir annuler cet ordre de fabrication ?')) {
+      const token = localStorage.getItem('token');
+      console.log('Token disponible:', !!token);
+      console.log('Headers envoyés:', this.getHeaders());
+      console.log('URL appelée:', `${this.apiUrl}/${orderId}/cancel`);
+      
+      this.http.put<any>(`${this.apiUrl}/${orderId}/cancel`, {}, { headers: this.getHeaders() })
+        .subscribe({
+          next: (response) => {
+            if (response.success && response.ordre) {
+              const index = this.ordresFab.findIndex(o => o.id_orf === orderId);
+              if (index !== -1) {
+                this.ordresFab[index] = response.ordre;
+              }
+              this.applyCurrentFilters();
+              console.log('Ordre annulé avec succès');
+            }
+          },
+          error: (err) => {
+            this.error = 'Erreur lors de l\'annulation de l\'ordre de fabrication: ' + (err.error?.message || err.message || 'Erreur inconnue');
+            console.error('Erreur détaillée:', err);
+            console.error('Status:', err.status);
+            console.error('Error body:', err.error);
+          }
+        });
+    }
+  }
+
+  startOrderToday(orderId: number) {
+    if (confirm('Êtes-vous sûr de vouloir démarrer cet ordre aujourd\'hui ?')) {
+      this.http.put<any>(`${this.apiUrl}/${orderId}/start-today`, {}, { headers: this.getHeaders() })
+        .subscribe({
+          next: (result) => {
+            if (result.success) {
+              // Ordre démarré avec succès aujourd'hui
+              const index = this.ordresFab.findIndex(o => o.id_orf === orderId);
+              if (index !== -1) {
+                this.ordresFab[index] = result.ordre;
+              }
+              this.applyCurrentFilters();
+              console.log('Ordre démarré avec succès');
+            } else if (result.needsNewDate) {
+              // Proposer une nouvelle date
+              this.proposedStartDate = result.nextAvailableDate;
+              this.pendingOrderId = orderId;
+              this.showDateConfirmModal = true;
+            }
+          },
+          error: (err) => {
+            this.error = 'Erreur lors du démarrage de l\'ordre de fabrication: ' + (err.error?.message || err.message || 'Erreur inconnue');
+            console.error('Erreur détaillée:', err);
+            console.error('Status:', err.status);
+            console.error('Error body:', err.error);
+          }
+        });
+    }
+  }
+
+  confirmStartOnNewDate() {
+    if (!this.pendingOrderId || !this.proposedStartDate) return;
+
+    this.http.put<any>(
+      `${this.apiUrl}/${this.pendingOrderId}/start-on-date`, 
+      {}, 
+      { 
+        headers: this.getHeaders(),
+        params: { newStartDate: this.proposedStartDate }
+      }
+    ).subscribe({
+      next: (result) => {
+        if (result.success) {
+          const index = this.ordresFab.findIndex(o => o.id_orf === this.pendingOrderId);
+          if (index !== -1) {
+            this.ordresFab[index] = result.ordre;
+          }
+          this.applyCurrentFilters();
+          console.log('Ordre reprogrammé et démarré avec succès');
+        }
+        this.closeDateConfirmModal();
+      },
+      error: (err) => {
+        this.error = 'Erreur lors de la reprogrammation de l\'ordre de fabrication';
+        console.error('Erreur:', err);
+        this.closeDateConfirmModal();
+      }
+    });
+  }
+
+  closeDateConfirmModal() {
+    this.showDateConfirmModal = false;
+    this.proposedStartDate = null;
+    this.pendingOrderId = null;
   }
 }

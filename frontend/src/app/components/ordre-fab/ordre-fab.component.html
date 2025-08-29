@@ -29,6 +29,7 @@
           <th>Date fin</th>
           <th>Créé par</th>
           <th>Produit</th>
+          <th>Ligne Production</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -42,22 +43,43 @@
           <td>{{ ordreFab.datefin | date:'dd/MM/yyyy' }}</td>
           <td>{{ ordreFab.user?.username }} ({{ ordreFab.user?.prenom }})</td>
           <td>{{ ordreFab.produit?.nom || 'N/A' }}</td>
+          <td>{{ ordreFab.ligneProduction?.nom || 'N/A' }}</td>
           <td>
-            <button 
-              *ngIf="ordreFab.statuts !== 'TERMINEE' && ordreFab.statuts !== 'ANNULEE'"
-              (click)="editOrdreFab(ordreFab)" 
-              class="btn btn-edit"
-              title="Modifier cet ordre">
-              Modifier
-            </button>
-            <button 
-              (click)="deleteOrdreFab(ordreFab.id_orf!)" 
-              class="btn btn-delete"
-              [disabled]="ordreFab.statuts === 'TERMINEE'"
-              [class.disabled-final]="ordreFab.statuts === 'TERMINEE'"
-              [title]="ordreFab.statuts === 'TERMINEE' ? 'Ordre terminé, suppression impossible' : 'Supprimer cet ordre'">
-              Supprimer
-            </button>
+            <div class="action-buttons">
+              <button 
+                *ngIf="ordreFab.statuts !== 'TERMINEE' && ordreFab.statuts !== 'ANNULEE'"
+                (click)="editOrdreFab(ordreFab)" 
+                class="btn btn-edit"
+                title="Modifier cet ordre">
+                Modifier
+              </button>
+              
+              <!-- Boutons spéciaux pour les ordres EN_ATTENTE -->
+              <button 
+                *ngIf="ordreFab.statuts === 'EN_ATTENTE'"
+                (click)="startOrderToday(ordreFab.id_orf!)" 
+                class="btn btn-start-today"
+                title="Démarrer cet ordre aujourd'hui">
+                Démarrer
+              </button>
+              
+              <button 
+                *ngIf="ordreFab.statuts === 'EN_ATTENTE'"
+                (click)="cancelOrder(ordreFab.id_orf!)" 
+                class="btn btn-cancel"
+                title="Annuler cet ordre">
+                Annuler
+              </button>
+              
+              <button 
+                (click)="deleteOrdreFab(ordreFab.id_orf!)" 
+                class="btn btn-delete"
+                [disabled]="ordreFab.statuts === 'TERMINEE'"
+                [class.disabled-final]="ordreFab.statuts === 'TERMINEE'"
+                [title]="ordreFab.statuts === 'TERMINEE' ? 'Ordre terminé, suppression impossible' : 'Supprimer cet ordre'">
+                Supprimer
+              </button>
+            </div>
           </td>
         </tr>
       </tbody>
@@ -190,6 +212,42 @@
             Veuillez sélectionner un produit
           </div>
         </div>
+
+        <div class="form-group" *ngIf="!isEditing || ordreFabForm.get('statuts')?.value === 'EN_ATTENTE'">
+          <label for="ligneProductionId">Ligne de Production:</label>
+          <select 
+            id="ligneProductionId" 
+            formControlName="ligneProductionId" 
+            class="form-control"
+            [class.disabled-field]="ordreFabForm.get('ligneProductionId')?.disabled"
+            [class.error-field]="ordreFabForm.get('ligneProductionId')?.errors?.['ligneNotAvailable']">
+            <option value="">Sélectionnez une ligne de production</option>
+            <option *ngFor="let ligne of lignesProduction" [value]="ligne.idLigne">
+              {{ ligne.nom }}
+            </option>
+          </select>
+          <div *ngIf="ordreFabForm.get('ligneProductionId')?.invalid && ordreFabForm.get('ligneProductionId')?.touched" class="error">
+            <div *ngIf="ordreFabForm.get('ligneProductionId')?.errors?.['required']">
+              Veuillez sélectionner une ligne de production
+            </div>
+            <div *ngIf="ordreFabForm.get('ligneProductionId')?.errors?.['ligneNotAvailable']" class="availability-error">
+              ⚠️ {{ ordreFabForm.get('ligneProductionId')?.errors?.['ligneNotAvailable'].message }}
+              <div class="conflicting-orders" *ngIf="getConflictingOrdersMessage()">
+                {{ getConflictingOrdersMessage() }}
+              </div>
+            </div>
+          </div>
+          <!-- Indicateur de disponibilité en temps réel -->
+          <div *ngIf="availabilityCheckResult && ordreFabForm.get('ligneProductionId')?.value && ordreFabForm.get('datedeb')?.value && ordreFabForm.get('datefin')?.value" 
+               class="availability-indicator">
+            <div *ngIf="availabilityCheckResult.available" class="availability-success">
+              ✅ Ligne disponible pour cette période
+            </div>
+            <div *ngIf="!availabilityCheckResult.available" class="availability-error">
+              ❌ {{ getConflictingOrdersMessage() }}
+            </div>
+          </div>
+        </div>
         
         <div class="form-actions">
           <button 
@@ -209,6 +267,41 @@
           🚫 <strong>Ordre figé :</strong> Cet ordre a été finalisé et ne peut plus être modifié.
         </div>
       </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de confirmation pour démarrer à une nouvelle date -->
+<div *ngIf="showDateConfirmModal" class="modal-overlay" (click)="closeDateConfirmModal()">
+  <div class="modal-content date-confirm-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Ligne non disponible aujourd'hui</h3>
+      <button class="close-btn" (click)="closeDateConfirmModal()">&times;</button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="warning-message">
+        ⚠️ La ligne de production n'est pas disponible aujourd'hui.
+      </div>
+      
+      <div class="date-proposal" *ngIf="proposedStartDate">
+        <strong>Prochaine date disponible :</strong> {{ proposedStartDate | date:'dd/MM/yyyy' }}
+        <br>
+        <small>Voulez-vous reprogrammer l'ordre pour cette date ?</small>
+      </div>
+      
+      <div class="form-actions">
+        <button 
+          (click)="confirmStartOnNewDate()" 
+          class="btn btn-primary">
+          Oui, reprogrammer
+        </button>
+        <button 
+          (click)="closeDateConfirmModal()" 
+          class="btn btn-secondary">
+          Annuler
+        </button>
+      </div>
     </div>
   </div>
 </div>

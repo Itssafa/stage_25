@@ -32,6 +32,11 @@ public class OrdreFab {
     @JsonIgnoreProperties({"ordres", "ligne"})
     private Produit produit;
 
+    @ManyToOne
+    @JoinColumn(name = "ligne_production_id")
+    @JsonIgnoreProperties({"postesConstituants", "produits"})
+    private LigneProduction ligneProduction;
+
     // @OneToMany(mappedBy = "ordre", cascade = CascadeType.ALL)
     // @JsonIgnoreProperties({"ordre", "operation", "poste", "user"})
     // private List<Affectation> affectations;
@@ -39,7 +44,7 @@ public class OrdreFab {
     // Constructors
     public OrdreFab() {}
 
-    public OrdreFab(String code_fab, StatutOrdre statuts, int quantite, LocalDate datedeb, LocalDate datefin, User user, Produit produit) {
+    public OrdreFab(String code_fab, StatutOrdre statuts, int quantite, LocalDate datedeb, LocalDate datefin, User user, Produit produit, LigneProduction ligneProduction) {
         this.code_fab = code_fab;
         this.statuts = statuts;
         this.quantite = quantite;
@@ -47,6 +52,7 @@ public class OrdreFab {
         this.datefin = datefin;
         this.user = user;
         this.produit = produit;
+        this.ligneProduction = ligneProduction;
     }
 
     // Getters and Setters
@@ -112,6 +118,14 @@ public class OrdreFab {
 
     public void setProduit(Produit produit) {
         this.produit = produit;
+    }
+
+    public LigneProduction getLigneProduction() {
+        return ligneProduction;
+    }
+
+    public void setLigneProduction(LigneProduction ligneProduction) {
+        this.ligneProduction = ligneProduction;
     }
 
     // public List<Affectation> getAffectations() {

@@ -9,7 +9,8 @@
       "Bash(ng build:*)",
       "Bash(npm run build:*)",
       "Bash(npx tsc:*)",
-      "Bash(./mvnw:*)"
+      "Bash(./mvnw:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

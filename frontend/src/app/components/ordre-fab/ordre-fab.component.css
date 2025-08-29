@@ -504,3 +504,105 @@ h3 {
   background-color: #6c757d !important;
   border-color: #6c757d !important;
 }
+
+/* Styles pour la validation de disponibilité des lignes de production */
+.availability-indicator {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.availability-success {
+  background-color: rgba(40, 167, 69, 0.1);
+  color: #155724;
+  border: 1px solid rgba(40, 167, 69, 0.2);
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+.availability-error {
+  background-color: rgba(220, 53, 69, 0.1);
+  color: #721c24;
+  border: 1px solid rgba(220, 53, 69, 0.2);
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+.conflicting-orders {
+  margin-top: 5px;
+  font-size: 12px;
+  opacity: 0.9;
+  font-style: italic;
+}
+
+.error-field {
+  border-color: #dc3545 !important;
+  background-color: rgba(220, 53, 69, 0.05) !important;
+}
+
+/* Styles pour les boutons d'action rapide */
+.action-buttons {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.action-buttons .btn {
+  font-size: 12px;
+  padding: 4px 8px;
+}
+
+.btn-start-today {
+  background-color: #fd7e14;
+  color: white;
+}
+
+.btn-start-today:hover {
+  background-color: #e86908;
+}
+
+.btn-cancel {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-cancel:hover {
+  background-color: #545b62;
+}
+
+/* Styles pour le modal de confirmation de date */
+.date-confirm-modal {
+  max-width: 500px;
+}
+
+.warning-message {
+  background-color: rgba(255, 193, 7, 0.1);
+  border: 1px solid #ffc107;
+  border-radius: 8px;
+  padding: 12px;
+  color: #856404;
+  margin-bottom: 15px;
+  font-weight: 500;
+}
+
+.date-proposal {
+  background-color: rgba(23, 162, 184, 0.1);
+  border: 1px solid #17a2b8;
+  border-radius: 8px;
+  padding: 15px;
+  color: #0c5460;
+  margin-bottom: 20px;
+}
+
+.date-proposal strong {
+  color: #0a4c55;
+  font-size: 16px;
+}
+
+.date-proposal small {
+  color: #0c5460;
+  opacity: 0.8;
+  font-style: italic;
+}

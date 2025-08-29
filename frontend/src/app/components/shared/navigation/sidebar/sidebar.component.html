@@ -10,11 +10,12 @@
       </li>
 
       <li *ngIf="isParametreur()">
-        <a routerLink="/lignes" routerLinkActive="active">🛠️ Lignes de production</a>
-      </li>
-      <li *ngIf="isParametreur()">
         <a routerLink="/postes" routerLinkActive="active">⚙️ Postes</a>
       </li>
+      
+      <li *ngIf="isParametreur()">
+        <a routerLink="/lignes" routerLinkActive="active">🛠️ Lignes de production</a>
+      </li> 
       <li *ngIf="isParametreur()">
         <a routerLink="/produits" routerLinkActive="active">📦 Produits</a>
       </li>
