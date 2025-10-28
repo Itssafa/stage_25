@@ -54,72 +54,107 @@
         </div>
       </div>
       
-      <!-- Email avec vérification -->
+      <!-- ========================================= -->
+      <!-- SECTION EMAIL AVEC VÉRIFICATION DU CODE -->
+      <!-- ========================================= -->
       <div class="form-group email-verification">
         <label for="email">Adresse email *</label>
-        <div class="email-field">
+        
+        <!-- Champ email + Bouton envoyer -->
+        <div class="email-field" style="display: flex; gap: 10px; align-items: flex-start;">
           <input
             type="email"
             id="email"
             formControlName="adresseMail"
             class="form-input"
             placeholder="votre@email.com"
-            (blur)="onEmailBlur()"
+            style="flex: 1;"
+            [disabled]="emailCodeSent"
           >
           <button
             type="button"
             class="btn-secondary send-btn"
             (click)="sendVerificationCode()"
-            [disabled]="emailCodeSent"
+            [disabled]="emailCodeSent || registerForm.get('adresseMail')?.invalid || loading"
+            style="white-space: nowrap; padding: 12px 16px;"
           >
-            📧 Envoyer le code
+            {{ emailCodeSent ? '✅ Envoyé' : '📧 Envoyer' }}
           </button>
         </div>
 
+        <!-- Erreurs email -->
         <div class="error-message" *ngIf="registerForm.get('adresseMail')?.touched && registerForm.get('adresseMail')?.errors">
           <span *ngIf="registerForm.get('adresseMail')?.errors?.['required']">L'email est requis</span>
           <span *ngIf="registerForm.get('adresseMail')?.errors?.['email']">Format email invalide</span>
         </div>
 
-        <!-- Zone du code de vérification -->
-        <div class="verification-section" *ngIf="emailCodeSent && !emailVerified">
-          <label for="verificationCode">Code de vérification (6 chiffres)</label>
-          <input
-            type="text"
-            id="verificationCode"
-            [(ngModel)]="enteredCode"
-            class="form-input"
-            placeholder="000000"
-            maxlength="6"
-            (keypress)="$event.charCode >= 48 && $event.charCode <= 57 || $event.preventDefault()"
-          >
+        <!-- ============================================ -->
+        <!-- ZONE DE VÉRIFICATION DU CODE (APPARAÎT ICI) -->
+        <!-- ============================================ -->
+        <div class="verification-box" *ngIf="emailCodeSent && !emailVerified" 
+             style="margin-top: 16px; padding: 20px; background: #f0f9ff; border: 2px solid #3b82f6; border-radius: 12px;">
+          
+          <h4 style="margin: 0 0 12px 0; color: #1e40af; font-size: 16px; font-weight: 600;">
+            📬 Code envoyé à {{ registerForm.get('adresseMail')?.value }}
+          </h4>
+          
+          <p style="margin: 0 0 16px 0; color: #64748b; font-size: 14px;">
+            Entrez le code de 6 chiffres reçu par email
+          </p>
+          
+          <!-- Champ pour entrer le code -->
+          <div style="margin-bottom: 16px;">
+            <input
+              type="text"
+              id="verificationCode"
+              [(ngModel)]="enteredCode"
+              [ngModelOptions]="{standalone: true}"
+              class="form-input"
+              placeholder="000000"
+              maxlength="6"
+              (keypress)="onlyNumbers($event)"
+              style="text-align: center; font-size: 24px; letter-spacing: 8px; font-weight: 700; color: #2563eb;"
+            >
+          </div>
 
-          <div class="verification-actions">
+          <!-- Boutons Vérifier et Renvoyer -->
+          <div style="display: flex; gap: 12px;">
             <button 
               type="button" 
               class="btn-primary"
               (click)="verifyEmailCode()"
-              [disabled]="enteredCode.length !== 6"
+              [disabled]="enteredCode.length !== 6 || loading"
+              style="flex: 1;"
             >
-              ✅ Vérifier
+              {{ loading ? '⏳ Vérification...' : '✅ Vérifier le code' }}
             </button>
 
             <button 
               type="button" 
               class="btn-secondary"
               (click)="resendVerificationCode()"
+              [disabled]="loading"
+              style="flex: 1;"
             >
               🔄 Renvoyer
             </button>
           </div>
+
+          <!-- Message d'erreur si code incorrect -->
+          <div *ngIf="codeError" 
+               style="margin-top: 12px; padding: 12px; background: #fef2f2; border-left: 4px solid #ef4444; border-radius: 6px;">
+            <p style="margin: 0; color: #dc2626; font-size: 14px; font-weight: 500;">
+              ❌ {{ codeError }}
+            </p>
+          </div>
         </div>
 
-        <!-- Statut -->
-        <div class="verification-status" *ngIf="emailVerified">
-          ✅ E-mail vérifié avec succès !
-        </div>
-        <div class="verification-status pending" *ngIf="emailCodeSent && !emailVerified">
-          ⏳ En attente de vérification...
+        <!-- Message de succès (email vérifié) -->
+        <div *ngIf="emailVerified" 
+             style="margin-top: 16px; padding: 16px; background: #f0fdf4; border: 2px solid #22c55e; border-radius: 12px;">
+          <p style="margin: 0; color: #16a34a; font-size: 15px; font-weight: 600; text-align: center;">
+            ✅ Email vérifié avec succès ! Vous pouvez créer votre compte.
+          </p>
         </div>
       </div>
       
@@ -179,7 +214,7 @@
         </div>
       </div>
       
-      <!-- Messages d'état -->
+      <!-- Messages d'état globaux -->
       <div class="alert error" *ngIf="errorMessage">
         ❌ {{ errorMessage }}
       </div>
@@ -188,15 +223,31 @@
         ✅ {{ successMessage }}
       </div>
       
-      <!-- Bouton de création -->
+      <!-- Aide si le bouton est désactivé -->
+      <div *ngIf="!emailVerified && registerForm.valid" 
+           style="background: #fef3c7; padding: 14px; border-radius: 10px; margin-bottom: 16px; border-left: 4px solid #f59e0b;">
+        <p style="margin: 0; font-size: 14px; color: #92400e; font-weight: 500; line-height: 1.5;">
+          🔒 <strong>Pourquoi le bouton est désactivé ?</strong><br>
+          Vous devez d'abord vérifier votre email en entrant le code reçu par mail.
+        </p>
+      </div>
+      
+      <!-- Bouton de création de compte -->
       <button
         type="submit"
         class="btn-primary"
         [disabled]="loading || registerForm.invalid || !emailVerified"
       >
         <span *ngIf="!loading">🚀 Créer mon compte</span>
-        <span *ngIf="loading">⏳ Création...</span>
+        <span *ngIf="loading">⏳ Création en cours...</span>
       </button>
+
+      <!-- Statut du bouton -->
+      <div style="text-align: center; margin-top: 12px; font-size: 13px; color: #64748b;">
+        <span *ngIf="registerForm.invalid">❌ Remplissez tous les champs</span>
+        <span *ngIf="registerForm.valid && !emailVerified">🔒 Vérifiez votre email d'abord</span>
+        <span *ngIf="registerForm.valid && emailVerified" style="color: #22c55e; font-weight: 600;">✅ Prêt à créer le compte !</span>
+      </div>
     </form>
     
     <div class="auth-footer">
