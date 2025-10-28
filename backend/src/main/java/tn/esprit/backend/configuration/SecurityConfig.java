@@ -34,7 +34,20 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // Endpoints publics accessibles sans authentification
-                        .requestMatchers("/api/public/**", "/test-simple", "/hello", "/error", "/api/auth/send-sms-code", "/api/auth/verify-sms-code", "/api/auth/send-reset-code", "/api/auth/reset-password").permitAll()
+                        .requestMatchers(
+                                "/api/public/**",
+                                "/test-simple",
+                                "/hello",
+                                "/error",
+                                "/api/auth/send-sms-code",
+                                "/api/auth/verify-sms-code",
+                                "/api/auth/send-reset-code",
+                                "/api/auth/reset-password",
+                                "/api/auth/send-email-code",   // 🔹 ajouté
+                                "/api/auth/verify-email-code", // 🔹 ajouté
+                                "/api/auth/test-email"   
+                                    
+                        ).permitAll()
 
                         // Endpoints autorisés aux rôles ADMIN et PARAMETREUR
                         .requestMatchers("/api/ligneproductions/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_PARAMETREUR")

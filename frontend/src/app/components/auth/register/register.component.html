@@ -1,5 +1,3 @@
-
-
 <div class="auth-container">
   <div class="auth-card">
     <div class="auth-header">
@@ -8,6 +6,8 @@
     </div>
     
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+      
+      <!-- Nom d'utilisateur -->
       <div class="form-group">
         <label for="username">Nom d'utilisateur *</label>
         <input
@@ -23,6 +23,7 @@
         </div>
       </div>
       
+      <!-- Prénom -->
       <div class="form-group">
         <label for="prenom">Prénom *</label>
         <input
@@ -37,44 +38,92 @@
         </div>
       </div>
       
+      <!-- Téléphone -->
       <div class="form-group">
         <label for="telephone">Numéro de téléphone *</label>
-        <div class="phone-field">
-          <input
-            type="tel"
-            id="telephone"
-            formControlName="telephone"
-            class="form-input"
-            placeholder="+33 6 12 34 56 78"
-            (blur)="onPhoneBlur()"
-          >
-          <span *ngIf="phoneVerified" class="verification-status verified">✅</span>
-          <span *ngIf="!phoneVerified && registerForm.get('telephone')?.value" class="verification-status pending">⏳</span>
-        </div>
+        <input
+          type="tel"
+          id="telephone"
+          formControlName="telephone"
+          class="form-input"
+          placeholder="+33 6 12 34 56 78"
+        >
         <div class="error-message" *ngIf="registerForm.get('telephone')?.touched && registerForm.get('telephone')?.errors">
           <span *ngIf="registerForm.get('telephone')?.errors?.['required']">Le numéro de téléphone est requis</span>
           <span *ngIf="registerForm.get('telephone')?.errors?.['pattern']">Format de téléphone invalide</span>
         </div>
-        <div class="phone-help" *ngIf="!phoneVerified && registerForm.get('telephone')?.value">
-          📱 Un code de vérification sera envoyé par SMS
-        </div>
       </div>
       
-      <div class="form-group">
+      <!-- Email avec vérification -->
+      <div class="form-group email-verification">
         <label for="email">Adresse email *</label>
-        <input
-          type="email"
-          id="email"
-          formControlName="adresseMail"
-          class="form-input"
-          placeholder="votre@email.com"
-        >
+        <div class="email-field">
+          <input
+            type="email"
+            id="email"
+            formControlName="adresseMail"
+            class="form-input"
+            placeholder="votre@email.com"
+            (blur)="onEmailBlur()"
+          >
+          <button
+            type="button"
+            class="btn-secondary send-btn"
+            (click)="sendVerificationCode()"
+            [disabled]="emailCodeSent"
+          >
+            📧 Envoyer le code
+          </button>
+        </div>
+
         <div class="error-message" *ngIf="registerForm.get('adresseMail')?.touched && registerForm.get('adresseMail')?.errors">
           <span *ngIf="registerForm.get('adresseMail')?.errors?.['required']">L'email est requis</span>
           <span *ngIf="registerForm.get('adresseMail')?.errors?.['email']">Format email invalide</span>
         </div>
+
+        <!-- Zone du code de vérification -->
+        <div class="verification-section" *ngIf="emailCodeSent && !emailVerified">
+          <label for="verificationCode">Code de vérification (6 chiffres)</label>
+          <input
+            type="text"
+            id="verificationCode"
+            [(ngModel)]="enteredCode"
+            class="form-input"
+            placeholder="000000"
+            maxlength="6"
+            (keypress)="$event.charCode >= 48 && $event.charCode <= 57 || $event.preventDefault()"
+          >
+
+          <div class="verification-actions">
+            <button 
+              type="button" 
+              class="btn-primary"
+              (click)="verifyEmailCode()"
+              [disabled]="enteredCode.length !== 6"
+            >
+              ✅ Vérifier
+            </button>
+
+            <button 
+              type="button" 
+              class="btn-secondary"
+              (click)="resendVerificationCode()"
+            >
+              🔄 Renvoyer
+            </button>
+          </div>
+        </div>
+
+        <!-- Statut -->
+        <div class="verification-status" *ngIf="emailVerified">
+          ✅ E-mail vérifié avec succès !
+        </div>
+        <div class="verification-status pending" *ngIf="emailCodeSent && !emailVerified">
+          ⏳ En attente de vérification...
+        </div>
       </div>
       
+      <!-- Mot de passe -->
       <div class="form-group">
         <label for="password">Mot de passe *</label>
         <div class="password-field">
@@ -90,7 +139,7 @@
             class="password-toggle"
             (click)="hidePassword = !hidePassword"
           >
-            {{hidePassword ? '👁️' : '🙈'}}
+            {{ hidePassword ? '👁️' : '🙈' }}
           </button>
         </div>
         <div class="password-help">
@@ -103,6 +152,7 @@
         </div>
       </div>
 
+      <!-- Confirmation -->
       <div class="form-group">
         <label for="confirmPassword">Confirmer le mot de passe *</label>
         <div class="password-field">
@@ -118,7 +168,7 @@
             class="password-toggle"
             (click)="hideConfirmPassword = !hideConfirmPassword"
           >
-            {{hideConfirmPassword ? '👁️' : '🙈'}}
+            {{ hideConfirmPassword ? '👁️' : '🙈' }}
           </button>
         </div>
         <div class="error-message" *ngIf="registerForm.get('confirmMotDePasse')?.touched && registerForm.get('confirmMotDePasse')?.errors?.['required']">
@@ -129,18 +179,20 @@
         </div>
       </div>
       
+      <!-- Messages d'état -->
       <div class="alert error" *ngIf="errorMessage">
-        ❌ {{errorMessage}}
+        ❌ {{ errorMessage }}
       </div>
       
       <div class="alert success" *ngIf="successMessage">
-        ✅ {{successMessage}}
+        ✅ {{ successMessage }}
       </div>
       
+      <!-- Bouton de création -->
       <button
         type="submit"
         class="btn-primary"
-        [disabled]="loading || registerForm.invalid || !phoneVerified"
+        [disabled]="loading || registerForm.invalid || !emailVerified"
       >
         <span *ngIf="!loading">🚀 Créer mon compte</span>
         <span *ngIf="loading">⏳ Création...</span>
@@ -155,61 +207,3 @@
     </div>
   </div>
 </div>
-
-<!-- Popup de vérification SMS -->
-
-<div class="modal-overlay" *ngIf="showSmsVerification" (click)="closeSmsVerification()">
-  <div class="modal-content sms-verification-modal" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h3>📱 Vérification SMS</h3>
-      <button type="button" class="close-btn" (click)="closeSmsVerification()">✕</button>
-    </div>
-    
-    <div class="modal-body">
-      <p class="verification-message">
-        Un code de vérification a été envoyé par SMS au:<br>
-        <strong>{{ registerForm.get('telephone')?.value }}</strong>
-      </p>
-      
-      <div class="verification-input-group">
-        <label for="verificationCode">Code de vérification (6 chiffres)</label>
-        <input
-          type="text"
-          id="verificationCode"
-          [(ngModel)]="enteredCode"
-          class="verification-input"
-          placeholder="000000"
-          maxlength="6"
-          (keypress)="$event.charCode >= 48 && $event.charCode <= 57 || $event.preventDefault()"
-        >
-      </div>
-      
-      <div class="verification-actions">
-        <button 
-          type="button" 
-          class="btn-primary verification-btn"
-          (click)="verifySmsCode()"
-          [disabled]="enteredCode.length !== 6"
-        >
-          ✅ Vérifier
-        </button>
-        
-        <button 
-          type="button" 
-          class="btn-secondary resend-btn"
-          (click)="resendSmsCode()"
-        >
-          🔄 Renvoyer le code
-        </button>
-      </div>
-      
-      <div class="verification-help">
-        <p>💡 Le code expire dans 10 minutes</p>
-        <p>📱 Vérifiez que votre téléphone est allumé</p>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-

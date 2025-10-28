@@ -24,4 +24,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     
     // Méthodes utiles pour les statistiques
     long countByRole(Role role);
+    
+    User findByAdresseMail(String adresseMail);
 }

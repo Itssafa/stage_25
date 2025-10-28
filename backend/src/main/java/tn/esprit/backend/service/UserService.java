@@ -41,6 +41,22 @@ public class UserService implements UserDetailsService {
         );
     }
 
+    // === ADDED MISSING METHODS ===
+    public boolean existsByEmail(String email) {
+        return userRepository.findByAdresseMail(email) != null;
+    }
+    
+    public boolean updatePasswordByEmail(String email, String encodedPassword) {
+        User user = userRepository.findByAdresseMail(email);
+        if (user != null) {
+            user.setMotDePasse(encodedPassword);
+            userRepository.save(user);
+            return true;
+        }
+        return false;
+    }
+    // === END OF ADDED METHODS ===
+
     // Méthodes CRUD
     public User save(User user) {
         return userRepository.save(user);

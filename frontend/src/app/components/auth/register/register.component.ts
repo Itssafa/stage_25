@@ -1,11 +1,8 @@
-// app/components/auth/register/register.component.ts
-
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from '../../../services/auth.service';
-import { ApiResponse } from '../../../models/user.model';
-import { HttpClient } from '@angular/common/http';
+//import { AuthService } from '../../services/auth.service.ts'; // 🔹 importe ton AuthService
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -13,167 +10,168 @@ import { HttpClient } from '@angular/common/http';
   styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent {
+
   registerForm: FormGroup;
   loading = false;
   errorMessage = '';
   successMessage = '';
+
+  // 👇 Variables pour la vérification e-mail
+  emailVerified = false;
+  emailCodeSent = false;
+  enteredCode = ''; // le code saisi par l'utilisateur
+
   hidePassword = true;
   hideConfirmPassword = true;
-  
-  // Variables pour la vérification SMS
-  showSmsVerification = false;
-  smsVerificationCode = '';
-  enteredCode = '';
-  phoneVerified = false;
 
   constructor(
     private fb: FormBuilder,
-    private authService: AuthService,
     private router: Router,
-    private http: HttpClient
+    private authService: AuthService // ✅ injecte le service d’authentification
   ) {
     this.registerForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
-      prenom: ['', [Validators.required]],
-      telephone: ['', [Validators.required, Validators.pattern('^\\+?[1-9]\\d{1,14}$')]],
+      prenom: ['', Validators.required],
+      telephone: ['', [Validators.required, Validators.pattern('^[0-9+ ]+$')]],
       adresseMail: ['', [Validators.required, Validators.email]],
       motDePasse: ['', [
         Validators.required,
         Validators.minLength(8),
-        Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\W).{8,}$')
+        Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).+$')
       ]],
-      confirmMotDePasse: ['', [Validators.required]]
+      confirmMotDePasse: ['', Validators.required]
     }, { validators: this.passwordMatchValidator });
   }
 
-  // Validateur personnalisé pour vérifier que les mots de passe correspondent
-  passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
-    const password = control.get('motDePasse');
-    const confirmPassword = control.get('confirmMotDePasse');
-    
-    if (password && confirmPassword && password.value !== confirmPassword.value) {
-      return { passwordMismatch: true };
-    }
-    return null;
+  // ✅ Vérifie si les deux mots de passe correspondent
+  passwordMatchValidator(form: FormGroup) {
+    const password = form.get('motDePasse')?.value;
+    const confirmPassword = form.get('confirmMotDePasse')?.value;
+    return password === confirmPassword ? null : { passwordMismatch: true };
   }
 
-  onSubmit(): void {
-    if (this.registerForm.valid && this.phoneVerified) {
-      this.loading = true;
-      this.errorMessage = '';
-      this.successMessage = '';
-      
-      // Exclure confirmMotDePasse des données envoyées
-      const formData = { ...this.registerForm.value };
-      delete formData.confirmMotDePasse;
-      
-      console.log('Tentative d\'inscription avec:', formData);
-      
-      this.authService.register(formData).subscribe({
-        next: (response: ApiResponse) => {
-          console.log('Réponse d\'inscription:', response);
-          
-          if (response.success) {
-            this.successMessage = response.message;
-            console.log('Inscription réussie:', this.successMessage);
-            setTimeout(() => {
-              this.router.navigate(['/login']);
-            }, 2000);
-          } else {
-            this.errorMessage = response.message || 'Erreur lors de la création du compte.';
-            console.error('Échec d\'inscription:', this.errorMessage);
-          }
-        },
-        error: (error: any) => {
-          console.error('Erreur d\'inscription:', error);
-          this.errorMessage = error.error?.message || 'Erreur lors de la création du compte. Veuillez réessayer.';
-          this.loading = false;
-        },
-        complete: () => {
-          this.loading = false;
+  // 🔍 Détecte l’e-mail au blur (optionnel, juste pour debug)
+  onEmailBlur() {
+    const email = this.registerForm.get('adresseMail')?.value;
+    if (email && this.registerForm.get('adresseMail')?.valid && !this.emailVerified) {
+      console.log(`Email détecté : ${email}`);
+    }
+  }
+
+  // 📩 Envoi du code de vérification via le backend
+  sendVerificationCode() {
+    const email = this.registerForm.get('adresseMail')?.value;
+
+    if (!email || !this.registerForm.get('adresseMail')?.valid) {
+      this.errorMessage = "Veuillez entrer une adresse e-mail valide avant d’envoyer le code.";
+      return;
+    }
+
+    this.loading = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    this.authService.sendEmailCode(email).subscribe({
+      next: (res) => {
+        this.loading = false;
+        if (res.success) {
+          this.emailCodeSent = true;
+          this.successMessage = res.message || `Un code a été envoyé à ${email}`;
+          console.log('✅ Code envoyé:', res);
+        } else {
+          this.errorMessage = res.message || 'Erreur lors de l’envoi du code.';
         }
-      });
-    } else {
-      if (!this.phoneVerified) {
-        this.errorMessage = 'Veuillez vérifier votre numéro de téléphone avant de continuer.';
-      } else {
-        console.log('Formulaire invalide:', this.registerForm.errors);
+      },
+      error: (err) => {
+        this.loading = false;
+        console.error('❌ Erreur backend:', err);
+        this.errorMessage = err.error?.message || 'Erreur serveur.';
       }
+    });
+  }
+
+  // ✅ Vérifie le code saisi en appelant le backend
+  verifyEmailCode() {
+    const email = this.registerForm.get('adresseMail')?.value;
+    if (!email || !this.enteredCode) {
+      this.errorMessage = "Veuillez entrer le code reçu par e-mail.";
+      return;
     }
-  }
 
-  navigateToLogin(): void {
-    this.router.navigate(['/login']);
-  }
+    this.loading = true;
+    this.errorMessage = '';
+    this.successMessage = '';
 
-  // Méthode appelée quand l'utilisateur quitte le champ téléphone
-  onPhoneBlur(): void {
-    const phoneControl = this.registerForm.get('telephone');
-    if (phoneControl?.valid && phoneControl.value && !this.phoneVerified) {
-      this.sendSmsCode(phoneControl.value);
-    }
-  }
-
-  // Envoyer le code de vérification par SMS
-  sendSmsCode(telephone: string): void {
-    const headers = { 'Content-Type': 'application/json' };
-    this.http.post<any>('http://localhost:8085/api/auth/send-sms-code', { telephone }, { headers })
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.showSmsVerification = true;
-            this.successMessage = 'Code de vérification envoyé par SMS!';
-            setTimeout(() => this.successMessage = '', 3000);
-          } else {
-            this.errorMessage = response.message || 'Erreur lors de l\'envoi du SMS';
-          }
-        },
-        error: (error) => {
-          console.error('Erreur envoi SMS:', error);
-          this.errorMessage = 'Erreur lors de l\'envoi du code SMS. Vérifiez la configuration SMS.';
-          setTimeout(() => this.errorMessage = '', 5000);
+    this.authService.verifyEmailCode(email, this.enteredCode).subscribe({
+      next: (res) => {
+        this.loading = false;
+        if (res.success) {
+          this.emailVerified = true;
+          this.successMessage = res.message || '✅ Adresse e-mail vérifiée avec succès !';
+        } else {
+          this.errorMessage = res.message || '❌ Code incorrect ou expiré.';
         }
-      });
+      },
+      error: (err) => {
+        this.loading = false;
+        this.errorMessage = err.error?.message || 'Erreur lors de la vérification du code.';
+      }
+    });
   }
 
-  // Vérifier le code SMS saisi par l'utilisateur
-  verifySmsCode(): void {
-    const telephone = this.registerForm.get('telephone')?.value;
-    const headers = { 'Content-Type': 'application/json' };
-    
-    this.http.post<any>('http://localhost:8085/api/auth/verify-sms-code', 
-      { telephone, code: this.enteredCode }, { headers })
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.phoneVerified = true;
-            this.showSmsVerification = false;
-            this.successMessage = 'Téléphone vérifié avec succès!';
-            setTimeout(() => this.successMessage = '', 3000);
-          } else {
-            this.errorMessage = response.message || 'Code de vérification incorrect';
-            setTimeout(() => this.errorMessage = '', 3000);
-          }
-        },
-        error: (error) => {
-          console.error('Erreur vérification SMS:', error);
-          this.errorMessage = 'Erreur lors de la vérification du code SMS';
-          setTimeout(() => this.errorMessage = '', 3000);
-        }
-      });
-  }
-
-  // Fermer le popup de vérification SMS
-  closeSmsVerification(): void {
-    this.showSmsVerification = false;
+  // 🔁 Renvoyer le code
+  resendVerificationCode() {
+    this.emailCodeSent = false;
+    this.emailVerified = false;
     this.enteredCode = '';
+    this.sendVerificationCode(); // renvoie un nouveau code
   }
 
-  // Renvoyer le code SMS
-  resendSmsCode(): void {
-    const telephone = this.registerForm.get('telephone')?.value;
-    if (telephone) {
-      this.sendSmsCode(telephone);
+  // 📝 Soumission du formulaire d'inscription
+  onSubmit() {
+    if (this.registerForm.invalid) {
+      this.errorMessage = "Veuillez remplir tous les champs correctement.";
+      return;
     }
+
+    if (!this.emailVerified) {
+      this.errorMessage = "Veuillez vérifier votre e-mail avant de créer le compte.";
+      return;
+    }
+
+    this.loading = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    // 🔗 Appel réel au backend pour l'inscription
+    const registerData = {
+      username: this.registerForm.value.username,
+      prenom: this.registerForm.value.prenom,
+      telephone: this.registerForm.value.telephone,
+      adresseMail: this.registerForm.value.adresseMail,
+      motDePasse: this.registerForm.value.motDePasse
+    };
+
+    this.authService.register(registerData).subscribe({
+      next: (res) => {
+        this.loading = false;
+        if (res.success) {
+          this.successMessage = '🎉 Compte créé avec succès !';
+          console.log('✅ Utilisateur enregistré:', registerData);
+          this.router.navigate(['/login']);
+        } else {
+          this.errorMessage = res.message || 'Erreur lors de la création du compte.';
+        }
+      },
+      error: (err) => {
+        this.loading = false;
+        this.errorMessage = err.error?.message || 'Erreur serveur.';
+      }
+    });
+  }
+
+  // 🔙 Aller vers la page de connexion
+  navigateToLogin() {
+    this.router.navigate(['/login']);
   }
 }

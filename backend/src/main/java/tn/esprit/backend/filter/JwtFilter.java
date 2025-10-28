@@ -1,6 +1,5 @@
 package tn.esprit.backend.filter;
 
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,6 +15,7 @@ import tn.esprit.backend.configuration.JwtUtils;
 import tn.esprit.backend.service.UserService;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -24,10 +24,29 @@ public class JwtFilter extends OncePerRequestFilter {
     private final UserService customUserDetailsService;
     private final JwtUtils jwtUtils;
 
+    // Liste des endpoints à ignorer
+    private static final List<String> PUBLIC_URLS = List.of(
+        "/api/auth/send-email-code",
+        "/api/auth/verify-email-code",
+        "/api/auth/test-email",
+        "/api/auth/send-reset-code",
+        "/api/auth/reset-password",
+        "/api/public/"
+    );
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        final String authHeader = request.getHeader("Authorization");
+        String path = request.getRequestURI();
 
+        // Si l'URL est publique, ne pas vérifier le JWT
+        for (String url : PUBLIC_URLS) {
+            if (path.startsWith(url)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+        }
+
+        final String authHeader = request.getHeader("Authorization");
         String username = null;
         String jwt = null;
 
