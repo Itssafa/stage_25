@@ -1,100 +1,145 @@
-
-
 <div class="auth-container">
   <div class="auth-card">
+    <!-- En-tête avec logo -->
     <div class="auth-header">
-      <h1> Connexion</h1>
+      <svg class="logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+            <stop offset="50%" style="stop-color:#764ba2;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#f093fb;stop-opacity:1" />
+          </linearGradient>
+        </defs>
+        <circle cx="50" cy="50" r="45" fill="url(#logoGradient)" opacity="0.2"/>
+        <path d="M30 50 L50 30 L70 50 L50 70 Z" fill="url(#logoGradient)" />
+        <circle cx="50" cy="50" r="8" fill="white"/>
+      </svg>
+      <h1>Connexion</h1>
       <p>Connectez-vous à votre compte ProdLine</p>
     </div>
     
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <!-- Nom d'utilisateur -->
       <div class="form-group">
-        <label for="username">Nom d'utilisateur</label>
-        <input
-          type="text"
-          id="username"
-          formControlName="username"
-          class="form-input"
-          placeholder="Entrez votre nom d'utilisateur"
-        >
-        <div class="error-message" *ngIf="loginForm.get('username')?.touched && loginForm.get('username')?.errors?.['required']">
+        <label for="username">
+          Nom d'utilisateur
+          <span class="required">*</span>
+        </label>
+        <div class="input-with-icon">
+          <input
+            type="text"
+            id="username"
+            formControlName="username"
+            class="form-input"
+            [class.error]="loginForm.get('username')?.touched && loginForm.get('username')?.invalid"
+            [class.success]="loginForm.get('username')?.touched && loginForm.get('username')?.valid"
+            placeholder="Entrez votre nom d'utilisateur"
+          >
+          <span class="input-icon success" *ngIf="loginForm.get('username')?.touched && loginForm.get('username')?.valid">✓</span>
+          <span class="input-icon error" *ngIf="loginForm.get('username')?.touched && loginForm.get('username')?.invalid">✕</span>
+        </div>
+        <div class="field-help error" *ngIf="loginForm.get('username')?.touched && loginForm.get('username')?.errors?.['required']">
           Le nom d'utilisateur est requis
         </div>
       </div>
       
+      <!-- Mot de passe -->
       <div class="form-group">
-        <label for="password">Mot de passe</label>
+        <label for="password">
+          Mot de passe
+          <span class="required">*</span>
+        </label>
         <div class="password-field">
           <input
             [type]="hidePassword ? 'password' : 'text'"
             id="password"
             formControlName="motDePasse"
             class="form-input"
+            [class.error]="loginForm.get('motDePasse')?.touched && loginForm.get('motDePasse')?.invalid"
+            [class.success]="loginForm.get('motDePasse')?.touched && loginForm.get('motDePasse')?.valid"
             placeholder="Entrez votre mot de passe"
           >
           <button
             type="button"
             class="password-toggle"
             (click)="hidePassword = !hidePassword"
+            tabindex="-1"
           >
-            {{hidePassword ? '👁️' : '🙈'}}
+            <span *ngIf="hidePassword">👁</span>
+            <span *ngIf="!hidePassword">👁‍🗨</span>
           </button>
         </div>
-        <div class="error-message" *ngIf="loginForm.get('motDePasse')?.touched && loginForm.get('motDePasse')?.errors?.['required']">
+        <div class="field-help error" *ngIf="loginForm.get('motDePasse')?.touched && loginForm.get('motDePasse')?.errors?.['required']">
           Le mot de passe est requis
         </div>
       </div>
       
-      <div class="alert error" *ngIf="errorMessage">
-        ❌ {{errorMessage}}
+      <!-- Message d'erreur global -->
+      <div class="alert-message error" *ngIf="errorMessage">
+        <div class="alert-content">
+          <span class="alert-icon">✕</span>
+          <span class="alert-text">{{errorMessage}}</span>
+        </div>
       </div>
       
+      <!-- Bouton de connexion -->
       <button
         type="submit"
         class="btn-primary"
         [disabled]="loading || loginForm.invalid"
       >
-        <span *ngIf="!loading"> Se connecter</span>
-        <span *ngIf="loading">⏳ Connexion...</span>
+        <span class="btn-content">
+          <span *ngIf="!loading">Se connecter</span>
+          <span *ngIf="loading" class="loading-text">
+            <span class="loading-spinner"></span>
+            Connexion en cours
+          </span>
+        </span>
       </button>
       
+      <!-- Lien mot de passe oublié -->
       <div class="forgot-password-link">
         <button type="button" class="btn-link" (click)="openForgotPassword()">
-          🔑 Mot de passe oublié?
+          Mot de passe oublié ?
         </button>
       </div>
     </form>
     
+    <!-- Pied de page -->
     <div class="auth-footer">
-      <p>Pas encore de compte ?</p>
+      <p>Vous n'avez pas encore de compte ?</p>
       <button type="button" class="btn-secondary" (click)="navigateToRegister()">
-         Créer un compte
+        Créer un compte
       </button>
     </div>
   </div>
 </div>
 
-<!-- Popup de récupération de mot de passe -->
+<!-- Modal de récupération de mot de passe -->
 <div class="modal-overlay" *ngIf="showForgotPassword" (click)="closeForgotPassword()">
-  <div class="modal-content forgot-password-modal" (click)="$event.stopPropagation()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h3>🔑 Récupération du mot de passe</h3>
+      <h3>Récupération du mot de passe</h3>
       <button type="button" class="close-btn" (click)="closeForgotPassword()">✕</button>
     </div>
     
+    <!-- Étape 1: Demande du numéro de téléphone -->
     <div class="modal-body" *ngIf="!showResetForm">
-      <p class="forgot-password-message">
+      <p class="modal-description">
         Entrez votre numéro de téléphone pour recevoir un code de récupération par SMS.
       </p>
       
       <div class="form-group">
-        <label for="resetPhone">Numéro de téléphone</label>
+        <label for="resetPhone">
+          Numéro de téléphone
+          <span class="required">*</span>
+        </label>
         <input
           type="tel"
           id="resetPhone"
           [(ngModel)]="resetPhone"
           class="form-input"
-          placeholder="+216 12 345 678"
+          placeholder="+33 6 12 34 56 78"
         >
       </div>
       
@@ -105,71 +150,101 @@
           (click)="sendResetCode()"
           [disabled]="!resetPhone || resetPhone.trim().length === 0"
         >
-          📱 Envoyer le code
+          Envoyer le code
+        </button>
+        <button 
+          type="button" 
+          class="btn-secondary"
+          (click)="closeForgotPassword()"
+        >
+          Annuler
         </button>
       </div>
     </div>
 
     <!-- Étape 2: Vérification du code et nouveau mot de passe -->
     <div class="modal-body" *ngIf="showResetForm">
-      <p class="verification-message">
-        Un code de vérification a été envoyé par SMS au:<br>
-        <strong>{{ resetPhone }}</strong>
-      </p>
-      
-      <div class="form-group">
-        <label for="resetCode">Code de vérification (6 chiffres)</label>
-        <input
-          type="text"
-          id="resetCode"
-          [(ngModel)]="enteredResetCode"
-          class="verification-input"
-          placeholder="000000"
-          maxlength="6"
-          (keypress)="$event.charCode >= 48 && $event.charCode <= 57 || $event.preventDefault()"
-        >
-      </div>
+      <div class="verification-card">
+        <div class="verification-card-header">
+          <h4>Code de vérification envoyé</h4>
+          <p>Un code à 6 chiffres a été envoyé par SMS à <strong>{{ resetPhone }}</strong></p>
+        </div>
+        
+        <div class="verification-card-body">
+          <!-- Code de vérification -->
+          <div class="form-group">
+            <label for="resetCode">Code de vérification</label>
+            <div class="code-input-wrapper">
+              <input
+                type="text"
+                id="resetCode"
+                [(ngModel)]="enteredResetCode"
+                class="code-input"
+                placeholder="000000"
+                maxlength="6"
+                (keypress)="$event.charCode >= 48 && $event.charCode <= 57 || $event.preventDefault()"
+              >
+            </div>
+          </div>
 
-      <div class="form-group">
-        <label for="newPassword">Nouveau mot de passe</label>
-        <div class="password-field">
-          <input
-            [type]="hideNewPassword ? 'password' : 'text'"
-            id="newPassword"
-            [(ngModel)]="newPassword"
-            class="form-input"
-            placeholder="Nouveau mot de passe"
-          >
-          <button
-            type="button"
-            class="password-toggle"
-            (click)="hideNewPassword = !hideNewPassword"
-          >
-            {{hideNewPassword ? '👁️' : '🙈'}}
-          </button>
+          <!-- Nouveau mot de passe -->
+          <div class="form-group">
+            <label for="newPassword">
+              Nouveau mot de passe
+              <span class="required">*</span>
+            </label>
+            <div class="password-field">
+              <input
+                [type]="hideNewPassword ? 'password' : 'text'"
+                id="newPassword"
+                [(ngModel)]="newPassword"
+                class="form-input"
+                placeholder="Créez un nouveau mot de passe"
+              >
+              <button
+                type="button"
+                class="password-toggle"
+                (click)="hideNewPassword = !hideNewPassword"
+                tabindex="-1"
+              >
+                <span *ngIf="hideNewPassword">👁</span>
+                <span *ngIf="!hideNewPassword">👁‍🗨</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Confirmation du mot de passe -->
+          <div class="form-group">
+            <label for="confirmNewPassword">
+              Confirmer le mot de passe
+              <span class="required">*</span>
+            </label>
+            <div class="password-field">
+              <input
+                [type]="hideConfirmNewPassword ? 'password' : 'text'"
+                id="confirmNewPassword"
+                [(ngModel)]="confirmNewPassword"
+                class="form-input"
+                placeholder="Retapez le mot de passe"
+              >
+              <button
+                type="button"
+                class="password-toggle"
+                (click)="hideConfirmNewPassword = !hideConfirmNewPassword"
+                tabindex="-1"
+              >
+                <span *ngIf="hideConfirmNewPassword">👁</span>
+                <span *ngIf="!hideConfirmNewPassword">👁‍🗨</span>
+              </button>
+            </div>
+            <div class="field-help error" *ngIf="newPassword && confirmNewPassword && newPassword !== confirmNewPassword">
+              Les mots de passe ne correspondent pas
+            </div>
+          </div>
         </div>
       </div>
-
-      <div class="form-group">
-        <label for="confirmNewPassword">Confirmer le nouveau mot de passe</label>
-        <div class="password-field">
-          <input
-            [type]="hideConfirmNewPassword ? 'password' : 'text'"
-            id="confirmNewPassword"
-            [(ngModel)]="confirmNewPassword"
-            class="form-input"
-            placeholder="Confirmer le mot de passe"
-          >
-          <button
-            type="button"
-            class="password-toggle"
-            (click)="hideConfirmNewPassword = !hideConfirmNewPassword"
-          >
-            {{hideConfirmNewPassword ? '👁️' : '🙈'}}
-          </button>
-        </div>
-      </div>
       
+      <!-- Actions -->
       <div class="modal-actions">
         <button 
           type="button" 
@@ -177,7 +252,7 @@
           (click)="resetPassword()"
           [disabled]="enteredResetCode.length !== 6 || !newPassword || !confirmNewPassword || newPassword !== confirmNewPassword"
         >
-          ✅ Réinitialiser le mot de passe
+          Réinitialiser le mot de passe
         </button>
         
         <button 
@@ -185,14 +260,13 @@
           class="btn-secondary"
           (click)="resendResetCode()"
         >
-          🔄 Renvoyer le code
+          Renvoyer le code
         </button>
       </div>
       
-      <div class="verification-help">
-        <p>💡 Le code expire dans 10 minutes</p>
+      <div class="modal-help">
+        <p>Le code expire dans 10 minutes</p>
       </div>
     </div>
   </div>
 </div>
-

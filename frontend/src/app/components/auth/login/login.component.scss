@@ -1,7 +1,7 @@
 // Import Google Fonts
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
-// Variables CSS pour le thème bleu ciel et blanc
+// Variables CSS pour le thème moderne
 :root {
   --primary-blue: #2563eb;
   --primary-light: #3b82f6;
@@ -19,8 +19,9 @@
   --gray-800: #1e293b;
   --gray-900: #0f172a;
   --success-green: #10b981;
-  --error-red: #ef4444;
-  --warning-orange: #f59e0b;
+  --error-red: #5b66e2;
+  --warning-orange: #7bd3f9;
+  --info-blue: #3b82f6;
   
   // Ombres modernes
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -45,38 +46,56 @@
   box-sizing: border-box;
 }
 
-:host {
-  display: block;
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  line-height: 1.5;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: var(--gray-50);
+}
+
+:host {
+  display: block;
+  margin: 0;
+  padding: 0;
 }
 
 // Container principal
 .auth-container {
   min-height: 100vh;
+  width: 100vw;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
+  margin: 0;
   background: linear-gradient(135deg, 
-    var(--primary-blue) 0%, 
-    var(--primary-light) 25%, 
-    var(--accent-blue) 50%, 
-    #e0f2fe 75%, 
-    var(--white) 100%);
+    #667eea 0%, 
+    #74dcf6 25%, 
+    #8dfff9 50%, 
+    #57f5d0 75%, 
+    #57fed7 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
   position: relative;
   overflow: hidden;
   
-  // Éléments décoratifs en arrière-plan
+  // Éléments décoratifs animés
   &::before,
   &::after {
     content: '';
     position: absolute;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(100px);
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(80px);
     pointer-events: none;
   }
   
@@ -84,69 +103,118 @@
     width: 500px;
     height: 500px;
     top: -250px;
-    right: -250px;
-    animation: float 20s ease-in-out infinite;
+    left: -250px;
+    animation: floatReverse 25s ease-in-out infinite;
   }
   
   &::after {
-    width: 300px;
-    height: 300px;
-    bottom: -150px;
-    left: -150px;
-    animation: float 15s ease-in-out infinite reverse;
+    width: 400px;
+    height: 400px;
+    bottom: -200px;
+    right: -200px;
+    animation: float 20s ease-in-out infinite;
   }
 }
 
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
 @keyframes float {
-  0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); }
-  25% { transform: translateY(-20px) rotate(90deg) scale(1.05); }
-  50% { transform: translateY(-10px) rotate(180deg) scale(0.95); }
-  75% { transform: translateY(-30px) rotate(270deg) scale(1.1); }
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  33% { transform: translate(30px, -30px) rotate(120deg); }
+  66% { transform: translate(-20px, 20px) rotate(240deg); }
+}
+
+@keyframes floatReverse {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  33% { transform: translate(-30px, 30px) rotate(-120deg); }
+  66% { transform: translate(20px, -20px) rotate(-240deg); }
 }
 
 // Carte d'authentification
 .auth-card {
-  background: var(--white);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px) saturate(180%);
   border-radius: var(--border-radius-xl);
-  box-shadow: var(--shadow-xl);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   width: 100%;
-  max-width: 420px;
+  max-width: 460px;
   position: relative;
   z-index: 10;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   overflow: hidden;
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   
-  // Barre de couleur en haut
+  // Barre de couleur dégradée en haut
   &::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, var(--primary-blue), var(--accent-blue));
+    height: 5px;
+    background: linear-gradient(90deg, 
+      #667eea 0%, 
+      #764ba2 25%, 
+      #f093fb 50%, 
+      #f5576c 75%, 
+      #feca57 100%);
+    background-size: 200% 100%;
+    animation: gradientMove 3s linear infinite;
   }
 }
 
-// En-tête de la carte
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+// En-tête avec logo
 .auth-header {
   text-align: center;
-  padding: 40px 32px 24px;
+  padding: 40px 32px 20px;
+  
+  .logo {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    display: block;
+    animation: fadeIn 0.8s ease-out;
+  }
   
   h1 {
-    font-size: 28px;
+    font-size: 26px;
     font-weight: 700;
     color: var(--gray-900);
     margin-bottom: 8px;
     letter-spacing: -0.02em;
+    animation: fadeIn 1s ease-out;
   }
   
   p {
-    font-size: 16px;
+    font-size: 15px;
     color: var(--gray-600);
     font-weight: 400;
+    animation: fadeIn 1.2s ease-out;
   }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 // Formulaire
@@ -155,28 +223,51 @@
 }
 
 .form-group {
-  margin-bottom: 24px;
+  margin-bottom: 22px;
+  animation: slideInLeft 0.5s ease-out backwards;
+  
+  &:nth-child(1) { animation-delay: 0.1s; }
+  &:nth-child(2) { animation-delay: 0.2s; }
+  &:nth-child(3) { animation-delay: 0.3s; }
   
   &:last-child {
     margin-bottom: 0;
   }
 }
 
-// Labels
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// Labels avec astérisque
 label {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 4px;
   font-size: 14px;
   font-weight: 600;
   color: var(--gray-700);
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   letter-spacing: -0.01em;
+  
+  .required {
+    color: var(--error-red);
+    font-size: 16px;
+  }
 }
 
-// Inputs
+// Inputs améliorés
 .form-input {
   width: 100%;
-  padding: 14px 16px;
-  font-size: 16px;
+  padding: 13px 16px;
+  font-size: 15px;
   border: 2px solid var(--gray-200);
   border-radius: var(--border-radius);
   background: var(--white);
@@ -192,33 +283,80 @@ label {
   &:focus {
     outline: none;
     border-color: var(--primary-blue);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    background: var(--white);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
     transform: translateY(-1px);
   }
   
   &:hover:not(:focus) {
     border-color: var(--gray-300);
+    background: var(--gray-50);
   }
   
   &.error {
     border-color: var(--error-red);
     background: #fef2f2;
+    animation: shake 0.4s ease-in-out;
+  }
+  
+  &.success {
+    border-color: var(--success-green);
+    background: #f0fdf4;
   }
 }
 
-// Champ de mot de passe avec icône
-.password-field {
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+// Champ avec icône de statut
+.input-with-icon {
   position: relative;
   display: flex;
   align-items: center;
   
   .form-input {
-    padding-right: 50px;
+    padding-right: 45px;
+  }
+  
+  .input-icon {
+    position: absolute;
+    right: 14px;
+    font-size: 18px;
+    pointer-events: none;
+    
+    &.success {
+      color: var(--success-green);
+      animation: scaleIn 0.3s ease-out;
+    }
+    
+    &.error {
+      color: var(--error-red);
+      animation: shake 0.4s ease-in-out;
+    }
+  }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+// Champ de mot de passe
+.password-field {
+  position: relative;
+  
+  .form-input {
+    padding-right: 45px;
   }
   
   .password-toggle {
     position: absolute;
     right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
     background: none;
     border: none;
     font-size: 18px;
@@ -231,102 +369,200 @@ label {
     &:hover {
       background: var(--gray-100);
       color: var(--gray-700);
+      transform: translateY(-50%) scale(1.1);
     }
     
-    &:focus {
-      outline: none;
-      background: var(--gray-100);
+    &:active {
+      transform: translateY(-50%) scale(0.95);
     }
   }
 }
 
-// Messages d'erreur
-.error-message {
+// Messages d'aide et d'erreur
+.field-help {
   margin-top: 6px;
-  font-size: 14px;
-  color: var(--error-red);
-  font-weight: 500;
+  font-size: 12px;
+  color: var(--gray-500);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 6px;
-  
-  &::before {
-    content: '⚠️';
-    font-size: 12px;
-  }
-}
-
-// Alertes
-.alert {
-  padding: 16px;
-  border-radius: var(--border-radius);
-  margin-bottom: 24px;
-  font-size: 14px;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  line-height: 1.5;
   
   &.error {
-    background: #fef2f2;
     color: var(--error-red);
-    border: 1px solid #fecaca;
-  }
-  
-  &.success {
-    background: #f0fdf4;
-    color: var(--success-green);
-    border: 1px solid #bbf7d0;
+    font-weight: 500;
+    
+    &::before {
+      content: '❌';
+      font-size: 12px;
+    }
   }
 }
 
-// Boutons
+// Messages d'alerte
+.alert-message {
+  margin-bottom: 20px;
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  animation: slideInLeft 0.3s ease-out;
+  
+  .alert-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 18px;
+  }
+  
+  .alert-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  
+  .alert-text {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+  
+  &.error {
+    background: linear-gradient(135deg, #fef2f2, #fee2e2);
+    border-left: 4px solid var(--error-red);
+    
+    .alert-icon {
+      background: var(--error-red);
+      color: var(--white);
+    }
+    
+    .alert-text {
+      color: var(--error-red);
+    }
+  }
+}
+
+// Bouton principal avec effet brillant
 .btn-primary {
   width: 100%;
-  padding: 16px 24px;
-  background: linear-gradient(135deg, var(--primary-blue), var(--primary-light));
+  padding: 15px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: var(--white);
   border: none;
   border-radius: var(--border-radius);
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   transition: var(--transition);
   font-family: inherit;
-  letter-spacing: -0.01em;
-  box-shadow: var(--shadow-sm);
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  position: relative;
+  overflow: hidden;
+  
+  // Effet de brillance
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+      transparent, 
+      rgba(255, 255, 255, 0.3), 
+      transparent);
+    transition: left 0.5s ease;
+  }
   
   &:hover:not(:disabled) {
-    background: linear-gradient(135deg, var(--secondary-blue), var(--primary-blue));
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
     transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    
+    &::before {
+      left: 100%;
+    }
   }
   
   &:active:not(:disabled) {
     transform: translateY(0);
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
   }
   
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
-    box-shadow: var(--shadow-sm);
-  }
-  
-  &:focus {
-    outline: none;
-    box-shadow: var(--shadow-lg), 0 0 0 3px rgba(37, 99, 235, 0.2);
+    box-shadow: none;
   }
 }
 
+// Contenu du bouton avec spinner
+.btn-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  
+  .loading-text {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .loading-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: var(--white);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+// Lien mot de passe oublié
+.forgot-password-link {
+  text-align: center;
+  margin: 20px 0 0;
+  
+  .btn-link {
+    background: none;
+    border: none;
+    color: var(--primary-blue);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 8px 0;
+    transition: var(--transition);
+    font-family: inherit;
+    text-decoration: none;
+    
+    &:hover {
+      color: var(--secondary-blue);
+      text-decoration: underline;
+    }
+  }
+}
+
+// Bouton secondaire
 .btn-secondary {
   padding: 12px 24px;
   background: var(--white);
   color: var(--primary-blue);
-  border: 2px solid var(--gray-200);
+  border: 2px solid var(--gray-300);
   border-radius: var(--border-radius);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   transition: var(--transition);
@@ -339,44 +575,14 @@ label {
     box-shadow: var(--shadow-sm);
   }
   
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  &:active {
+    transform: translateY(0);
   }
 }
 
-.btn-link {
-  background: none;
-  border: none;
-  color: var(--primary-blue);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 8px 0;
-  transition: var(--transition);
-  font-family: inherit;
-  text-decoration: none;
-  
-  &:hover {
-    color: var(--secondary-blue);
-    text-decoration: underline;
-  }
-  
-  &:focus {
-    outline: none;
-    color: var(--secondary-blue);
-  }
-}
-
-// Lien mot de passe oublié
-.forgot-password-link {
-  text-align: center;
-  margin: 20px 0;
-}
-
-// Pied de page de la carte
+// Pied de page
 .auth-footer {
-  background: var(--gray-50);
+  background: linear-gradient(180deg, transparent 0%, var(--gray-50) 30%);
   padding: 24px 32px;
   text-align: center;
   border-top: 1px solid var(--gray-200);
@@ -384,7 +590,7 @@ label {
   p {
     font-size: 14px;
     color: var(--gray-600);
-    margin-bottom: 16px;
+    margin-bottom: 14px;
   }
 }
 
@@ -405,137 +611,38 @@ label {
   animation: fadeIn 0.2s ease-out;
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 // Contenu modal
 .modal-content {
-  background: var(--white);
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
   border-radius: var(--border-radius-xl);
   box-shadow: var(--shadow-xl);
-  max-width: 500px;
+  max-width: 520px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
   animation: slideIn 0.3s ease-out;
-  border: 1px solid var(--gray-200);
-}
-
-// En-tête modal
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 24px 32px;
-  border-bottom: 1px solid var(--gray-200);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   
-  h3 {
-    margin: 0;
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--gray-900);
+  // Scrollbar personnalisée
+  &::-webkit-scrollbar {
+    width: 8px;
   }
   
-  .close-btn {
-    background: none;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
-    color: var(--gray-500);
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: var(--border-radius);
-    transition: var(--transition);
-    
-    &:hover {
-      background: var(--gray-100);
-      color: var(--gray-800);
-    }
-    
-    &:focus {
-      outline: none;
-      background: var(--gray-100);
-    }
-  }
-}
-
-// Corps modal
-.modal-body {
-  padding: 32px;
-  
-  .forgot-password-message,
-  .verification-message {
-    font-size: 16px;
-    color: var(--gray-600);
-    margin-bottom: 24px;
-    line-height: 1.6;
-    text-align: center;
-    
-    strong {
-      color: var(--primary-blue);
-      font-weight: 600;
-    }
-  }
-}
-
-// Actions modal
-.modal-actions {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  margin-top: 24px;
-  
-  .btn-primary,
-  .btn-secondary {
-    flex: 1;
-    max-width: 200px;
-  }
-}
-
-// Input de vérification
-.verification-input {
-  width: 100%;
-  max-width: 200px;
-  margin: 0 auto;
-  padding: 16px;
-  font-size: 24px;
-  text-align: center;
-  border: 2px solid var(--gray-200);
-  border-radius: var(--border-radius);
-  letter-spacing: 6px;
-  font-family: 'Inter', monospace;
-  font-weight: 700;
-  color: var(--primary-blue);
-  transition: var(--transition);
-  
-  &:focus {
-    outline: none;
-    border-color: var(--primary-blue);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  &::-webkit-scrollbar-track {
+    background: var(--gray-100);
+    border-radius: 10px;
   }
   
-  &::placeholder {
-    color: var(--gray-400);
-    letter-spacing: 4px;
+  &::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--primary-blue), var(--accent-blue));
+    border-radius: 10px;
   }
-}
-
-// Aide pour la vérification
-.verification-help {
-  font-size: 14px;
-  color: var(--gray-500);
-  text-align: center;
-  margin-top: 16px;
-  
-  p {
-    margin: 6px 0;
-  }
-}
-
-// Animations
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
 }
 
 @keyframes slideIn {
@@ -549,7 +656,156 @@ label {
   }
 }
 
-// Responsive design
+// En-tête modal
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 32px;
+  border-bottom: 2px solid var(--gray-200);
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(240, 147, 251, 0.05));
+  
+  h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--gray-900);
+  }
+  
+  .close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--gray-500);
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+    
+    &:hover {
+      background: var(--gray-100);
+      color: var(--gray-800);
+      transform: rotate(90deg);
+    }
+  }
+}
+
+// Corps modal
+.modal-body {
+  padding: 32px;
+  
+  .modal-description {
+    font-size: 15px;
+    color: var(--gray-600);
+    margin-bottom: 24px;
+    line-height: 1.6;
+    text-align: center;
+  }
+}
+
+// Carte de vérification dans la modal
+.verification-card {
+  margin-bottom: 24px;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border: 2px solid var(--primary-light);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  
+  .verification-card-header {
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(96, 165, 250, 0.1));
+    border-bottom: 1px solid rgba(37, 99, 235, 0.2);
+    
+    h4 {
+      margin: 0 0 8px 0;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--primary-blue);
+    }
+    
+    p {
+      margin: 0;
+      font-size: 14px;
+      color: var(--gray-700);
+      line-height: 1.5;
+      
+      strong {
+        color: var(--primary-blue);
+        font-weight: 600;
+      }
+    }
+  }
+  
+  .verification-card-body {
+    padding: 24px 20px;
+  }
+}
+
+// Input pour le code de vérification
+.code-input-wrapper {
+  margin-bottom: 20px;
+  
+  .code-input {
+    width: 100%;
+    max-width: 240px;
+    margin: 0 auto;
+    display: block;
+    padding: 18px;
+    font-size: 28px;
+    text-align: center;
+    border: 3px solid var(--primary-light);
+    border-radius: var(--border-radius-lg);
+    letter-spacing: 12px;
+    font-family: 'Inter', monospace;
+    font-weight: 700;
+    color: var(--primary-blue);
+    background: var(--white);
+    transition: var(--transition);
+    
+    &:focus {
+      outline: none;
+      border-color: var(--secondary-blue);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1), 
+                  0 4px 12px rgba(37, 99, 235, 0.2);
+      transform: scale(1.02);
+    }
+    
+    &::placeholder {
+      color: var(--gray-300);
+      letter-spacing: 8px;
+    }
+  }
+}
+
+// Actions modal
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  
+  .btn-primary,
+  .btn-secondary {
+    flex: 1;
+  }
+}
+
+// Aide modal
+.modal-help {
+  text-align: center;
+  margin-top: 16px;
+  
+  p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--gray-500);
+  }
+}
+
+// Responsive Design
 @media (max-width: 768px) {
   .auth-container {
     padding: 16px;
@@ -560,10 +816,19 @@ label {
   }
   
   .auth-header {
-    padding: 32px 24px 20px;
+    padding: 32px 24px 16px;
+    
+    .logo {
+      width: 70px;
+      height: 70px;
+    }
     
     h1 {
-      font-size: 24px;
+      font-size: 23px;
+    }
+    
+    p {
+      font-size: 14px;
     }
   }
   
@@ -587,20 +852,39 @@ label {
   
   .modal-actions {
     flex-direction: column;
-    
-    .btn-primary,
-    .btn-secondary {
-      max-width: none;
-    }
+  }
+  
+  .code-input-wrapper .code-input {
+    font-size: 24px;
+    letter-spacing: 10px;
   }
 }
 
 @media (max-width: 480px) {
-  .auth-header h1 {
-    font-size: 22px;
+  .auth-header {
+    padding: 28px 20px 14px;
+    
+    .logo {
+      width: 60px;
+      height: 60px;
+    }
+    
+    h1 {
+      font-size: 21px;
+    }
   }
   
   .form-input {
-    font-size: 16px; // Évite le zoom sur iOS
+    font-size: 16px; // Évite le zoom automatique sur iOS
+    padding: 12px 14px;
+  }
+  
+  .auth-form {
+    padding: 0 20px 16px;
+  }
+  
+  .btn-primary {
+    padding: 14px 20px;
+    font-size: 15px;
   }
 }

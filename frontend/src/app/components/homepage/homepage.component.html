@@ -1,6 +1,6 @@
-<!-- Homepage avec design moderne et thème bleu ciel -->
+<!-- iOS-inspired Homepage with Light Blue Sky Theme -->
 <div class="homepage-container">
-  <!-- Formes géométriques en arrière-plan -->
+  <!-- Subtle decorative shapes -->
   <div class="background-shapes">
     <div class="shape shape-1"></div>
     <div class="shape shape-2"></div>
@@ -8,7 +8,7 @@
     <div class="shape shape-4"></div>
   </div>
 
-  <!-- Header moderne -->
+  <!-- iOS-style Header with Frosted Glass -->
   <header class="modern-header">
     <div class="header-content">
       <div class="logo-section">
@@ -17,7 +17,7 @@
       </div>
       <nav class="navigation">
         <button class="nav-btn secondary" (click)="goToLogin()">
-          <span class="btn-icon">🔐</span>
+          <span class="btn-icon">👤</span>
           Connexion
         </button>
         <button class="nav-btn primary" (click)="goToRegister()">
@@ -28,7 +28,7 @@
     </div>
   </header>
 
-  <!-- Section Hero -->
+  <!-- Hero Section -->
   <main class="hero-section">
     <div class="hero-content">
       <div class="hero-badge">
@@ -44,7 +44,7 @@
       <p class="hero-description">
         Optimisez vos processus industriels avec notre plateforme moderne. 
         Gérez les postes, suivez les ordres de fabrication et maximisez 
-        votre efficacité en temps réel grâce à des outils intelligents.
+        votre efficacité en temps réel.
       </p>
 
       <div class="cta-section">
@@ -54,8 +54,8 @@
           <span class="btn-arrow">→</span>
         </button>
         <button class="cta-btn secondary" (click)="scrollToFeatures()">
-          <span class="btn-icon">👁️</span>
-          Découvrir les fonctionnalités
+          <span class="btn-icon">📱</span>
+          Découvrir plus
         </button>
       </div>
     </div>
@@ -64,7 +64,9 @@
       <div class="dashboard-preview">
         <div class="preview-header">
           <div class="preview-dots">
-            <span></span><span></span><span></span>
+            <span></span>
+            <span></span>
+            <span></span>
           </div>
           <div class="preview-title">Dashboard Production</div>
         </div>
@@ -72,18 +74,24 @@
           <div class="preview-stats">
             <div class="stat-card">
               <div class="stat-icon">📊</div>
-              <div class="stat-value">156</div>
-              <div class="stat-label">Ordres actifs</div>
+              <div class="stat-info">
+                <div class="stat-value">156</div>
+                <div class="stat-label">Ordres actifs</div>
+              </div>
             </div>
             <div class="stat-card">
               <div class="stat-icon">⚙️</div>
-              <div class="stat-value">24</div>
-              <div class="stat-label">Postes opérationnels</div>
+              <div class="stat-info">
+                <div class="stat-value">24</div>
+                <div class="stat-label">Postes opérationnels</div>
+              </div>
             </div>
             <div class="stat-card">
               <div class="stat-icon">📈</div>
-              <div class="stat-value">94%</div>
-              <div class="stat-label">Efficacité</div>
+              <div class="stat-info">
+                <div class="stat-value">94%</div>
+                <div class="stat-label">Efficacité globale</div>
+              </div>
             </div>
           </div>
         </div>
@@ -91,12 +99,14 @@
     </div>
   </main>
 
-  <!-- Section Features -->
+  <!-- Features Section with iOS Cards -->
   <section class="features-section" id="features">
     <div class="features-container">
       <div class="section-header">
         <h2 class="section-title">Fonctionnalités Clés</h2>
-        <p class="section-subtitle">Des outils puissants pour optimiser votre production</p>
+        <p class="section-subtitle">
+          Des outils puissants conçus pour optimiser votre production
+        </p>
       </div>
 
       <div class="features-grid">
@@ -105,7 +115,7 @@
           <h3 class="feature-title">Gestion des Ordres</h3>
           <p class="feature-description">
             Créez, modifiez et suivez vos ordres de fabrication en temps réel 
-            avec une interface intuitive.
+            avec une interface intuitive et moderne.
           </p>
         </div>
 
@@ -113,8 +123,8 @@
           <div class="feature-icon">🔧</div>
           <h3 class="feature-title">Configuration Postes</h3>
           <p class="feature-description">
-            Gérez facilement la configuration de vos postes de travail et 
-            optimisez leur utilisation.
+            Gérez la configuration de vos postes de travail et 
+            optimisez leur utilisation pour une meilleure productivité.
           </p>
         </div>
 
@@ -123,7 +133,7 @@
           <h3 class="feature-title">Tableaux de Bord</h3>
           <p class="feature-description">
             Visualisez vos KPIs et statistiques avec des dashboards 
-            personnalisés selon votre rôle.
+            personnalisés et adaptés à votre rôle.
           </p>
         </div>
 
@@ -132,25 +142,25 @@
           <h3 class="feature-title">Gestion Utilisateurs</h3>
           <p class="feature-description">
             Contrôlez les accès et permissions avec un système de rôles 
-            flexible et sécurisé.
+            flexible, sécurisé et facile à gérer.
           </p>
         </div>
 
         <div class="feature-card">
           <div class="feature-icon">⚡</div>
-          <h3 class="feature-title">Temps Réel</h3>
+          <h3 class="feature-title">Mises à Jour en Temps Réel</h3>
           <p class="feature-description">
-            Surveillez votre production en temps réel et réagissez 
-            rapidement aux changements.
+            Surveillez votre production instantanément et réagissez 
+            rapidement aux changements et événements.
           </p>
         </div>
 
         <div class="feature-card">
           <div class="feature-icon">📱</div>
-          <h3 class="feature-title">Interface Moderne</h3>
+          <h3 class="feature-title">Interface Responsive</h3>
           <p class="feature-description">
-            Profitez d'une interface responsive et moderne, accessible 
-            depuis tous vos appareils.
+            Profitez d'une expérience optimale sur tous vos appareils, 
+            du smartphone au desktop, partout où vous êtes.
           </p>
         </div>
       </div>

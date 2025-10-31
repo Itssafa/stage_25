@@ -1,25 +1,27 @@
-
-
 <div class="profile-container">
   <div class="profile-card">
+    
     <div class="profile-header">
       <h1>👤 Mon Profil</h1>
       <p>Gérez les informations de votre compte</p>
     </div>
-    
+
     <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-form">
+
+      <!-- Nom d'utilisateur readonly -->
       <div class="form-group">
         <label for="username">Nom d'utilisateur</label>
         <input
           type="text"
           id="username"
           formControlName="username"
-          class="form-input"
+          class="form-input readonly-input"
           readonly
         >
         <small class="form-help">Le nom d'utilisateur ne peut pas être modifié.</small>
       </div>
-      
+
+      <!-- Prénom -->
       <div class="form-group">
         <label for="prenom">Prénom *</label>
         <input
@@ -30,10 +32,11 @@
           placeholder="Votre prénom"
         >
         <div class="error-message" *ngIf="profileForm.get('prenom')?.touched && profileForm.get('prenom')?.errors?.['required']">
-          Le prénom est requis
+          ⚠️ Le prénom est requis
         </div>
       </div>
-      
+
+      <!-- Email -->
       <div class="form-group">
         <label for="email">Adresse email *</label>
         <input
@@ -44,20 +47,21 @@
           placeholder="votre@email.com"
         >
         <div class="error-message" *ngIf="profileForm.get('adresseMail')?.touched && profileForm.get('adresseMail')?.errors">
-          <span *ngIf="profileForm.get('adresseMail')?.errors?.['required']">L'email est requis</span>
-          <span *ngIf="profileForm.get('adresseMail')?.errors?.['email']">Format email invalide</span>
+          <span *ngIf="profileForm.get('adresseMail')?.errors?.['required']">⚠️ L'email est requis</span>
+          <span *ngIf="profileForm.get('adresseMail')?.errors?.['email']">⚠️ Format email invalide</span>
         </div>
       </div>
-      
+
+      <!-- Mot de passe -->
       <div class="form-group">
-        <label for="password">Nouveau mot de passe (laisser vide pour ne pas changer)</label>
+        <label for="password">Nouveau mot de passe <small>(laisser vide pour ne pas changer)</small></label>
         <div class="password-field">
           <input
             [type]="hidePassword ? 'password' : 'text'"
             id="password"
             formControlName="motDePasse"
             class="form-input"
-            placeholder="Entrez un nouveau mot de passe si vous souhaitez le changer"
+            placeholder="Entrez un nouveau mot de passe"
           >
           <button
             type="button"
@@ -68,22 +72,24 @@
           </button>
         </div>
         <div class="password-help">
-          💡 Minimum 8 caractères, au moins une minuscule, une majuscule et un caractère spécial.
+          💡 Minimum 8 caractères, au moins une minuscule, une majuscule et un caractère spécial
         </div>
         <div class="error-message" *ngIf="profileForm.get('motDePasse')?.touched && profileForm.get('motDePasse')?.errors">
-          <span *ngIf="profileForm.get('motDePasse')?.errors?.['minlength']">Minimum 8 caractères</span>
-          <span *ngIf="profileForm.get('motDePasse')?.errors?.['pattern']">Doit contenir au moins une minuscule, une majuscule et un caractère spécial</span>
+          <span *ngIf="profileForm.get('motDePasse')?.errors?.['minlength']">⚠️ Minimum 8 caractères</span>
+          <span *ngIf="profileForm.get('motDePasse')?.errors?.['pattern']">⚠️ Doit contenir au moins une minuscule, une majuscule et un caractère spécial</span>
         </div>
       </div>
-      
+
+      <!-- Alerts -->
       <div class="alert error" *ngIf="errorMessage">
-        ❌ {{errorMessage}}
+        <span>❌</span> {{errorMessage}}
       </div>
-      
+
       <div class="alert success" *ngIf="successMessage">
-        ✅ {{successMessage}}
+        <span>✅</span> {{successMessage}}
       </div>
-      
+
+      <!-- Bouton submit -->
       <button
         type="submit"
         class="btn-primary"

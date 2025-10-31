@@ -1,7 +1,7 @@
 // Import Google Fonts
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
-// Variables CSS pour le thème bleu ciel et blanc
+// Variables CSS pour le thème moderne
 :root {
   --primary-blue: #2563eb;
   --primary-light: #3b82f6;
@@ -19,8 +19,9 @@
   --gray-800: #1e293b;
   --gray-900: #0f172a;
   --success-green: #10b981;
-  --error-red: #ef4444;
-  --warning-orange: #f59e0b;
+  --error-red: #7744ef;
+  --warning-orange: #0bf590;
+  --info-blue: #3b82f6;
   
   // Ombres modernes
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -45,12 +46,12 @@
   box-sizing: border-box;
 }
 
-:host {
-  display: block;
+body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  line-height: 1.5;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: var(--gray-50);
 }
 
 // Container principal
@@ -61,130 +62,220 @@
   justify-content: center;
   padding: 20px;
   background: linear-gradient(135deg, 
-    var(--primary-blue) 0%, 
-    var(--primary-light) 25%, 
-    var(--accent-blue) 50%, 
-    #e0f2fe 75%, 
-    var(--white) 100%);
+    #667eea 0%, 
+    #2d4561 25%, 
+    #3d9ad8 50%, 
+    #576cf5 75%, 
+    #8957fe3b 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
   position: relative;
   overflow: hidden;
   
-  // Éléments décoratifs en arrière-plan
+  // Éléments décoratifs animés
   &::before,
   &::after {
     content: '';
     position: absolute;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(100px);
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(80px);
     pointer-events: none;
   }
   
   &::before {
-    width: 400px;
-    height: 400px;
-    top: -200px;
-    left: -200px;
+    width: 500px;
+    height: 500px;
+    top: -250px;
+    left: -250px;
     animation: floatReverse 25s ease-in-out infinite;
   }
   
   &::after {
-    width: 350px;
-    height: 350px;
-    bottom: -175px;
-    right: -175px;
+    width: 400px;
+    height: 400px;
+    bottom: -200px;
+    right: -200px;
     animation: float 20s ease-in-out infinite;
   }
 }
 
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
 @keyframes float {
-  0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); }
-  25% { transform: translateY(-15px) rotate(90deg) scale(1.02); }
-  50% { transform: translateY(-8px) rotate(180deg) scale(0.98); }
-  75% { transform: translateY(-20px) rotate(270deg) scale(1.05); }
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  33% { transform: translate(30px, -30px) rotate(120deg); }
+  66% { transform: translate(-20px, 20px) rotate(240deg); }
 }
 
 @keyframes floatReverse {
-  0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); }
-  25% { transform: translateY(15px) rotate(-90deg) scale(0.95); }
-  50% { transform: translateY(8px) rotate(-180deg) scale(1.05); }
-  75% { transform: translateY(25px) rotate(-270deg) scale(0.92); }
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  33% { transform: translate(-30px, 30px) rotate(-120deg); }
+  66% { transform: translate(20px, -20px) rotate(-240deg); }
 }
 
 // Carte d'authentification
 .auth-card {
-  background: var(--white);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px) saturate(180%);
   border-radius: var(--border-radius-xl);
-  box-shadow: var(--shadow-xl);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   width: 100%;
-  max-width: 480px;
+  max-width: 500px;
   position: relative;
   z-index: 10;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   overflow: hidden;
+  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   
-  // Barre de couleur en haut
+  // Barre de couleur dégradée en haut
   &::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, var(--primary-blue), var(--accent-blue));
+    height: 5px;
+    background: linear-gradient(90deg, 
+      #667eea 0%, 
+      #764ba2 25%, 
+      #f093fb 50%, 
+      #f5576c 75%, 
+      #feca57 100%);
+    background-size: 200% 100%;
+    animation: gradientMove 3s linear infinite;
   }
 }
 
-// En-tête de la carte
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+// En-tête de la carte avec logo
 .auth-header {
   text-align: center;
-  padding: 40px 32px 24px;
+  padding: 40px 32px 20px;
+  
+  .logo {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    display: block;
+    animation: fadeIn 0.8s ease-out;
+  }
   
   h1 {
-    font-size: 28px;
+    font-size: 26px;
     font-weight: 700;
     color: var(--gray-900);
     margin-bottom: 8px;
     letter-spacing: -0.02em;
+    animation: fadeIn 1s ease-out;
   }
   
   p {
-    font-size: 16px;
+    font-size: 15px;
     color: var(--gray-600);
     font-weight: 400;
+    animation: fadeIn 1.2s ease-out;
   }
 }
 
-// Formulaire
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+// Formulaire avec scrollbar personnalisée
 .auth-form {
   padding: 0 32px 24px;
-  max-height: 70vh;
+  max-height: 65vh;
   overflow-y: auto;
+  
+  // Scrollbar personnalisée
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: var(--gray-100);
+    border-radius: 10px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--primary-blue), var(--accent-blue));
+    border-radius: 10px;
+    transition: var(--transition);
+    
+    &:hover {
+      background: linear-gradient(180deg, var(--secondary-blue), var(--primary-blue));
+    }
+  }
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 22px;
+  animation: slideInLeft 0.5s ease-out backwards;
+  
+  &:nth-child(1) { animation-delay: 0.1s; }
+  &:nth-child(2) { animation-delay: 0.2s; }
+  &:nth-child(3) { animation-delay: 0.3s; }
+  &:nth-child(4) { animation-delay: 0.4s; }
+  &:nth-child(5) { animation-delay: 0.5s; }
+  &:nth-child(6) { animation-delay: 0.6s; }
   
   &:last-child {
     margin-bottom: 0;
   }
 }
 
-// Labels
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// Labels avec astérisque stylisé
 label {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 4px;
   font-size: 14px;
   font-weight: 600;
   color: var(--gray-700);
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   letter-spacing: -0.01em;
+  
+  .required {
+    color: var(--error-red);
+    font-size: 16px;
+  }
 }
 
-// Inputs
+// Inputs améliorés avec effets
 .form-input {
   width: 100%;
-  padding: 12px 14px;
+  padding: 13px 16px;
   font-size: 15px;
   border: 2px solid var(--gray-200);
   border-radius: var(--border-radius);
@@ -201,22 +292,36 @@ label {
   &:focus {
     outline: none;
     border-color: var(--primary-blue);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    background: var(--white);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
     transform: translateY(-1px);
   }
   
   &:hover:not(:focus) {
     border-color: var(--gray-300);
+    background: var(--gray-50);
   }
   
   &.error {
     border-color: var(--error-red);
     background: #fef2f2;
+    animation: shake 0.4s ease-in-out;
+  }
+  
+  &.success {
+    border-color: var(--success-green);
+    background: #f0fdf4;
   }
 }
 
-// Champ de téléphone avec statut de vérification
-.phone-field {
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+// Champ avec icône de statut
+.input-with-icon {
   position: relative;
   display: flex;
   align-items: center;
@@ -225,50 +330,42 @@ label {
     padding-right: 45px;
   }
   
-  .verification-status {
+  .input-icon {
     position: absolute;
-    right: 12px;
-    font-size: 16px;
+    right: 14px;
+    font-size: 18px;
+    pointer-events: none;
     
-    &.verified {
+    &.success {
       color: var(--success-green);
-      animation: pulse 2s ease-in-out;
+      animation: scaleIn 0.3s ease-out;
     }
     
-    &.pending {
-      color: var(--warning-orange);
-      animation: spin 2s linear infinite;
+    &.error {
+      color: var(--error-red);
+      animation: shake 0.4s ease-in-out;
+    }
+    
+    &.loading {
+      color: var(--info-blue);
+      animation: spin 1s linear infinite;
     }
   }
 }
 
-// Aide pour le téléphone
-.phone-help {
-  font-size: 12px;
-  color: var(--gray-500);
-  margin-top: 6px;
-  font-style: italic;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+@keyframes scaleIn {
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
-// Aide pour le mot de passe
-.password-help {
-  font-size: 12px;
-  color: var(--gray-500);
-  margin-top: 6px;
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
-  line-height: 1.4;
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-// Champ de mot de passe avec icône
+// Champ de mot de passe avec toggle
 .password-field {
   position: relative;
-  display: flex;
-  align-items: center;
   
   .form-input {
     padding-right: 45px;
@@ -277,11 +374,13 @@ label {
   .password-toggle {
     position: absolute;
     right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
     background: none;
     border: none;
-    font-size: 16px;
+    font-size: 18px;
     cursor: pointer;
-    padding: 6px;
+    padding: 8px;
     color: var(--gray-500);
     border-radius: var(--border-radius);
     transition: var(--transition);
@@ -289,102 +388,151 @@ label {
     &:hover {
       background: var(--gray-100);
       color: var(--gray-700);
+      transform: translateY(-50%) scale(1.1);
     }
     
-    &:focus {
-      outline: none;
-      background: var(--gray-100);
+    &:active {
+      transform: translateY(-50%) scale(0.95);
     }
   }
 }
 
-// Messages d'erreur
-.error-message {
+// Messages d'aide et d'erreur
+.field-help {
   margin-top: 6px;
-  font-size: 13px;
-  color: var(--error-red);
-  font-weight: 500;
+  font-size: 12px;
+  color: var(--gray-500);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 6px;
+  line-height: 1.5;
   
-  &::before {
-    content: '⚠️';
-    font-size: 11px;
+  &.info {
+    color: var(--info-blue);
+  }
+  
+  &.warning {
+    color: var(--warning-orange);
+    
+    &::before {
+      content: '⚠️';
+      font-size: 12px;
+    }
+  }
+  
+  &.error {
+    color: var(--error-red);
+    font-weight: 500;
+    
+    &::before {
+      content: '❌';
+      font-size: 12px;
+    }
   }
 }
 
-// Alertes
-.alert {
-  padding: 14px 16px;
-  border-radius: var(--border-radius);
-  margin-bottom: 20px;
-  font-size: 14px;
-  font-weight: 500;
+// Groupe de boutons radio/checkbox pour envoyer email
+.radio-group {
   display: flex;
   align-items: center;
   gap: 8px;
+  padding: 12px;
+  background: var(--gray-50);
+  border-radius: var(--border-radius);
+  border: 2px solid var(--gray-200);
+  transition: var(--transition);
+  cursor: pointer;
   
-  &.error {
-    background: #fef2f2;
-    color: var(--error-red);
-    border: 1px solid #fecaca;
+  &:hover {
+    background: var(--gray-100);
+    border-color: var(--primary-blue);
   }
   
-  &.success {
-    background: #f0fdf4;
-    color: var(--success-green);
-    border: 1px solid #bbf7d0;
+  input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--primary-blue);
+  }
+  
+  label {
+    margin: 0;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--gray-700);
   }
 }
 
-// Boutons
+// Bouton principal avec effet brillant
 .btn-primary {
   width: 100%;
-  padding: 14px 24px;
-  background: linear-gradient(135deg, var(--primary-blue), var(--primary-light));
+  padding: 15px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: var(--white);
   border: none;
   border-radius: var(--border-radius);
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   transition: var(--transition);
   font-family: inherit;
-  letter-spacing: -0.01em;
-  box-shadow: var(--shadow-sm);
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  position: relative;
+  overflow: hidden;
+  
+  // Effet de brillance au survol
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+      transparent, 
+      rgba(255, 255, 255, 0.3), 
+      transparent);
+    transition: left 0.5s ease;
+  }
   
   &:hover:not(:disabled) {
-    background: linear-gradient(135deg, var(--secondary-blue), var(--primary-blue));
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
     transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    
+    &::before {
+      left: 100%;
+    }
   }
   
   &:active:not(:disabled) {
     transform: translateY(0);
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
   }
   
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
-    box-shadow: var(--shadow-sm);
+    box-shadow: none;
   }
   
   &:focus {
     outline: none;
-    box-shadow: var(--shadow-lg), 0 0 0 3px rgba(37, 99, 235, 0.2);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4), 
+                0 0 0 4px rgba(102, 126, 234, 0.2);
   }
 }
 
+// Bouton secondaire
 .btn-secondary {
   padding: 12px 24px;
   background: var(--white);
   color: var(--primary-blue);
-  border: 2px solid var(--gray-200);
+  border: 2px solid var(--gray-300);
   border-radius: var(--border-radius);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   transition: var(--transition);
@@ -397,15 +545,14 @@ label {
     box-shadow: var(--shadow-sm);
   }
   
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  &:active {
+    transform: translateY(0);
   }
 }
 
-// Pied de page de la carte
+// Pied de page
 .auth-footer {
-  background: var(--gray-50);
+  background: linear-gradient(180deg, transparent 0%, var(--gray-50) 30%);
   padding: 24px 32px;
   text-align: center;
   border-top: 1px solid var(--gray-200);
@@ -413,229 +560,461 @@ label {
   p {
     font-size: 14px;
     color: var(--gray-600);
-    margin-bottom: 16px;
-  }
-}
-
-// Modal overlay
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 20px;
-  backdrop-filter: blur(8px);
-  animation: fadeIn 0.2s ease-out;
-}
-
-// Contenu modal
-.modal-content {
-  background: var(--white);
-  border-radius: var(--border-radius-xl);
-  box-shadow: var(--shadow-xl);
-  max-width: 500px;
-  width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
-  animation: slideIn 0.3s ease-out;
-  border: 1px solid var(--gray-200);
-}
-
-// Modal de vérification SMS
-.sms-verification-modal {
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 24px 32px;
-    border-bottom: 1px solid var(--gray-200);
-    
-    h3 {
-      margin: 0;
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--gray-900);
-    }
-    
-    .close-btn {
-      background: none;
-      border: none;
-      font-size: 20px;
-      cursor: pointer;
-      color: var(--gray-500);
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: var(--border-radius);
-      transition: var(--transition);
-      
-      &:hover {
-        background: var(--gray-100);
-        color: var(--gray-800);
-      }
-      
-      &:focus {
-        outline: none;
-        background: var(--gray-100);
-      }
-    }
+    margin-bottom: 14px;
   }
   
-  .modal-body {
-    padding: 32px;
-    text-align: center;
+  .link-button {
+    color: var(--primary-blue);
+    text-decoration: none;
+    font-weight: 600;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     
-    .verification-message {
+    &:hover {
+      color: var(--secondary-blue);
+      text-decoration: underline;
+      transform: translateX(3px);
+    }
+  }
+}
+
+// Section Email avec vérification
+.email-verification-section {
+  .email-input-wrapper {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  
+  .btn-send-code {
+    padding: 13px 20px;
+    background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+    color: var(--white);
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    white-space: nowrap;
+    min-width: 140px;
+    
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, var(--secondary-blue), var(--primary-blue));
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+    
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      background: var(--gray-400);
+    }
+  }
+}
+
+// Carte de vérification
+.verification-card {
+  margin-top: 16px;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border: 2px solid var(--primary-light);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  animation: slideDown 0.3s ease-out;
+  
+  .verification-card-header {
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(96, 165, 250, 0.1));
+    border-bottom: 1px solid rgba(37, 99, 235, 0.2);
+    
+    h4 {
+      margin: 0 0 8px 0;
       font-size: 16px;
-      color: var(--gray-600);
-      margin-bottom: 28px;
-      line-height: 1.6;
+      font-weight: 700;
+      color: var(--primary-blue);
+    }
+    
+    p {
+      margin: 0;
+      font-size: 14px;
+      color: var(--gray-700);
+      line-height: 1.5;
       
       strong {
         color: var(--primary-blue);
         font-weight: 600;
       }
     }
-    
-    .verification-input-group {
-      margin-bottom: 28px;
-      
-      label {
-        display: block;
-        margin-bottom: 10px;
-        font-weight: 600;
-        color: var(--gray-700);
-        font-size: 14px;
-      }
-      
-      .verification-input {
-        width: 100%;
-        max-width: 200px;
-        margin: 0 auto;
-        padding: 16px;
-        font-size: 24px;
-        text-align: center;
-        border: 2px solid var(--gray-200);
-        border-radius: var(--border-radius);
-        letter-spacing: 6px;
-        font-family: 'Inter', monospace;
-        font-weight: 700;
-        color: var(--primary-blue);
-        transition: var(--transition);
-        
-        &:focus {
-          outline: none;
-          border-color: var(--primary-blue);
-          box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-        
-        &:hover {
-          border-color: var(--gray-300);
-        }
-        
-        &::placeholder {
-          color: var(--gray-400);
-          letter-spacing: 4px;
-        }
-      }
-    }
-    
-    .verification-actions {
-      display: flex;
-      gap: 16px;
-      justify-content: center;
-      margin-bottom: 24px;
-      
-      .verification-btn, .resend-btn {
-        padding: 14px 24px;
-        border: none;
-        border-radius: var(--border-radius);
-        font-weight: 600;
-        cursor: pointer;
-        transition: var(--transition);
-        font-size: 14px;
-        
-        &:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
-      }
-      
-      .verification-btn {
-        background: linear-gradient(135deg, var(--primary-blue), var(--primary-light));
-        color: var(--white);
-        
-        &:hover:not(:disabled) {
-          background: linear-gradient(135deg, var(--secondary-blue), var(--primary-blue));
-          transform: translateY(-1px);
-          box-shadow: var(--shadow-lg);
-        }
-        
-        &:active:not(:disabled) {
-          transform: translateY(0);
-        }
-      }
-      
-      .resend-btn {
-        background: var(--white);
-        color: var(--primary-blue);
-        border: 2px solid var(--gray-200);
-        
-        &:hover {
-          background: var(--gray-50);
-          border-color: var(--primary-blue);
-          transform: translateY(-1px);
-        }
-      }
-    }
-    
-    .verification-help {
-      font-size: 14px;
-      color: var(--gray-500);
-      
-      p {
-        margin: 6px 0;
-      }
-    }
+  }
+  
+  .verification-card-body {
+    padding: 24px 20px;
   }
 }
 
-// Animations
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideIn {
+@keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(-20px) scale(0.95);
+    transform: translateY(-10px);
+    max-height: 0;
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
+    max-height: 500px;
   }
 }
 
-// Responsive design
+// Input pour le code de vérification
+.code-input-wrapper {
+  margin-bottom: 20px;
+  
+  .code-input {
+    width: 100%;
+    max-width: 240px;
+    margin: 0 auto;
+    display: block;
+    padding: 18px;
+    font-size: 28px;
+    text-align: center;
+    border: 3px solid var(--primary-light);
+    border-radius: var(--border-radius-lg);
+    letter-spacing: 12px;
+    font-family: 'Inter', monospace;
+    font-weight: 700;
+    color: var(--primary-blue);
+    background: var(--white);
+    transition: var(--transition);
+    
+    &:focus {
+      outline: none;
+      border-color: var(--secondary-blue);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1), 
+                  0 4px 12px rgba(37, 99, 235, 0.2);
+      transform: scale(1.02);
+    }
+    
+    &::placeholder {
+      color: var(--gray-300);
+      letter-spacing: 8px;
+    }
+  }
+}
+
+// Actions de vérification
+.verification-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  
+  .btn-verify,
+  .btn-resend {
+    flex: 1;
+    padding: 14px 20px;
+    border: none;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: var(--transition);
+    
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+  
+  .btn-verify {
+    background: linear-gradient(135deg, var(--primary-blue), var(--primary-light));
+    color: var(--white);
+    box-shadow: var(--shadow-sm);
+    
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, var(--secondary-blue), var(--primary-blue));
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+  }
+  
+  .btn-resend {
+    background: var(--white);
+    color: var(--primary-blue);
+    border: 2px solid var(--gray-300);
+    
+    &:hover:not(:disabled) {
+      background: var(--gray-50);
+      border-color: var(--primary-blue);
+      transform: translateY(-1px);
+    }
+  }
+}
+
+// Erreur de vérification
+.verification-error {
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #fef2f2, #fee2e2);
+  border-left: 4px solid var(--error-red);
+  border-radius: var(--border-radius);
+  animation: shake 0.4s ease-in-out;
+  
+  p {
+    margin: 0;
+    color: var(--error-red);
+    font-size: 14px;
+    font-weight: 500;
+  }
+}
+
+// Succès de vérification avec animation
+.verification-success {
+  margin-top: 16px;
+  padding: 20px;
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  border: 2px solid var(--success-green);
+  border-radius: var(--border-radius-lg);
+  text-align: center;
+  animation: fadeIn 0.5s ease-out;
+  
+  .success-checkmark {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 12px;
+    position: relative;
+    
+    .checkmark-circle {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: var(--success-green);
+      animation: scaleIn 0.3s ease-out;
+    }
+    
+    .checkmark-stem,
+    .checkmark-kick {
+      position: absolute;
+      background: var(--white);
+      border-radius: 2px;
+    }
+    
+    .checkmark-stem {
+      width: 4px;
+      height: 24px;
+      top: 18px;
+      left: 32px;
+      transform: rotate(45deg);
+      animation: drawStem 0.3s ease-out 0.1s backwards;
+    }
+    
+    .checkmark-kick {
+      width: 4px;
+      height: 12px;
+      top: 30px;
+      left: 22px;
+      transform: rotate(-45deg);
+      animation: drawKick 0.3s ease-out 0.2s backwards;
+    }
+  }
+  
+  p {
+    margin: 0;
+    color: var(--success-green);
+    font-size: 16px;
+    font-weight: 700;
+  }
+}
+
+@keyframes drawStem {
+  from { height: 0; }
+  to { height: 24px; }
+}
+
+@keyframes drawKick {
+  from { height: 0; }
+  to { height: 12px; }
+}
+
+// Messages d'alerte modernes
+.alert-message {
+  margin-bottom: 20px;
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  animation: slideInLeft 0.3s ease-out;
+  
+  .alert-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 18px;
+  }
+  
+  .alert-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  
+  .alert-text {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+  
+  &.error {
+    background: linear-gradient(135deg, #fef2f2, #fee2e2);
+    border-left: 4px solid var(--error-red);
+    
+    .alert-icon {
+      background: var(--error-red);
+      color: var(--white);
+    }
+    
+    .alert-text {
+      color: var(--error-red);
+    }
+  }
+  
+  &.success {
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border-left: 4px solid var(--success-green);
+    
+    .alert-icon {
+      background: var(--success-green);
+      color: var(--white);
+    }
+    
+    .alert-text {
+      color: var(--success-green);
+    }
+  }
+}
+
+// Bannière d'information
+.info-banner {
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border: 2px solid var(--warning-orange);
+  border-radius: var(--border-radius-lg);
+  padding: 18px 20px;
+  animation: pulse 2s ease-in-out infinite;
+  
+  .info-banner-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  
+  .info-banner-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+    animation: bounce 2s ease-in-out infinite;
+  }
+  
+  .info-banner-text {
+    flex: 1;
+    
+    strong {
+      display: block;
+      font-size: 15px;
+      font-weight: 700;
+      color: #92400e;
+      margin-bottom: 4px;
+    }
+    
+    p {
+      margin: 0;
+      font-size: 14px;
+      color: #78350f;
+      line-height: 1.5;
+    }
+  }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); }
+}
+
+// Contenu du bouton avec spinner
+.btn-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  
+  .loading-text {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .loading-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: var(--white);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+}
+
+// Indicateur de statut du formulaire
+.form-status {
+  text-align: center;
+  margin-top: 12px;
+  
+  .status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    background: var(--gray-100);
+  }
+  
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+    
+    &.error {
+      background: var(--error-red);
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+    }
+    
+    &.warning {
+      background: var(--warning-orange);
+      box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+    }
+    
+    &.success {
+      background: var(--success-green);
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+    }
+  }
+  
+  .status-text {
+    color: var(--gray-700);
+    font-weight: 500;
+  }
+}
+
+// Responsive Design
 @media (max-width: 768px) {
   .auth-container {
     padding: 16px;
@@ -646,10 +1025,19 @@ label {
   }
   
   .auth-header {
-    padding: 32px 24px 20px;
+    padding: 32px 24px 16px;
+    
+    .logo {
+      width: 70px;
+      height: 70px;
+    }
     
     h1 {
-      font-size: 24px;
+      font-size: 23px;
+    }
+    
+    p {
+      font-size: 14px;
     }
   }
   
@@ -661,42 +1049,44 @@ label {
   .auth-footer {
     padding: 20px 24px;
   }
-  
-  .modal-content {
-    margin: 16px;
-    width: calc(100% - 32px);
-  }
-  
-  .sms-verification-modal .modal-body {
-    padding: 24px;
-  }
-  
-  .verification-actions {
-    flex-direction: column;
-    
-    .verification-btn, .resend-btn {
-      width: 100%;
-    }
-  }
 }
 
 @media (max-width: 480px) {
-  .auth-header h1 {
-    font-size: 22px;
+  .auth-header {
+    padding: 28px 20px 14px;
+    
+    .logo {
+      width: 60px;
+      height: 60px;
+    }
+    
+    h1 {
+      font-size: 21px;
+    }
   }
   
   .form-input {
-    font-size: 16px; // Évite le zoom sur iOS
+    font-size: 16px; // Évite le zoom automatique sur iOS
+    padding: 12px 14px;
   }
   
   .auth-form {
+    padding: 0 20px 16px;
     max-height: 55vh;
+  }
+  
+  .btn-primary {
+    padding: 14px 20px;
+    font-size: 15px;
   }
 }
 
-// Styles spécifiques au scrolling pour mobile
 @media (max-height: 700px) {
   .auth-form {
     max-height: 50vh;
+  }
+  
+  .form-group {
+    margin-bottom: 18px;
   }
 }

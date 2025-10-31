@@ -1,7 +1,7 @@
 <app-navigation></app-navigation>
 <div class="app-layout">
-  <app-sidebar></app-sidebar>
   <main class="main-content">
+     <app-sidebar *ngIf="!isHomepage"></app-sidebar>
     <router-outlet></router-outlet>
   </main>
 </div>
